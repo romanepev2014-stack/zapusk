@@ -1,0 +1,2 @@
+#!/bin/sh
+cd /opt/zapusk && exec python -m zapusk gui "$@"
