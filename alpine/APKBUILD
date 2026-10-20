@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 # Maintainer: roma_ogon <romanepev2014@gmail.com>
 pkgname=zapusk
-pkgver=2.9.2
+pkgver=2.9.3
 pkgrel=0
 pkgdesc="Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)"
 url="https://github.com/romanepev2014-stack/zapusk"

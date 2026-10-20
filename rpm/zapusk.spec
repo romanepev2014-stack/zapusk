@@ -1,5 +1,5 @@
 Name:           zapusk
-Version:        2.9.2
+Version:        2.9.3
 Release:        1%{?dist}
 Summary:        Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)
 License:        GPLv3+

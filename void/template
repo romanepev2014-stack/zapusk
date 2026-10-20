@@ -1,6 +1,6 @@
 # Template file for 'zapusk'
 pkgname=zapusk
-version=2.9.2
+version=2.9.3
 revision=1
 build_style=python3-module
 hostmakedepends="python3-setuptools"

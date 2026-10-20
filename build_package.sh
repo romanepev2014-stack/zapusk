@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # EN: build an installable Arch package (like a Windows .exe installer).
-#     Produces zapusk-2.9.2-1-any.pkg.tar.zst -> install with pacman.
+#     Produces zapusk-2.9.3-1-any.pkg.tar.zst -> install with pacman.
 # RU: собираем установочный пакет Arch (аналог exe-инсталлятора).
-#     На выходе zapusk-2.9.2-1-any.pkg.tar.zst -> ставится через pacman.
+#     На выходе zapusk-2.9.3-1-any.pkg.tar.zst -> ставится через pacman.
 set -e
 cd "$(dirname "$0")"
-VER=2.9.2
+VER=2.9.3
 
 command -v makepkg >/dev/null || { echo "нужен base-devel: sudo pacman -S --needed base-devel"; exit 1; }
 

@@ -3,7 +3,7 @@
 # EN: build a .deb package for Debian/Ubuntu. / RU: сборка .deb для Debian/Ubuntu.
 set -e
 cd "$(dirname "$0")"
-VER=2.9.2
+VER=2.9.3
 STAGE="deb-build/zapusk_${VER}_all"
 
 rm -rf deb-build

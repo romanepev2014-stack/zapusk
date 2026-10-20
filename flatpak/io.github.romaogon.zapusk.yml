@@ -22,7 +22,9 @@ modules:
       - cp -r zapusk /app/lib/zapusk/
       - cp install.sh install_arch.sh requirements.txt /app/lib/zapusk/
       - install -Dm644 assets/zapusk.svg /app/share/icons/hicolor/scalable/apps/io.github.romaogon.zapusk.svg
+      - sed -i 's/Icon=zapusk/Icon=io.github.romaogon.zapusk/' zapusk.desktop
       - install -Dm644 zapusk.desktop /app/share/applications/io.github.romaogon.zapusk.desktop
+      - install -Dm644 flatpak/io.github.romaogon.zapusk.metainfo.xml /app/share/metainfo/io.github.romaogon.zapusk.metainfo.xml
       - |
         cat > /app/bin/zapusk <<'EOF'
         #!/bin/sh

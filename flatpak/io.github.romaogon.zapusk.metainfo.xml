@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.romaogon.zapusk</id>
+  <name>Zapusk</name>
+  <summary>Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)</summary>
+  <summary xml:lang="ru">Киберпанк-лаунчер Windows-игр (автоматическая настройка Wine + DXVK)</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+  <description>
+    <p>Zapusk automatically configures Wine prefixes, installs DXVK/VKD3D and Windows dependencies so any Windows game runs with one click. 10 languages, 4 themes, any-distro support, FreeBSD Gaming Mode.</p>
+    <p xml:lang="ru">Zapusk автоматически настраивает префиксы Wine, ставит DXVK/VKD3D и зависимости Windows — любая игра запускается в один клик. 10 языков, 4 темы, поддержка любых дистрибутивов, FreeBSD Gaming Mode.</p>
+  </description>
+  <launchable type="desktop-id">io.github.romaogon.zapusk.desktop</launchable>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="2.9.3" date="2026-10-20"/>
+  </releases>
+</component>

@@ -4,7 +4,7 @@
 # RU: сборка AppImage (нужны: python3+pip, appimagetool).
 set -e
 cd "$(dirname "$0")"
-VER=2.9.2
+VER=2.9.3
 APPDIR=AppDir
 
 rm -rf "$APPDIR" *.AppImage 2>/dev/null || true
