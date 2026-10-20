@@ -1,0 +1,12 @@
+[Desktop Entry]
+Name=Zapusk
+Name[ru]=Zapusk
+Comment=Launch any Windows game on Arch Linux
+Comment[ru]=Запуск любых Windows-игр на Arch Linux
+Exec=zapusk
+Icon=zapusk
+Terminal=false
+Type=Application
+Categories=Game;Utility;
+Keywords=wine;games;dxvk;proton;gaming;
+StartupNotify=true

@@ -1,0 +1,4 @@
+#!/bin/sh
+# EN: enable i386 for 32-bit games / RU: включаем i386 для 32-бит игр
+dpkg --add-architecture i386 2>/dev/null || true
+exit 0
