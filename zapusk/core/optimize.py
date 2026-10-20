@@ -2,6 +2,7 @@
 RU: Оптимизация системы (губернатор CPU, swappiness, кэши шейдеров, gamemode)."""
 # SPDX-License-Identifier: GPL-3.0-or-later
 import os, glob, subprocess, shutil
+from zapusk.core.util import host_prefix
 
 
 def governor_get():
@@ -16,7 +17,7 @@ def governor_set_performance():
     """EN: set performance governor (needs root via pkexec outside). RU: performance-губернатор."""
     cmd = ("for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; "
            "do echo performance > $c; done")
-    return subprocess.run(["pkexec", "sh", "-c", cmd]).returncode == 0
+    return subprocess.run(host_prefix() + ["pkexec", "sh", "-c", cmd]).returncode == 0
 
 
 def swappiness_get():
@@ -28,20 +29,20 @@ def swappiness_get():
 
 def swappiness_set(v: int = 10):
     """EN: lower swappiness -> less stutter in games. RU: меньше свопа -> меньше фризов."""
-    return subprocess.run(["pkexec", "sysctl", f"vm.swappiness={v}"]).returncode == 0
+    return subprocess.run(host_prefix() + ["pkexec", "sysctl", f"vm.swappiness={v}"]).returncode == 0
 
 
 def gamemode_active():
     """EN: is gamemoded user service running. RU: работает ли gamemoded."""
     if not shutil.which("gamemoded"):
         return False
-    r = subprocess.run(["systemctl", "--user", "is-active", "gamemoded"],
+    r = subprocess.run(host_prefix() + ["systemctl", "--user", "is-active", "gamemoded"],
                        capture_output=True, text=True)
     return r.stdout.strip() == "active"
 
 
 def gamemode_enable():
-    subprocess.run(["systemctl", "--user", "enable", "--now", "gamemoded"])
+    subprocess.run(host_prefix() + ["systemctl", "--user", "enable", "--now", "gamemoded"])
     return gamemode_active()
 
 
@@ -56,7 +57,7 @@ def clear_shader_cache():
     ]
     for pat in patterns:
         for p in glob.glob(pat):
-            subprocess.run(["rm", "-rf", p])
+            subprocess.run(host_prefix() + ["rm", "-rf", p])
             removed += 1
     return removed
 

@@ -118,3 +118,7 @@ ZFS-zvol и генерирует готовый скрипт запуска bhyv
 работают; Vanguard (Valorant) сознательно блокирует VM.
 
 **Статус:** на реальном железе не тестировано — первый тестер это ты. Логи → GitHub Issues.
+
+Пакеты для всех: Arch (PKGBUILD), Debian/Ubuntu (build_deb.sh), Flatpak (flatpak/) — инструкция в [FLATHUB.md](FLATHUB.md).
+
+Публикация во все репозитории: [RELEASE.md](RELEASE.md) — pacman, deb, rpm, Flatpak, Snap, AppImage, Nix, Gentoo, Void, Alpine, FreeBSD.

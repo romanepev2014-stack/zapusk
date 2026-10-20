@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Zapusk
+Comment=Launch any Windows game on Linux & FreeBSD
+Comment[ru]=Запуск любых Windows-игр на Linux и FreeBSD
+Exec=zapusk
+Icon=io.github.romaogon.zapusk
+Terminal=false
+Type=Application
+Categories=Game;Utility;
+Keywords=wine;games;dxvk;proton;gaming;

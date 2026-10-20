@@ -1,0 +1,24 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Maintainer: roma_ogon <romanepev2014@gmail.com>
+pkgname=zapusk
+pkgver=2.9.2
+pkgrel=0
+pkgdesc="Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)"
+url="https://github.com/romanepev2014-stack/zapusk"
+arch="noarch"
+license="GPL-3.0-or-later"
+depends="python3 py3-pyside6 wine winetricks curl"
+makedepends="py3-setuptools"
+source="$pkgname-$pkgver.tar.gz::https://github.com/romanepev2014-stack/zapusk/archive/v$pkgver.tar.gz"
+options="!check"
+
+package() {
+    python3 setup.py install --prefix=/usr --root="$pkgdir" 2>/dev/null || {
+        mkdir -p "$pkgdir/usr/lib/zapusk" "$pkgdir/usr/bin"
+        cp -r zapusk "$pkgdir/usr/lib/zapusk/"
+        printf '#!/bin/sh\ncd /usr/lib/zapusk && exec python3 -m zapusk gui "$@"\n' > "$pkgdir/usr/bin/zapusk"
+        chmod 755 "$pkgdir/usr/bin/zapusk"
+    }
+    install -Dm644 zapusk.desktop "$pkgdir/usr/share/applications/zapusk.desktop"
+    install -Dm644 assets/zapusk.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zapusk.svg"
+}

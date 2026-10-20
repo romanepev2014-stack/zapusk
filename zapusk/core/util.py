@@ -19,9 +19,16 @@ def which(cmd: str):
     from shutil import which as _w
     return _w(cmd)
 
+def host_prefix():
+    """EN: inside Flatpak, run system binaries on the host.
+       RU: внутри Flatpak системные команды выполняются на хосте."""
+    return ["flatpak-spawn", "--host"] if os.path.exists("/.flatpak-info") else []
+
+
 def run(cmd, env=None, cwd=None, log=None):
     """Запустить команду, дублируя вывод в log-файл (если задан)."""
     lp = open(log, 'a', encoding='utf-8', errors='replace') if log else open(os.devnull, 'w')
+    cmd = host_prefix() + [str(c) for c in cmd]
     lp.write(f"\n$ {' '.join(str(c) for c in cmd)}\n"); lp.flush()
     p = subprocess.Popen(cmd, env=env, cwd=cwd,
                          stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
@@ -36,6 +43,7 @@ def run(cmd, env=None, cwd=None, log=None):
 
 def run_detached(cmd, env=None, cwd=None, log=None):
     out = open(log, 'a', encoding='utf-8', errors='replace') if log else open(os.devnull, 'w')
+    cmd = host_prefix() + [str(c) for c in cmd]
     out.write(f"\n$ {' '.join(str(c) for c in cmd)}\n"); out.flush()
     p = subprocess.Popen(cmd, env=env, cwd=cwd, stdout=out, stderr=subprocess.STDOUT,
                          start_new_session=True, text=True)

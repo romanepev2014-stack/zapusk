@@ -1,0 +1,30 @@
+name: zapusk
+base: core24
+version: '2.9.2'
+summary: Cyberpunk launcher for Windows games
+description: |
+  Zapusk sets up wine prefixes, installs DXVK/VKD3D and Windows dependencies
+  automatically so any Windows game runs with one click. 10 languages, 4 themes,
+  any-distro support, FreeBSD Gaming Mode.
+  Wine and drivers live on the host — classic confinement is required.
+grade: stable
+confinement: classic
+
+apps:
+  zapusk:
+    command: bin/zapusk-launch
+
+parts:
+  zapusk:
+    plugin: python
+    source: .
+    python-packages: [PySide6]
+    override-build: |
+      craftctl default
+      mkdir -p $CRAFT_PART_INSTALL/bin
+      cat > $CRAFT_PART_INSTALL/bin/zapusk-launch <<'EOF'
+      #!/bin/sh
+      exec python3 -m zapusk gui "$@"
+      EOF
+      chmod 755 $CRAFT_PART_INSTALL/bin/zapusk-launch
+      cp install.sh $CRAFT_PART_INSTALL/

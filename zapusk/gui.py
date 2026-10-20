@@ -36,6 +36,7 @@ def _cfg(key, default=None):
     except Exception:
         return default
 from zapusk.core.prefix import prefix_path, open_prefix
+from zapusk.core.util import host_prefix
 
 INSTALL_SCRIPT = pathlib.Path(__file__).resolve().parent.parent / "install.sh"           # универсальный
 INSTALL_ARCH = pathlib.Path(__file__).resolve().parent.parent / "install_arch.sh"        # arch-only fallback
@@ -349,7 +350,9 @@ class AutoInstallThread(QThread):
 
     def run(self):
         script = INSTALL_SCRIPT if INSTALL_SCRIPT.exists() else INSTALL_ARCH
-        if shutil.which("pkexec"):
+        if shutil.which("flatpak-spawn"):
+            cmd = host_prefix() + ["pkexec", "bash", str(script)] + (["--auto"] if script == INSTALL_ARCH else [])
+        elif shutil.which("pkexec"):
             cmd = ["pkexec", "bash", str(script)] + (["--auto"] if script == INSTALL_ARCH else [])
         else:
             term = None
@@ -2011,7 +2014,7 @@ class MainWindow(QMainWindow):
         """EN: update dxvk/vkd3d via pacman with -Sy and fallbacks.
            RU: обновление dxvk/vkd3d через pacman: -Sy + запасные варианты."""
         self.dx_status.setText("Обновление: pacman -Sy dxvk vkd3d-proton… (введи пароль)")
-        cmd = ["pkexec", "sh", "-c",
+        cmd = host_prefix() + ["pkexec", "sh", "-c",
                "pacman -Sy --needed --noconfirm dxvk; "
                "pacman -S --needed --noconfirm vkd3d-proton || "
                "pacman -S --needed --noconfirm vkd3d || true"]

@@ -110,3 +110,7 @@ VM **plus any output for the host** (iGPU or a cheap card). Almost all anti-chea
 work inside the VM; Vanguard (Valorant) intentionally refuses VMs.
 
 **Status:** untested on real hardware — you are the first tester. Logs → GitHub Issues.
+
+Packages for everyone: Arch (PKGBUILD), Debian/Ubuntu (build_deb.sh), Flatpak (flatpak/) — see [FLATHUB.md](FLATHUB.md).
+
+Publishing everywhere: [RELEASE.md](RELEASE.md) — pacman, deb, rpm, Flatpak, Snap, AppImage, Nix, Gentoo, Void, Alpine, FreeBSD.
