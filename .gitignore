@@ -5,8 +5,13 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-AppDir/
-*.AppImage
-dist/
 deb-build/
+pkg/
 rpm-build/
+src/
+AppDir/
+dist/
+*.tar.gz
+*.pkg.tar.zst
+*.AppImage
+__pycache__/
