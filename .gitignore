@@ -5,5 +5,8 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-*.AppImage
 AppDir/
+*.AppImage
+dist/
+deb-build/
+rpm-build/

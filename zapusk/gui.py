@@ -8,7 +8,7 @@ RU: непрозрачный карбоновый фон, анимированн
     обновление GE-Proton/DXVK, оптимизация системы.
 """
 # SPDX-License-Identifier: GPL-3.0-or-later
-import sys, math, subprocess, shutil, pathlib, tempfile
+import sys, math, random, subprocess, shutil, pathlib, tempfile
 
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QVBoxLayout, QHBoxLayout, QGridLayout,
@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QMessageBox, QListWidget, QStackedWidget,
     QScrollArea, QFrame, QTextEdit, QInputDialog, QProgressBar,
     QGraphicsOpacityEffect)
-from PySide6.QtCore import (Qt, QThread, Signal, QObject, Property, QTimer, QRect,
+from PySide6.QtCore import (Qt, QThread, Signal, QObject, Property, QTimer, QRect, QRectF, QPoint, QPoint,
                             QPropertyAnimation, QEasingCurve, QSize, QEvent)
 from PySide6.QtGui import (QFont, QColor, QCursor, QDragEnterEvent, QDropEvent, QPainter,
                            QLinearGradient, QRadialGradient, QPen, QBrush,
@@ -42,85 +42,227 @@ INSTALL_SCRIPT = pathlib.Path(__file__).resolve().parent.parent / "install.sh"  
 INSTALL_ARCH = pathlib.Path(__file__).resolve().parent.parent / "install_arch.sh"        # arch-only fallback
 
 # ============================================================
-# EN: cyberpunk themes — "CARBON" (dark) and "ICE" (light).
-# RU: киберпанк-темы — «CARBON» (тёмная) и «ICE» (светлая).
+# EN: 4 worlds x 2 modes (dark/light) — same scenes as the website.
+# RU: 4 мира x 2 режима (тёмный/светлый) — те же сцены, что на сайте.
 # ============================================================
-CARBON = dict(bg="#07080c", panel="#0e1017", card="#12141f", text="#e6f4ff",
-              muted="#5d6a86", accent="#00e5ff", accent2="#ff2fd6",
-              border="#1b2135", ok="#00ff9d", warn="#ffb020", err="#ff3b5c",
-              input="#0a0c12", btn="rgba(255,255,255,18)", btnhover="rgba(127,200,255,34)")
-ICE = dict(bg="#e9edf5", panel="#f8fafd", card="#ffffff", text="#0c1220",
-           muted="#5b6880", accent="#0090c8", accent2="#c81e9e",
-           border="#c7d2e4", ok="#0a8f5b", warn="#b57500", err="#d21f45",
-           input="#e6ebf4", btn="rgba(0,25,70,12)", btnhover="rgba(0,140,200,40)")
+WORLDS = [('Cyber',
+  {'accent': '#00e5ff',
+   'accent2': '#ff2fd6',
+   'bg': '#07080c',
+   'border': '#1b2135',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(127,200,255,34)',
+   'card': '#12141f',
+   'err': '#ff3b5c',
+   'input': '#0a0c12',
+   'muted': '#5d6a86',
+   'ok': '#00ff9d',
+   'panel': '#0e1017',
+   'scene': {'far': '#0a1020',
+             'glow': '#00e5ff',
+             'mid': '#070c18',
+             'near': '#04060f',
+             'sky1': '#03040a',
+             'sky2': '#0a1226',
+             'stars': 1,
+             'win1': '#00e5ff',
+             'win2': '#ff2fd6'},
+   'text': '#e6f4ff',
+   'warn': '#ffb020'},
+  {'accent': '#0090c8',
+   'accent2': '#c81e9e',
+   'bg': '#dfe6f2',
+   'border': '#c7d2e4',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(0,140,200,40)',
+   'card': '#ffffff',
+   'err': '#d21f45',
+   'input': '#e8edf5',
+   'muted': '#5b6880',
+   'ok': '#0a8f5b',
+   'panel': '#f4f7fc',
+   'scene': {'far': '#8fa3c4',
+             'glow': '#9fc4ff',
+             'mid': '#6e829f',
+             'near': '#4d5f78',
+             'sky1': '#a8bde0',
+             'sky2': '#dfe9f8',
+             'stars': 0,
+             'win1': '#2a3550',
+             'win2': '#7a4a8a'},
+   'text': '#0c1220',
+   'warn': '#b57500'}),
+ ('Matrix',
+  {'accent': '#00ff88',
+   'accent2': '#aaff00',
+   'bg': '#040805',
+   'border': '#16301f',
+   'btn': 'rgba(0,255,136,14)',
+   'btnhover': 'rgba(0,255,136,34)',
+   'card': '#0f1d13',
+   'err': '#ff3b5c',
+   'input': '#08120b',
+   'muted': '#5f7a66',
+   'ok': '#00ff9d',
+   'panel': '#0a140d',
+   'scene': {'rbg': '#010502', 'rfg': '#00ff88', 'rhead': '#d6ffe9'},
+   'text': '#e4ffe9',
+   'warn': '#ffb020'},
+  {'accent': '#009a56',
+   'accent2': '#5f8f00',
+   'bg': '#eef5ee',
+   'border': '#c9dfd0',
+   'btn': 'rgba(0,120,60,12)',
+   'btnhover': 'rgba(0,150,80,30)',
+   'card': '#ffffff',
+   'err': '#d21f45',
+   'input': '#e2efe7',
+   'muted': '#57705f',
+   'ok': '#0a8f5b',
+   'panel': '#f7fbf7',
+   'scene': {'rbg': '#f2f7f2', 'rfg': '#009a56', 'rhead': '#003a1e'},
+   'text': '#0c1f13',
+   'warn': '#b57500'}),
+ ('Sunset',
+  {'accent': '#ff6b35',
+   'accent2': '#b537f2',
+   'bg': '#0d0708',
+   'border': '#35202a',
+   'btn': 'rgba(255,107,53,14)',
+   'btnhover': 'rgba(255,107,53,34)',
+   'card': '#1f1216',
+   'err': '#ff4d6b',
+   'input': '#140a0c',
+   'muted': '#8a6f68',
+   'ok': '#7dff8a',
+   'panel': '#170d10',
+   'scene': {'ground': '#2a0d16',
+             'm1': '#5c1f2c',
+             'm2': '#421522',
+             'sky1': '#2a0e2e',
+             'sky2': '#8a2b3a',
+             'sky3': '#e86a3a',
+             'sun1': '#fff3d6',
+             'sun2': '#ffb056'},
+   'text': '#ffece4',
+   'warn': '#ffcf5c'},
+  {'accent': '#d84f16',
+   'accent2': '#8a2bbf',
+   'bg': '#f7ece4',
+   'border': '#e4cfc5',
+   'btn': 'rgba(200,80,20,12)',
+   'btnhover': 'rgba(220,90,25,30)',
+   'card': '#ffffff',
+   'err': '#d21f45',
+   'input': '#f2e3dc',
+   'muted': '#7d6259',
+   'ok': '#1d8a4a',
+   'panel': '#fdf6f0',
+   'scene': {'ground': '#5c3226',
+             'm1': '#b06a58',
+             'm2': '#8a4a3e',
+             'sky1': '#f2c4a0',
+             'sky2': '#eda06a',
+             'sky3': '#ffdba8',
+             'sun1': '#fff8e0',
+             'sun2': '#ffc478'},
+   'text': '#241009',
+   'warn': '#b57a00'}),
+ ('Sakura',
+  {'accent': '#ff7ab8',
+   'accent2': '#7ad9ff',
+   'bg': '#0e070c',
+   'border': '#33202c',
+   'btn': 'rgba(255,122,184,14)',
+   'btnhover': 'rgba(255,122,184,34)',
+   'card': '#1f111b',
+   'err': '#ff5c7a',
+   'input': '#150a12',
+   'muted': '#8a6a80',
+   'ok': '#8affc1',
+   'panel': '#170d14',
+   'scene': {'ground': '#2a0f20',
+             'm1': '#55203c',
+             'm2': '#3f1830',
+             'moon': '#ffe9f2',
+             'petals': ['#ffc7dd', '#ffabd0', '#ff9ec7', '#ff8dc0'],
+             'sky1': '#241019',
+             'sky2': '#6e2c4c',
+             'sky3': '#c97697',
+             'trunk': '#4a2b3a'},
+   'text': '#ffe9f4',
+   'warn': '#ffd25c'},
+  {'accent': '#d63384',
+   'accent2': '#2aa8d8',
+   'bg': '#fbeef4',
+   'border': '#e8ccd9',
+   'btn': 'rgba(200,50,130,12)',
+   'btnhover': 'rgba(220,60,140,30)',
+   'card': '#ffffff',
+   'err': '#d21f45',
+   'input': '#f5e4ec',
+   'muted': '#7d5f70',
+   'ok': '#1d8a5a',
+   'panel': '#fdf4f8',
+   'scene': {'ground': '#7d4462',
+             'm1': '#c98aa8',
+             'm2': '#a86a8c',
+             'moon': '#ffffff',
+             'petals': ['#ffb8d4', '#ff9ec7', '#ff8dc0', '#ffd0e2'],
+             'sky1': '#ffd9e8',
+             'sky2': '#ffb3d1',
+             'sky3': '#fff0f6',
+             'trunk': '#5c3a4a'},
+   'text': '#26091a',
+   'warn': '#b58200'})]
 
-# EN: extra palettes — Matrix / Sunset / Sakura (each has dark+light variants).
-# RU: доп. палитры — Matrix / Sunset / Sakura (у каждой тёмный+светлый варианты).
-MATRIX_D = dict(bg="#050a06", panel="#0a140d", card="#0f1d13", text="#e4ffe9",
-                muted="#5f7a66", accent="#00ff88", accent2="#aaff00",
-                border="#16301f", ok="#00ff9d", warn="#ffb020", err="#ff3b5c",
-                input="#08120b", btn="rgba(0,255,136,14)", btnhover="rgba(0,255,136,34)")
-MATRIX_L = dict(bg="#e8f5ec", panel="#f7fcf8", card="#ffffff", text="#0c1f13",
-                muted="#57705f", accent="#009a56", accent2="#5f8f00",
-                border="#c9dfd0", ok="#0a8f5b", warn="#b57500", err="#d21f45",
-                input="#e2efe7", btn="rgba(0,120,60,12)", btnhover="rgba(0,150,80,30)")
-SUNSET_D = dict(bg="#0d0708", panel="#170d10", card="#1f1216", text="#ffece4",
-                muted="#8a6f68", accent="#ff6b35", accent2="#b537f2",
-                border="#35202a", ok="#7dff8a", warn="#ffcf5c", err="#ff4d6b",
-                input="#140a0c", btn="rgba(255,107,53,14)", btnhover="rgba(255,107,53,34)")
-SUNSET_L = dict(bg="#f7ebe6", panel="#fdf6f2", card="#ffffff", text="#241009",
-                muted="#7d6259", accent="#d84f16", accent2="#8a2bbf",
-                border="#e4cfc5", ok="#1d8a4a", warn="#b57a00", err="#d21f45",
-                input="#f2e3dc", btn="rgba(200,80,20,12)", btnhover="rgba(220,90,25,30)")
-SAKURA_D = dict(bg="#0e070c", panel="#170d14", card="#1f111b", text="#ffe9f4",
-                muted="#8a6a80", accent="#ff7ab8", accent2="#7ad9ff",
-                border="#33202c", ok="#8affc1", warn="#ffd25c", err="#ff5c7a",
-                input="#150a12", btn="rgba(255,122,184,14)", btnhover="rgba(255,122,184,34)")
-SAKURA_L = dict(bg="#f9ebf2", panel="#fdf4f8", card="#ffffff", text="#26091a",
-                muted="#7d5f70", accent="#d63384", accent2="#2aa8d8",
-                border="#e8ccd9", ok="#1d8a5a", warn="#b58200", err="#d21f45",
-                input="#f5e4ec", btn="rgba(200,50,130,12)", btnhover="rgba(220,60,140,30)")
-PALETTES = [("Cyber", CARBON, ICE), ("Matrix", MATRIX_D, MATRIX_L),
-            ("Sunset", SUNSET_D, SUNSET_L), ("Sakura", SAKURA_D, SAKURA_L)]
+
+PALETTES = [(n, d, l) for n, d, l in WORLDS]
 
 
 def _lc(c1, c2, t):
-    """EN: lerp two hex colors. RU: плавный переход между цветами."""
     a, b = QColor(c1), QColor(c2)
     f = lambda x, y: int(x + (y - x) * t)
-    return QColor(f(a.red(), b.red()), f(a.green(), b.green()), f(a.blue(), b.blue())).name()
+    return QColor(f(a.red(), b.red()), f(a.green(), b.green()), f(a.blue(), b.blue()))
+
+
+def _lcs(c1, c2, t):  # вернуть строку hex
+    return _lc(c1, c2, t).name()
 
 
 def build_qss(th):
     """EN: stylesheet from (possibly interpolated) theme. RU: стили из темы."""
     a = th["accent"]
+    def hx(k):
+        v = th[k]
+        return v if v.startswith("#") else "#20242c"
     return f"""
 QWidget {{ background: transparent; color: {th['text']}; font-size: 13px;
          font-family: "Noto Sans", "Inter", sans-serif; }}
 #glass {{ background: transparent; border-radius: 16px; }}
 #titlebar {{ background: transparent; }}
 #titlebar QLabel {{ color: {th['muted']}; font-weight: bold; letter-spacing: 3px; }}
-#nav {{ background: rgba(255,255,255,10); border-radius: 12px; border: 1px solid {th['border']}; }}
+#nav {{ background: rgba(255,255,255,10); border-radius: 12px; border: 1px solid {hx('border')}; }}
 #nav QListWidget {{ background: transparent; border: none; outline: none; }}
 #nav QListWidget::item {{ padding: 12px 14px; border-radius: 10px; margin: 3px 6px; color: {th['muted']}; }}
 #nav QListWidget::item:hover {{ background: rgba(127,200,255,26); color: {th['text']}; }}
 #nav QListWidget::item:selected {{ background: {a}; color: #04121a; font-weight: 700; }}
-QPushButton {{ background: {th['btn']}; border: 1px solid {th['border']};
+QPushButton {{ background: {th['btn']}; border: 1px solid {hx('border')};
              border-radius: 10px; padding: 8px 16px; }}
 QPushButton:hover {{ background: {th['btnhover']}; border-color: {a}; }}
 QPushButton:pressed {{ background: rgba(127,200,255,60); }}
 QPushButton#primary {{ background: {a}; border: none; color: #04121a; font-weight: 700; }}
-QPushButton#primary:hover {{ background: {_lc(a, '#ffffff', 0.25)}; }}
+QPushButton#primary:hover {{ background: {_lcs(a, '#ffffff', 0.25)}; }}
 QPushButton#good {{ background: {th['ok']}; border: none; color: #04140c; font-weight: 800; }}
-QPushButton#good:hover {{ background: {_lc(th['ok'], '#ffffff', 0.2)}; }}
+QPushButton#good:hover {{ background: {_lcs(th['ok'], '#ffffff', 0.2)}; }}
 QPushButton#ghost {{ background: transparent; border: none; font-size: 15px; }}
 QPushButton#ghost:hover {{ background: rgba(127,200,255,40); border-radius: 8px; }}
-QLineEdit, QComboBox, QTextEdit {{ background: {th['input']}; border: 1px solid {th['border']};
+QLineEdit, QComboBox, QTextEdit {{ background: {hx('input')}; border: 1px solid {hx('border')};
                                  border-radius: 10px; padding: 6px 10px; selection-background-color: {a}; }}
-QComboBox QAbstractItemView {{ background: {th['panel']}; }}
-QFrame#card {{ background: {th['card']}; border: 1px solid {th['border']}; border-radius: 16px; }}
+QComboBox QAbstractItemView {{ background: {hx('panel')}; }}
+QFrame#card {{ background: {hx('card')}; border: 1px solid {hx('border')}; border-radius: 16px; }}
 QFrame#card:hover {{ border-color: {a}; }}
-QFrame#panel {{ background: {th['panel']}; border: 1px solid {th['border']}; border-radius: 14px; }}
+QFrame#panel {{ background: {hx('panel')}; border: 1px solid {hx('border')}; border-radius: 14px; }}
 QLabel#big {{ font-size: 22px; font-weight: 800; }}
 QLabel#title {{ font-size: 15px; font-weight: 700; }}
 QLabel#muted {{ color: {th['muted']}; font-size: 12px; }}
@@ -131,16 +273,14 @@ QLabel#err {{ color: {th['err']}; font-weight: 600; }}
 QScrollArea {{ border: none; background: transparent; }}
 QScrollBar:vertical {{ background: transparent; width: 8px; }}
 QScrollBar::handle:vertical {{ background: rgba(127,200,255,70); border-radius: 4px; min-height: 30px; }}
-QProgressBar {{ border: 1px solid {th['border']}; border-radius: 8px; background: rgba(0,0,0,50); text-align: center; height: 14px; }}
+QProgressBar {{ border: 1px solid {hx('border')}; border-radius: 8px; background: rgba(0,0,0,50); text-align: center; height: 14px; }}
 QProgressBar::chunk {{ background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 {a}, stop:1 {th['accent2']}); border-radius: 8px; }}
 """
 
 
 class Theme(QObject):
-    """EN: animated theme switch. Colors quantized to 12 steps so Qt rebuilds
-       the stylesheet only ~12 times per toggle — no more stutter.
-       RU: анимированное переключение темы. Цвета квантуем до 12 шагов —
-       стили пересобираются ~12 раз за переключение, тормоза уходят."""
+    """EN: animated theme — 4 worlds, each dark<->light; wave drives t.
+       RU: анимированная тема — 4 мира, у каждого тёмный<->светлый; волна качает t."""
     changed = Signal()
 
     def __init__(self):
@@ -158,7 +298,7 @@ class Theme(QObject):
         return self._t
 
     def setT(self, v):
-        q = round(v * 12) / 12          # EN: quantize / RU: квантуем шаг
+        q = round(v * 12) / 12
         if q != self._t:
             self._t = q
             self.changed.emit()
@@ -166,18 +306,26 @@ class Theme(QObject):
     t = Property(float, getT, setT)
 
     def toggle(self):
-        pass  # EN: theme is now driven by the wave overlay / RU: тему качает волна
+        pass  # тему качает волна / RU: theme is driven by the wave
 
     def current(self):
-        """EN: current palette colors (dark<->light interpolated). RU: цвета активной палитры."""
         _, dk, lt = PALETTES[self._pal % len(PALETTES)]
-        return {k: _lc(dk[k], lt[k], self._t) for k in dk}
+        th = {}
+        for k in dk:
+            dv, lv = dk[k], lt.get(k, dk[k])
+            if isinstance(dv, list):
+                th[k] = dv
+            elif isinstance(dv, str) and dv.startswith("#"):
+                th[k] = _lcs(dv, lv if isinstance(lv, str) else dv, self._t)
+            else:
+                th[k] = dv
+        th["scene_raw"] = dk["scene"] if self._t < 0.5 else lt["scene"]
+        return th
 
     def palette_name(self):
         return PALETTES[self._pal % len(PALETTES)][0]
 
     def set_palette(self, idx):
-        """EN: switch color palette. RU: сменить палитру цветов."""
         idx = idx % len(PALETTES)
         if idx != self._pal:
             self._pal = idx
@@ -185,114 +333,397 @@ class Theme(QObject):
             self.changed.emit()
 
     def qss(self):
+        """EN: stylesheet for the current interpolated theme. RU: стили текущей темы."""
         return build_qss(self.current())
 
+    def scene(self):
+        """EN: current scene colors (dark/light picked by mode). RU: цвета сцены текущего режима."""
+        _, dk, lt = PALETTES[self._pal % len(PALETTES)]
+        sd, sl = dk["scene"], lt["scene"]
+        out = {}
+        for k in sd:
+            v = sd[k]
+            if isinstance(v, list):
+                out[k] = v
+            elif isinstance(v, str) and v.startswith("#") and k in sl:
+                out[k] = _lcs(v, sl[k], self._t)
+            else:
+                out[k] = v
+        out["world"] = self.palette_name().lower()
+        out["t"] = self._t
+        return out
+
 
 # ============================================================
-# EN: NeonFrame — opaque carbon background + faint grid + animated RGB border.
-# RU: NeonFrame — непрозрачный карбон + сетка + анимированная RGB-рамка.
+# EN: NeonFrame — animated themed background (4 worlds x 2 modes),
+#     parallax, matrix rain, sakura petals, pre-rendered border.
+# RU: NeonFrame — живой фон (4 мира x 2 режима), параллакс,
+#     матричный дождь, лепестки сакуры, предрендер рамки.
 # ============================================================
 class NeonFrame(QFrame):
-    """EN: theme-aware background + PRE-RENDERED neon border (32 frames just
-       blitted — ~0% CPU) + mouse parallax. RU: фон под тему + предрендер
-       неоновой рамки (32 кадра, просто блиттится — ~0% CPU) + параллакс."""
-    FRAMES = 32
+    FRAMES = 12
 
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setObjectName("glass")
         self.theme = None
         self._cache = None
+        self._scene_key = None
         self._borders = []
+        self._bkey = None
         self._bidx = 0
         self._px = 0.0
         self._py = 0.0
         self._ov = 48
+        # дождь матрицы / RU: matrix rain state
+        self._drops = []
+        self._cols = 0
+        # лепестки / RU: petals state
+        self._petals = []
+        self._cars = []   # EN: city traffic / RU: трафик города
         self._timer = QTimer(self)
-        self._timer.setInterval(90)         # ~11 fps блитт готовых кадров / EN: blit of ready frames
-        self._timer.timeout.connect(self._cycle)
+        self._timer.setInterval(80)          # EN: one 12.5fps timer for everything
+        self._timer.timeout.connect(self._tick_all)
         self._timer.start()
+        self._paused = False
 
-    def _cycle(self):
-        if self._borders:
-            self._bidx = (self._bidx + 1) % len(self._borders)
+    def set_anim(self, paused):
+        """EN: pause background animation (e.g. while splash is showing).
+           RU: пауза анимации фона (например, пока показывается сплэш)."""
+        self._paused = paused
+        if not paused:
             self.update()
 
-    def _colors(self):
-        return self.theme.current() if self.theme else CARBON
+    # ---------- управление ----------
+    def _tick_all(self):
+        """EN: single timer tick: border pulse + world dynamics.
+           RU: один тик на всё: пульс рамки + динамика мира."""
+        if self._paused:
+            return
+        if self._borders:
+            self._bidx = (self._bidx + 1) % len(self._borders)
+        sc = self._sc()
+        if sc:
+            w = sc.get("world")
+            if w == "matrix":
+                self._rain_step()
+            elif w == "sakura":
+                self._petals_step()
+            elif w == "cyber":
+                self._cars_step()
+        self.update()
+
+    def _sc(self):
+        return self.theme.scene() if self.theme else None
 
     def set_parallax(self, x, y):
-        """EN: shift bg under cursor. RU: сдвигаем фон за курсором."""
         if abs(x - self._px) > 0.02 or abs(y - self._py) > 0.02:
             self._px, self._py = x, y
             self.update()
 
     def invalidate(self):
-        """EN: drop caches (theme or size changed). RU: сброс кэшей (тема/размер)."""
         self._cache = None
+        self._scene_key = None
         self._borders = []
+        self._bkey = None
         self.update()
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
         self.invalidate()
 
-    def _render_bg(self):
-        """EN: bg + grid + corner glow, rendered ONCE. RU: фон рисуем ОДИН РАЗ."""
-        th = self._colors()
+    # ---------- рендер статичной сцены ----------
+    def _render_bg(self, sc):
         ov = self._ov
-        pm = QPixmap(self.width() + ov * 2, self.height() + ov * 2)
-        pm.fill(QColor(th["bg"]))
-        p = QPainter(pm)
-        p.setRenderHint(QPainter.Antialiasing)
-        grid = QColor(th["accent"]); grid.setAlpha(10)
-        p.setPen(QPen(grid, 1))
-        step = 26
-        for x in range(0, pm.width() + pm.height(), step):
-            p.drawLine(x, 0, x - pm.height(), pm.height())
-        for (cx, cy, key) in ((ov, ov, "accent"), (pm.width() - ov, pm.height() - ov, "accent2")):
-            col = QColor(th[key]); col.setAlpha(20)
-            g = QRadialGradient(cx, cy, 360)
-            g.setColorAt(0, col)
-            g.setColorAt(1, QColor(0, 0, 0, 0))
-            p.fillRect(pm.rect(), g)
-        p.end()
+        w, h = self.width() + ov * 2, self.height() + ov * 2
+        pm = QPixmap(w, h)
+        pm.fill(QColor(sc.get("rbg") or sc.get("sky1") or "#05070c"))
+        pt = QPainter(pm)
+        pt.setRenderHint(QPainter.Antialiasing)
+        world = sc.get("world")
+        if world == "cyber":
+            self._draw_city(pt, w, h, sc, ov)
+        elif world == "sunset":
+            self._draw_sunset(pt, w, h, sc, ov)
+        elif world == "sakura":
+            self._draw_sakura(pt, w, h, sc, ov)
+        pt.end()
         self._cache = pm
 
-    def _render_borders(self):
-        """EN: pre-render the neon gradient border frames. RU: предрендер кадров рамки."""
+    def _draw_city(self, p, w, h, sc, ov):
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor(sc["sky1"]))
+        g.setColorAt(1, QColor(sc["sky2"]))
+        p.fillRect(0, 0, w, h, g)
+        rnd = random.Random(42)
+        if sc.get("stars"):
+            for _ in range(120):
+                p.setPen(QPen(QColor(255, 255, 255, rnd.randint(30, 110)), 1))
+                p.drawPoint(rnd.randint(0, w), rnd.randint(0, h // 3))
+        glow = QColor(sc["glow"])
+        rg = QRadialGradient(ov, ov, 380)
+        rg.setColorAt(0, QColor(glow.red(), glow.green(), glow.blue(), 34))
+        rg.setColorAt(1, QColor(0, 0, 0, 0))
+        p.fillRect(pm_rect(w, h), rg)
+        base = h - 20
+        for depth, (kcol, kwin, wd, op) in enumerate((("far", .09, .12, .85), ("mid", .14, .16, .95), ("near", .2, .2, 1))):
+            p.setOpacity(op)
+            x = -40
+            while x < w:
+                bw = rnd.randint(120, 230)
+                bh = rnd.randint(int(h * .18), int(h * (.6 if kcol == "near" else .42)))
+                top = base - bh
+                p.fillRect(x, top, bw, bh, QColor(sc[kcol]))
+                if rnd.random() < .3:
+                    ax = x + rnd.randint(6, max(7, bw - 8))
+                    p.fillRect(ax, top - rnd.randint(12, 30), 3, 30, QColor(sc[kcol]))
+                gy = top + 8
+                while gy < base - 8:
+                    gx = x + 5
+                    while gx < x + bw - 6:
+                        if rnd.random() < wd:
+                            cname = rnd.choice(["win1", "win1", "win2", "win2", "glow"])
+                            c = QColor(sc[cname])
+                            c.setAlpha(rnd.randint(50, 150))
+                            p.fillRect(gx, gy, 3, 4, c)
+                        gx += 9
+                    gy += 13
+                x += bw + rnd.randint(80, 180)
+            p.setOpacity(1)
+            base += 12
+        p.fillRect(0, h - 40, w, 40, QColor(0, 0, 0, 110))
+
+    def _draw_sunset(self, p, w, h, sc, ov):
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor(sc["sky1"]))
+        g.setColorAt(0.5, QColor(sc["sky2"]))
+        g.setColorAt(1, QColor(sc["sky3"]))
+        p.fillRect(0, 0, w, h, g)
+        sx, sy = w // 2, int(h * .62)
+        rg = QRadialGradient(sx, sy, 150)
+        rg.setColorAt(0, QColor(sc["sun1"]))
+        rg.setColorAt(0.55, QColor(sc["sun2"]))
+        rg.setColorAt(1, QColor(255, 144, 64, 0))
+        p.fillRect(pm_rect(w, h), rg)
+        p.setPen(QPen(QColor(sc["m1"]).darker(120), 2))
+        for bx, by in ((w*.2, h*.32), (w*.24, h*.3), (w*.72, h*.26), (w*.76, h*.28)):
+            p.drawArc(int(bx), int(by), 16, 8, 0, 5760)
+        for pts, col in (([(-40, h*.82), (w*.18, h*.48), (w*.33, h*.66), (w*.52, h*.42), (w*.75, h*.66), (w*.9, h*.5), (w+40, h*.7)], sc["m1"]),
+                         ([(-40, h*.92), (w*.15, h*.68), (w*.35, h*.85), (w*.55, h*.6), (w*.74, h*.85), (w+40, h*.75)], sc["m2"])):
+            p.fillRect(0, 0, 0, 0, QColor(0, 0, 0, 0))
+            path = QPainterPath()
+            path.moveTo(*pts[0])
+            for q in pts[1:]:
+                path.lineTo(*q)
+            path.lineTo(w, h)
+            path.lineTo(0, h)
+            path.closeSubpath()
+            p.fillPath(path, QColor(col))
+        p.fillRect(0, int(h * .88), w, h, QColor(sc["ground"]))
+        p.setPen(QPen(QColor(sc["ground"]).lighter(120), 2))
+        rnd = random.Random(7)
+        for gx in range(20, w, 30):
+            p.drawLine(gx, h, gx + rnd.randint(-4, 4), h - rnd.randint(14, 34))
+
+    def _draw_sakura(self, p, w, h, sc, ov):
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor(sc["sky1"]))
+        g.setColorAt(0.55, QColor(sc["sky2"]))
+        g.setColorAt(1, QColor(sc["sky3"]))
+        p.fillRect(0, 0, w, h, g)
+        mx, my = int(w * .78), int(h * .2)
+        rg = QRadialGradient(mx, my, 100)
+        rg.setColorAt(0, QColor(sc["moon"]))
+        rg.setColorAt(1, QColor(255, 233, 242, 0))
+        p.fillRect(mx - 100, my - 100, 200, 200, rg)
+        p.setPen(Qt.NoPen)
+        for pts, col in (([(-60, h*.82), (w*.19, h*.52), (w*.39, h*.8), (w*.61, h*.48), (w*.81, h*.78), (w+60, h*.58)], sc["m1"]),
+                         ([(-60, h*.95), (w*.16, h*.72), (w*.35, h*.92), (w*.61, h*.7), (w*.86, h*.9), (w+60, h*.8)], sc["m2"])):
+            path = QPainterPath()
+            path.moveTo(*pts[0])
+            for q in pts[1:]:
+                path.lineTo(*q)
+            path.lineTo(w, h)
+            path.lineTo(0, h)
+            path.closeSubpath()
+            p.fillPath(path, QColor(col))
+        p.fillRect(0, int(h * .9), w, h, QColor(sc["ground"]))
+        rnd = random.Random(11)
+        for tx, ts in ((w*.13, 1.3), (w*.38, 1.0), (w*.6, 1.35), (w*.85, 1.05)):
+            ty = h * .92
+            p.setPen(QPen(QColor(sc["trunk"]), int(12 * ts), Qt.SolidLine, Qt.RoundCap))
+            p.drawLine(int(tx), int(ty), int(tx), int(ty - 130 * ts))
+            p.setPen(Qt.NoPen)
+            for _ in range(70):
+                a = rnd.uniform(0, 6.283)
+                r = rnd.uniform(0, 1) ** .5
+                cx = tx + 100 * ts * r * math.cos(a)
+                cy = ty - 70 * ts - 80 * ts * r * math.sin(a)
+                c = QColor(rnd.choice(sc["petals"]))
+                c.setAlpha(rnd.randint(120, 240))
+                p.setBrush(c)
+                p.drawEllipse(int(cx), int(cy), int(rnd.uniform(8, 20) * ts), int(rnd.uniform(8, 20) * ts))
+
+    # ---------- динамика: дождь, лепестки ----------
+    def _rain_step(self):
+        sc = self._sc()
+        w, h = self.width(), self.height()
+        fs = 16
+        cols = max(1, w // fs)
+        if cols != self._cols:
+            self._cols = cols
+            hh = max(1, self.height() // 16)
+            self._drops = [random.randint(-hh, 0) for _ in range(cols)]
+        self._rain_img = None
+
+    def _draw_rain(self, p):
+        sc = self._sc()
+        w, h = self.width(), self.height()
+        fs = 16
+        p.fillRect(0, 0, w, h, QColor(sc["rbg"]))
+        p.setFont(QFont("monospace", 10))
+        chars = "アイウエオカキクケコサシスセソ01ZAPUSK"
+        for i in range(self._cols):
+            x = i * fs
+            y = self._drops[i] * fs
+            ch = random.choice(chars)
+            p.setPen(QColor(sc["rhead"] if random.random() < .1 else sc["rfg"]))
+            p.drawText(x, y, ch)
+            if y > h and random.random() > .976:
+                self._drops[i] = 0
+            self._drops[i] += 1
+
+    def _petals_step(self):
+        w, h = self.width(), self.height()
+        if not self._petals:
+            self._petals = [dict(x=random.uniform(0, w), y=random.uniform(-h, 0),
+                                 vy=random.uniform(.6, 1.8), ph=random.uniform(0, 6.28),
+                                 r=random.uniform(0, 360), s=random.uniform(4, 9))
+                            for _ in range(24)]
+        for pt in self._petals:
+            pt["y"] += pt["vy"]
+            pt["x"] += math.sin(pt["y"] * .02 + pt["ph"]) * .8
+            pt["r"] += 2
+            if pt["y"] > h + 20:
+                pt["y"] = -20
+                pt["x"] = random.uniform(0, w)
+
+    def _draw_petals(self, p):
+        sc = self._sc()
+        p.setPen(Qt.NoPen)
+        for pt in self._petals:
+            p.save()
+            p.translate(pt["x"], pt["y"])
+            p.rotate(pt["r"])
+            c = QColor(random.choice(sc["petals"]))
+            c.setAlpha(200)
+            p.setBrush(c)
+            p.drawEllipse(0, 0, int(pt["s"] * 1.4), int(pt["s"]))
+            p.restore()
+
+    def _cars_step(self):
+        w, h = self.width(), self.height()
+        if not self._cars:
+            self._cars = [dict(x=random.uniform(0, w), d=random.choice([-1, 1]),
+                               v=random.uniform(3.0, 5.5), lane=random.randint(0, 1))
+                          for _ in range(7)]
+        for c in self._cars:
+            c["x"] += c["v"] * c["d"]
+            if c["x"] < -30:
+                c["x"] = w + 20
+            if c["x"] > w + 30:
+                c["x"] = -20
+
+    def _draw_cars(self, p):
+        w, h = self.width(), self.height()
+        road_y = h - 46
+        p.fillRect(0, road_y - 4, w, 34, QColor(0, 0, 0, 140))
+        p.setPen(QPen(QColor(255, 220, 140, 60), 1, Qt.DashLine))
+        p.drawLine(0, road_y + 13, w, road_y + 13)
+        p.setPen(Qt.NoPen)
+        for c in self._cars:
+            y = road_y + 4 + c["lane"] * 14
+            head = QColor(255, 244, 200, 230) if c["d"] > 0 else QColor(255, 90, 80, 230)
+            tail = QColor(255, 60, 60, 200) if c["d"] > 0 else QColor(255, 244, 200, 200)
+            hx = c["x"] + (6 if c["d"] > 0 else -2)
+            tx = c["x"] - (2 if c["d"] > 0 else -6)
+            p.setBrush(head)
+            p.drawEllipse(int(hx), int(y), 4, 3)
+            p.setBrush(tail)
+            p.drawEllipse(int(tx), int(y), 3, 3)
+
+    # ---------- рамка ----------
+    def _render_borders(self, th):
         self._borders = []
         w, h = self.width(), self.height()
         if w < 10 or h < 10:
             return
         path = QPainterPath()
         path.addRoundedRect(1, 1, w - 2, h - 2, 15, 15)
+        c1, c2 = QColor(th["accent"]), QColor(th["accent2"])
         for i in range(self.FRAMES):
-            hue = i * 360.0 / self.FRAMES
-            c1 = QColor.fromHsvF(hue / 360.0, 0.9, 1.0)
-            c2 = QColor.fromHsvF(((hue + 140.0) % 360.0) / 360.0, 0.9, 1.0)
-            grad = QLinearGradient(0, 0, w, 0)
-            grad.setColorAt(0.0, c1)
-            grad.setColorAt(1.0, c2)
+            tt = i / self.FRAMES
+            col = _lc(c1.name(), c2.name(), (math.sin(tt * 6.283) + 1) / 2)
+            grad = QLinearGradient(0, 0, w, h)
+            grad.setColorAt(0, c1)
+            grad.setColorAt(1, col)
             pm = QPixmap(w, h)
             pm.fill(Qt.transparent)
-            p = QPainter(pm)
-            p.setRenderHint(QPainter.Antialiasing)
-            p.setPen(QPen(QBrush(grad), 2))
-            p.drawPath(path)
-            p.end()
+            pp = QPainter(pm)
+            pp.setRenderHint(QPainter.Antialiasing)
+            pp.setPen(QPen(QBrush(grad), 2))
+            pp.drawPath(path)
+            pp.end()
             self._borders.append(pm)
+        self._bkey = (self.theme.palette_name(), round(self.theme.t * 12) if self.theme else 0, self.size())
 
+    # ---------- paint ----------
     def paintEvent(self, event):
-        if self._cache is None or self._cache.width() != self.width() + self._ov * 2:
-            self._render_bg()
-        if not self._borders or self._borders[0].size() != self.size():
-            self._render_borders()
+        try:
+            self._paint_scene(event)
+        except Exception:
+            import traceback
+            try:
+                log = pathlib.Path.home() / ".local/share/zapusk/bg.log"
+                log.parent.mkdir(parents=True, exist_ok=True)
+                if not log.exists() or log.stat().st_size < 4000:
+                    with open(log, "a") as f:
+                        f.write(traceback.format_exc() + "\n")
+            except Exception:
+                pass
+            qp = QPainter(self)
+            qp.fillRect(self.rect(), QColor("#0d1322"))
+            qp.end()
+
+    def _paint_scene(self, event):
+        sc = self._sc()
+        if not sc:
+            return
+        key = (sc.get("world"), round(sc.get("t", 0) * 12), self.size())
+        if self._cache is None or self._cache.width() != self.width() + self._ov * 2 or key != self._scene_key:
+            self._render_bg(sc)
+            self._scene_key = key
+        bkey = (sc.get("world"), round(sc.get("t", 0) * 12), self.size())
+        if not self._borders or self._bkey != bkey:
+            th = self.theme.current()
+            self._render_borders(th)
         p = QPainter(self)
-        p.drawPixmap(int(-self._ov + self._px * -16), int(-self._ov + self._py * -12), self._cache)
+        world = sc.get("world")
+        if world == "matrix":
+            self._draw_rain(p)
+        else:
+            p.drawPixmap(int(-self._ov + self._px * -16), int(-self._ov + self._py * -12), self._cache)
+        if world == "sakura":
+            self._draw_petals(p)
+        if world == "cyber":
+            self._draw_cars(p)
         if self._borders:
             p.drawPixmap(0, 0, self._borders[self._bidx])
         p.end()
+
+
+def pm_rect(w, h):
+    return QRectF(0, 0, w, h)
 
 
 # ============================================================
@@ -676,7 +1107,7 @@ class Splash(QWidget):
         self._t = 0.0
         self._mouse = None
         self._timer = QTimer(self)
-        self._timer.setInterval(33)          # ~30 fps, только на старте / EN: only during boot
+        self._timer.setInterval(40)          # ~25 fps, только на старте / EN: only during boot
         self._timer.timeout.connect(self._tick)
         self._fade = None
 
@@ -702,8 +1133,8 @@ class Splash(QWidget):
             for x in range(0, w, step):
                 if QColor.fromRgba(img.pixel(x, y)).alpha() > 120:
                     targets.append((x, y))
-        if len(targets) > 850:      # EN: cap particle count / RU: ограничиваем число частиц
-            k = len(targets) // 850 + 1
+        if len(targets) > 450:      # EN: cap particle count / RU: ограничиваем число частиц
+            k = len(targets) // 450 + 1
             targets = targets[::k]
 
         self._parts = []
@@ -727,28 +1158,10 @@ class Splash(QWidget):
 
     # ---------- lifecycle ----------
     def _build_stars(self):
-        """EN: static starfield backdrop, rendered once. RU: звёздный фон, рисуем один раз."""
-        w, h = self.width(), self.height()
-        pm = QPixmap(w, h)
-        pm.fill(QColor(5, 6, 10))
-        p = QPainter(pm)
-        p.setRenderHint(QPainter.Antialiasing)
-        for (cx, cy, col) in ((w * 0.2, h * 0.25, QColor(0, 229, 255, 14)),
-                              (w * 0.85, h * 0.8, QColor(255, 47, 214, 12))):
-            g = QRadialGradient(cx, cy, 320)
-            g.setColorAt(0, col)
-            g.setColorAt(1, QColor(0, 0, 0, 0))
-            p.fillRect(pm.rect(), g)
-        for i in range(240):
-            x = (i * 137.508 + (i * i) % 53) % w
-            y = (i * 61.803 + (i * 7) % 97) % h
-            a = 40 + (i * 29) % 180
-            r = 1 if i % 9 else 2
-            tint = QColor.fromHsvF(((i * 0.618) % 1.0), 0.4, 1.0)
-            tint.setAlpha(a)
-            p.setPen(QPen(tint, 1))
-            p.drawEllipse(int(x), int(y), r, r)
-        p.end()
+        """EN: opaque minimal backdrop (no stars, nothing leaks through).
+           RU: непрозрачный минимальный фон — ничего не просвечивает."""
+        pm = QPixmap(self.size())
+        pm.fill(QColor(5, 6, 8, 255))
         self._bgpix = pm
 
     def start(self):
@@ -760,7 +1173,7 @@ class Splash(QWidget):
 
     def _tick(self):
         self._t += 0.033
-        if self._t > 7.5:               # EN: boot show max ~6s / RU: показ максимум ~6 сек
+        if self._t > 6.0:               # EN: boot show max ~6s / RU: показ максимум ~6 сек
             self._finish()
             return
         self.update()
@@ -850,7 +1263,6 @@ class Splash(QWidget):
             # EN: trail while flying / RU: шлейф в полёте
             if lt < 1.0:
                 qp.setPen(QPen(col, 1))
-                qp.drawLine(int(p["px"]), int(p["py"]), int(x), int(y))
             p["px"], p["py"] = x, y
 
         qp.end()
@@ -1282,7 +1694,7 @@ class Splash(QWidget):
         self._t = 0.0
         self._mouse = None
         self._timer = QTimer(self)
-        self._timer.setInterval(33)          # ~30 fps, только на старте / EN: only during boot
+        self._timer.setInterval(40)          # ~25 fps, только на старте / EN: only during boot
         self._timer.timeout.connect(self._tick)
         self._fade = None
 
@@ -1308,8 +1720,8 @@ class Splash(QWidget):
             for x in range(0, w, step):
                 if QColor.fromRgba(img.pixel(x, y)).alpha() > 120:
                     targets.append((x, y))
-        if len(targets) > 850:      # EN: cap particle count / RU: ограничиваем число частиц
-            k = len(targets) // 850 + 1
+        if len(targets) > 450:      # EN: cap particle count / RU: ограничиваем число частиц
+            k = len(targets) // 450 + 1
             targets = targets[::k]
 
         self._parts = []
@@ -1366,7 +1778,7 @@ class Splash(QWidget):
 
     def _tick(self):
         self._t += 0.033
-        if self._t > 7.5:               # EN: boot show max ~6s / RU: показ максимум ~6 сек
+        if self._t > 6.0:               # EN: boot show max ~6s / RU: показ максимум ~6 сек
             self._finish()
             return
         self.update()
@@ -1472,27 +1884,6 @@ class Splash(QWidget):
                 qp.setPen(QPen(col, 1))
                 qp.drawLine(int(p["px"]), int(p["py"]), int(x), int(y))
             p["px"], p["py"] = x, y
-
-        # --- EN: diagonal strike through the word / RU: палка под углом сквозь слово ---
-        g = max(0.0, min(1.0, (t - 3.0) / 0.5))
-        if g > 0:
-            ang = math.radians(-14)
-            dx, dy = math.cos(ang), math.sin(ang)
-            half = (min(w, 700) / 2) * g
-            x1, y1 = cx - dx * half, cy - dy * half + 6
-            x2, y2 = cx + dx * half, cy + dy * half + 6
-            for wd, col in ((9, QColor(0, 229, 255, 80)),
-                            (4, QColor(240, 252, 255, 235))):
-                qp.setPen(QPen(col, wd, Qt.SolidLine, Qt.RoundCap))
-                qp.drawLine(int(x1), int(y1), int(x2), int(y2))
-
-        # --- EN: underline tick / RU: короткая палка снизу под углом ---
-        g2 = max(0.0, min(1.0, (t - 3.5) / 0.4))
-        if g2 > 0:
-            ux1, uy1 = cx - 130 * g2, cy + 74
-            ux2, uy2 = cx + 130 * g2, cy + 60
-            qp.setPen(QPen(QColor(255, 47, 214, 200), 3, Qt.SolidLine, Qt.RoundCap))
-            qp.drawLine(int(ux1), int(uy1), int(ux2), int(uy2))
 
         qp.end()
 
@@ -1708,10 +2099,8 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(self.glass)
 
-        # EN: boot splash overlay / RU: сплэш-заставка поверх окна
-        self._splashed = False
-        self.splash = Splash(self.glass)
-        self.splash.done.connect(self._reveal)
+        # EN: no splash — start straight to the app. RU: без заставки — сразу в приложение
+        self._splashed = True
         self.wave = WaveOverlay(self.glass, None)   # theme проставим в run_gui
         self.stack.setGraphicsEffect(None)
         self.nav.setCurrentRow(0)
@@ -1721,15 +2110,11 @@ class MainWindow(QMainWindow):
 
     def showEvent(self, e):
         super().showEvent(e)
-        if not self._splashed:
-            self._splashed = True
-            self.splash.setGeometry(self.glass.rect())
-            self.stack.hide()          # EN: content hidden until splash finishes
-                                       # RU: контент скрыт, пока сплэш не закончит
-            self.splash.start()
+        self.stack.show()   # EN: no splash — content immediately / RU: без заставки
 
     def _reveal(self):
         """EN: after splash — fade the main content in. RU: после сплэша плавно показываем окно."""
+        self.glass.set_anim(False)
         self.stack.show()
         eff = QGraphicsOpacityEffect(self.stack)
         self.stack.setGraphicsEffect(eff)
@@ -1742,10 +2127,16 @@ class MainWindow(QMainWindow):
 
     def resizeEvent(self, e):
         super().resizeEvent(e)
-        if hasattr(self, "splash"):
-            self.splash.setGeometry(self.glass.rect())
         if hasattr(self, "wave"):
             self.wave.setGeometry(self.glass.rect())
+
+    def closeEvent(self, e):
+        try:
+            hx = bytes(self.saveGeometry().toHex()).decode()
+            i18n.save("geometry", hx)
+        except Exception:
+            pass
+        super().closeEvent(e)
 
     def toggle_max(self):
         self._max = not self._max

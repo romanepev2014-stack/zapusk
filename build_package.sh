@@ -15,7 +15,7 @@ tar czf "zapusk-$VER.tar.gz" --transform "s,^,zapusk-$VER/," \
     zapusk.desktop assets LICENSE PKGBUILD README.md README.ru.md scripts
 
 echo "→ собираю пакет (makepkg)"
-makepkg -s --noconfirm
+makepkg -sf --noconfirm
 
 echo ""
 echo "✅ Готово! Установить:  sudo pacman -U zapusk-$VER-1-any.pkg.tar.zst"

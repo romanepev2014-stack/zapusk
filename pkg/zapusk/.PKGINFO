@@ -6,9 +6,9 @@ xdata = pkgtype=pkg
 pkgver = 2.9.3-1
 pkgdesc = Cyberpunk launcher for Windows games on Arch Linux (Wine + DXVK + VKD3D)
 url = https://github.com/roma_ogon/zapusk
-builddate = 1792477743
+builddate = 1792654005
 packager = Unknown Packager
-size = 213708
+size = 225009
 arch = any
 license = GPL-3.0-or-later
 depend = python
