@@ -35,7 +35,10 @@ T = {
  "Check system":"Check system","Setup desc":"One-time system setup (Wine, DXVK, Vulkan drivers).",
  "Logs title":"Logs — pick a game:","No log":"No log yet — launch the game.",
  "Launched":"Launched","Log":"Log","Not starting":"Not starting? Open 📋 logs.",
- "Language":"Language","Theme":"Theme",
+ "Language":"Language","Theme":"Theme", "Panic kill":"Panic kill","Kill all game processes?":"Kill all game processes?",
+ "Killed processes":"Killed processes","Nothing to kill":"Nothing to kill",
+ "HUD off":"HUD: off","HUD fps":"HUD: FPS only",
+ "HUD full":"HUD: full (FPS, CPU, GPU, RAM, temps, frametime)",
 },
 "ru": {
  "Library":"Библиотека","Updates":"Обновления","Optimization":"Оптимизация","Setup":"Установка","Logs":"Логи",
@@ -57,7 +60,10 @@ T = {
  "Check system":"Проверить систему","Setup desc":"Один раз: системный стек (Wine, DXVK, Vulkan-драйверы).",
  "Logs title":"Логи — выбери игру:","No log":"Лога нет — запусти игру.",
  "Launched":"Запущено","Log":"Лог","Not starting":"Не стартует? Открой 📋 логи.",
- "Language":"Язык","Theme":"Тема",
+ "Language":"Язык","Theme":"Тема", "Panic kill":"Паник-килл","Kill all game processes?":"Убить все процессы игры?",
+ "Killed processes":"Убито процессов","Nothing to kill":"Нечего убивать — процессы не найдены",
+ "HUD off":"HUD: выкл","HUD fps":"HUD: только FPS",
+ "HUD full":"HUD: полный (FPS, CPU, GPU, RAM, температуры, фреймтайм)",
 },
 "de": {
  "Library":"Bibliothek","Updates":"Updates","Optimization":"Optimierung","Setup":"Einrichtung","Logs":"Logs",

@@ -14,7 +14,10 @@ def build_command(game):
     cmd = []
     if game.get("gamemode", True) and which("gamemoderun"):
         cmd.append("gamemoderun")
-    if game.get("mangohud", False) and which("mangohud"):
+    mh = game.get("mangohud", "")
+    if mh is True:
+        mh = "fps"
+    if mh and which("mangohud"):
         cmd.append("mangohud")
     if game.get("virtual_desktop"):
         w, h = game["virtual_desktop"].split("x")

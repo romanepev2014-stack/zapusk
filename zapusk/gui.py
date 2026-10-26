@@ -984,7 +984,7 @@ class GameDialog(QDialog):
         return dict(exe=self.exe.text().strip() or self.game["exe"],
                     workdir=self.workdir.text().strip() or str(pathlib.Path(self.exe.text()).parent),
                     args=self.args.text(), preset=self.preset.currentData(),
-                    gamemode=self.gamemode.isChecked(), mangohud=self.mangohud.isChecked(),
+                    gamemode=self.gamemode.isChecked(), mangohud=self.mhud.currentData(),
                     fsync=self.fsync.isChecked(), esync=self.esync.isChecked(),
                     dxvk_hud=self.dxvk_hud.isChecked(), debug=self.debug.isChecked(),
                     large_address=self.large_address.isChecked(),
@@ -1081,7 +1081,11 @@ class Card(QFrame):
         rm.setToolTip(_("Remove"))
         rm.setObjectName("danger")
         rm.clicked.connect(lambda: win.remove_game(game))
-        row2.addWidget(quick); row2.addWidget(cfg); row2.addWidget(folder); row2.addWidget(logs); row2.addWidget(rm)
+        panic = QPushButton("💀"); panic.setFixedWidth(42)
+        panic.setToolTip(_("Panic kill"))
+        panic.setObjectName("danger")
+        panic.clicked.connect(lambda: win.panic_kill(game))
+        row2.addWidget(quick); row2.addWidget(cfg); row2.addWidget(folder); row2.addWidget(logs); row2.addWidget(panic); row2.addWidget(rm)
         lay.addLayout(row2)
 
 
@@ -1571,7 +1575,7 @@ class GameDialog(QDialog):
         return dict(exe=self.exe.text().strip() or self.game["exe"],
                     workdir=self.workdir.text().strip() or str(pathlib.Path(self.exe.text()).parent),
                     args=self.args.text(), preset=self.preset.currentData(),
-                    gamemode=self.gamemode.isChecked(), mangohud=self.mangohud.isChecked(),
+                    gamemode=self.gamemode.isChecked(), mangohud=self.mhud.currentData(),
                     fsync=self.fsync.isChecked(), esync=self.esync.isChecked(),
                     dxvk_hud=self.dxvk_hud.isChecked(), debug=self.debug.isChecked(),
                     large_address=self.large_address.isChecked(),
@@ -1668,7 +1672,11 @@ class Card(QFrame):
         rm.setToolTip(_("Remove"))
         rm.setObjectName("danger")
         rm.clicked.connect(lambda: win.remove_game(game))
-        row2.addWidget(quick); row2.addWidget(cfg); row2.addWidget(folder); row2.addWidget(logs); row2.addWidget(rm)
+        panic = QPushButton("💀"); panic.setFixedWidth(42)
+        panic.setToolTip(_("Panic kill"))
+        panic.setObjectName("danger")
+        panic.clicked.connect(lambda: win.panic_kill(game))
+        row2.addWidget(quick); row2.addWidget(cfg); row2.addWidget(folder); row2.addWidget(logs); row2.addWidget(panic); row2.addWidget(rm)
         lay.addLayout(row2)
 
 
@@ -2562,6 +2570,18 @@ class MainWindow(QMainWindow):
             self.log_out.setPlainText("\n".join(txt.splitlines()[-400:]))
         else:
             self.log_out.setPlainText(_("No log"))
+
+    def panic_kill(self, game):
+        """EN: panic kill — SIGKILL every process of the game. RU: паник-килл."""
+        from zapusk.core.killer import kill_game
+        from zapusk.core.prefix import prefix_path
+        g = library.get(game["name"]) or game
+        if QMessageBox.question(self, "Zapusk",
+                f"{_('Kill all game processes?')}\n{g['name']}") != QMessageBox.Yes:
+            return
+        killed = kill_game(g, prefix_path(g["slug"], g.get("shared_prefix", False)))
+        QMessageBox.information(self, "Zapusk",
+            f"💀 {_('Killed processes')}: {len(killed)}" if killed else _("Nothing to kill"))
 
     def opengamefolder(self, game):
         """EN: open game's workdir in the default file manager. RU: папка игры в файловом менеджере."""

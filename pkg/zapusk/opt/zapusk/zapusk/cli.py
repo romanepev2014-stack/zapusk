@@ -83,6 +83,16 @@ def cmd_detect(a):
         print(f"Сеть / web: {web[1]} -> {web[0]}")
     return 0
 
+def cmd_kill(a):
+    from zapusk.core.killer import kill_game
+    from zapusk.core.prefix import prefix_path
+    g = library.get(a.name)
+    if not g:
+        print(f"❌ Игра '{a.name}' не найдена."); return 1
+    killed = kill_game(g, prefix_path(g["slug"], g.get("shared_prefix", False)))
+    print(f"💀 Убито процессов: {len(killed)}" if killed else "Нечего убивать — процессы не найдены")
+    return 0
+
 def cmd_gui(a):
     from zapusk.gui import run_gui
     return run_gui()
@@ -119,6 +129,9 @@ def main():
     sp = sub.add_parser("detect", help="определить пресет по exe")
     sp.add_argument("exe"); sp.add_argument("--name", default="")
     sp.set_defaults(fn=cmd_detect)
+
+    sp = sub.add_parser("kill", help="паник-килл: убить все процессы игры")
+    sp.add_argument("name"); sp.set_defaults(fn=cmd_kill)
 
     sub.add_parser("gui", help="графический интерфейс").set_defaults(fn=cmd_gui)
 

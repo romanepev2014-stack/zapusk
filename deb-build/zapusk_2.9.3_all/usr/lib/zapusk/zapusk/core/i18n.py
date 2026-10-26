@@ -11,7 +11,7 @@ LANGS = {
     "de": ("Deutsch", "🇩🇪"), "fr": ("Français", "🇫🇷"),
     "es": ("Español", "🇪🇸"), "pt": ("Português", "🇵🇹"),
     "uk": ("Українська", "🇺🇦"), "pl": ("Polski", "🇵🇱"),
-    "zh": ("中文", "🇨🇳"), "ja": ("日本語", "🇯🇵"),
+    "zh": ("Chinese", "🇨🇳"), "ja": ("Japanese", "🇯🇵"),
 }
 
 T = {
