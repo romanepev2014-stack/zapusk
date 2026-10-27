@@ -54,6 +54,10 @@ def cmd_run(a):
         print(f"❌ Игра '{a.name}' не найдена."); return 1
     if a.exe:  # запуск конкретного exe (напр. установщик Social Club)
         g = dict(g); g["exe"] = os.path.abspath(a.exe)
+    if a.fix:
+        from zapusk.core import autofix
+        ok, applied = autofix.run_with_autofix(g, progress=print)
+        return 0 if ok else 1
     from zapusk.core.runner import launch
     lp = launch(g)
     print(f"🚀 Запущено: {g['name']}")
@@ -93,6 +97,60 @@ def cmd_kill(a):
     print(f"💀 Убито процессов: {len(killed)}" if killed else "Нечего убивать — процессы не найдены")
     return 0
 
+def cmd_import(a):
+    from zapusk.core import importer
+    found = importer.scan(only=a.source.split(",") if a.source else None,
+                          folders=a.folder or None, progress=print)
+    if not found:
+        print("Игр не найдено."); return 0
+    for g in found:
+        print(f"• {g['name']}  [{g['source']}]  {g['exe']}")
+    if a.yes:
+        n = importer.import_all(found, progress=print)
+        print(f"✅ Добавлено: {n}")
+    else:
+        print("\nДобавить все: zapusk import --yes")
+    return 0
+
+def cmd_export(a):
+    import shutil
+    from zapusk.core.util import LIBRARY_FILE; shutil.copy(str(LIBRARY_FILE), a.path)
+    print("✅ Библиотека экспортирована:", a.path)
+    return 0
+
+def cmd_import_backup(a):
+    import json, shutil
+    from zapusk.core.util import LIBRARY_FILE, ensure_dirs; ensure_dirs(); shutil.copy(a.path, str(LIBRARY_FILE))
+    print("✅ Библиотека восстановлена из:", a.path)
+    return 0
+
+def cmd_snapshot(a):
+    from zapusk.core import snapshots
+    g = library.get(a.name)
+    if not g:
+        print("Игра не найдена"); return 1
+    d = snapshots.snapshot_prefix(g, progress=print)
+    print("✅ снапшот:", d)
+    return 0
+
+def cmd_rollback(a):
+    from zapusk.core import snapshots
+    g = library.get(a.name)
+    if not g:
+        print("Игра не найдена"); return 1
+    ok, info = snapshots.rollback(g, a.snap, progress=print)
+    print("✅ откат к", info if ok else "не удался")
+    return 0 if ok else 1
+
+def cmd_update(a):
+    from zapusk.core import selfupdate
+    new, info = selfupdate.check()
+    if not new:
+        print(f"У вас актуальная версия ({__import__('zapusk').__version__}). Инфо: {info}")
+        return 0
+    ok, msg = selfupdate.download_and_install(progress=print)
+    return 0 if ok else 1
+
 def cmd_gui(a):
     from zapusk.gui import run_gui
     return run_gui()
@@ -100,7 +158,7 @@ def cmd_gui(a):
 def main():
     ensure_dirs()
     p = argparse.ArgumentParser(prog="zapusk", description="Лаунчер Windows-игр на Arch Linux")
-    sub = p.add_subparsers(dest="cmd", required=True)
+    sub = p.add_subparsers(dest="cmd", required=False)
 
     sub.add_parser("doctor", help="диагностика системы").set_defaults(fn=cmd_doctor)
     sp = sub.add_parser("add", help="добавить игру")
@@ -117,6 +175,7 @@ def main():
 
     sp = sub.add_parser("run", help="запустить игру")
     sp.add_argument("name"); sp.add_argument("--exe", default=None, help="запустить другой exe (установщик и т.п.)")
+    sp.add_argument("--fix", action="store_true", help="авто-лечение при вылете")
     sp.set_defaults(fn=cmd_run)
 
     sp = sub.add_parser("logs", help="показать лог игры")
@@ -133,9 +192,33 @@ def main():
     sp = sub.add_parser("kill", help="паник-килл: убить все процессы игры")
     sp.add_argument("name"); sp.set_defaults(fn=cmd_kill)
 
+    sp = sub.add_parser("import", help="импорт игр из Steam/Heroic/Lutris/Bottles/GOG")
+    sp.add_argument("--source", default=None, help="только: steam,heroic,lutris,bottles,gog")
+    sp.add_argument("--folder", action="append", help="дополнительно сканировать папку")
+    sp.add_argument("--yes", action="store_true", help="сразу добавить в библиотеку")
+    sp.set_defaults(fn=cmd_import)
+
+    sp = sub.add_parser("export", help="экспорт библиотеки в JSON")
+    sp.add_argument("path"); sp.set_defaults(fn=cmd_export)
+
+    sp = sub.add_parser("import-backup", help="восстановить библиотеку из JSON")
+    sp.add_argument("path"); sp.set_defaults(fn=cmd_import_backup)
+
+    sp = sub.add_parser("snapshot", help="снапшот префикса игры")
+    sp.add_argument("name"); sp.set_defaults(fn=cmd_snapshot)
+
+    sp = sub.add_parser("rollback", help="откат префикса игры к снапшоту")
+    sp.add_argument("name"); sp.add_argument("--snap", default=None)
+    sp.set_defaults(fn=cmd_rollback)
+
+    sp = sub.add_parser("update", help="проверить и установить обновление Zapusk")
+    sp.set_defaults(fn=cmd_update)
+
     sub.add_parser("gui", help="графический интерфейс").set_defaults(fn=cmd_gui)
 
     a = p.parse_args()
+    if not getattr(a, "cmd", None):
+        return cmd_gui(a) or 0
     return a.fn(a) or 0
 
 if __name__ == "__main__":

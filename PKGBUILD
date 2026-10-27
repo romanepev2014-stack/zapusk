@@ -1,6 +1,6 @@
 # Maintainer: roma_ogon
 pkgname=zapusk
-pkgver=2.9.3
+pkgver=3.0.0
 pkgrel=1
 pkgdesc="Cyberpunk launcher for Windows games on Arch Linux (Wine + DXVK + VKD3D)"
 arch=('any')
@@ -31,7 +31,7 @@ package() {
   install -Dm755 "$srcdir/$pkgname-$pkgver/run.sh" "$pkgdir/opt/zapusk/run.sh"
 
   install -dm755 "$pkgdir/usr/bin"
-  printf '#!/bin/sh\ncd /opt/zapusk && exec python -m zapusk gui "$@"\n' > "$pkgdir/usr/bin/zapusk"
+  printf '#!/bin/sh\ncd /opt/zapusk && exec python -m zapusk "$@"\n' > "$pkgdir/usr/bin/zapusk"
   chmod 755 "$pkgdir/usr/bin/zapusk"
 
   install -Dm644 "$srcdir/$pkgname-$pkgver/zapusk.desktop" "$pkgdir/usr/share/applications/zapusk.desktop"

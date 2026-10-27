@@ -43,7 +43,7 @@ def build_env(game, prefix, extra_env=None):
         env.update(extra_env)
     return env
 
-def launch(game, extra_env=None):
+def launch(game, extra_env=None, want_pid=False):
     slug = game.get("slug") or game["name"]
     log = LOGS_DIR / f"{slug}.log"
     cmd = build_command(game)
@@ -52,9 +52,9 @@ def launch(game, extra_env=None):
         env = dict(os.environ)
         if extra_env:
             env.update(extra_env)
-        run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
-        return log
+        p = run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
+        return (log, p.pid) if want_pid else log
     prefix = prefix_path(slug, game.get("shared_prefix", False))
     env = build_env(game, prefix, extra_env)
-    run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
-    return log
+    p = run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
+    return (log, p.pid) if want_pid else log

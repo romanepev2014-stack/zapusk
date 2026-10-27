@@ -16,11 +16,11 @@ from PySide6.QtWidgets import (
     QDialog, QDialogButtonBox, QMessageBox, QListWidget, QStackedWidget,
     QScrollArea, QFrame, QTextEdit, QInputDialog, QProgressBar,
     QGraphicsOpacityEffect)
-from PySide6.QtCore import (Qt, QThread, Signal, QObject, Property, QTimer, QRect, QRectF, QPoint, QPoint,
+from PySide6.QtCore import (Qt, QThread, Signal, QObject, Property, QTimer, QRect, QRectF, QPoint,
                             QPropertyAnimation, QEasingCurve, QSize, QEvent)
 from PySide6.QtGui import (QFont, QColor, QCursor, QDragEnterEvent, QDropEvent, QPainter,
                            QLinearGradient, QRadialGradient, QPen, QBrush,
-                           QPainterPath, QPixmap, QImage)
+                           QPainterPath, QPixmap, QImage, QPolygon)
 
 from zapusk.core import library, i18n
 _ = i18n.tr
@@ -217,6 +217,768 @@ WORLDS = [('Cyber',
    'warn': '#b58200'})]
 
 
+WORLDS += [('FreeBSD',
+  {'accent': '#e03c31',
+   'accent2': '#3a7bd5',
+   'bg': '#0a0f16',
+   'border': '#22303f',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(224,60,49,30)',
+   'card': '#16202e',
+   'err': '#ff3b5c',
+   'input': '#0c141d',
+   'muted': '#6b7c8f',
+   'ok': '#3ddc84',
+   'panel': '#111a26',
+   'scene': {'far': '#101a28',
+             'glow': '#3a7bd5',
+             'mid': '#0b141f',
+             'near': '#070d15',
+             'scene_type': 'cyber',
+             'sky1': '#060a12',
+             'sky2': '#0e1a2b',
+             'stars': 1,
+             'win1': '#e03c31',
+             'win2': '#3a7bd5'},
+   'text': '#e8eef5',
+   'warn': '#ffb020'},
+  {'accent': '#c0392b',
+   'accent2': '#2e6da4',
+   'bg': '#f2f0ea',
+   'border': '#d9d4c8',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(192,57,43,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e9e4d8',
+   'muted': '#6a7683',
+   'ok': '#0a8f5b',
+   'panel': '#faf8f3',
+   'scene': {'far': '#93a7ba',
+             'glow': '#7aa7d5',
+             'mid': '#6d8299',
+             'near': '#4c5f73',
+             'scene_type': 'cyber',
+             'sky1': '#c9d6e4',
+             'sky2': '#eef3f8',
+             'stars': 0,
+             'win1': '#7a2a20',
+             'win2': '#2e5f8a'},
+   'text': '#1a1f26',
+   'warn': '#ffb020'}),
+ ('macOS',
+  {'accent': '#0a84ff',
+   'accent2': '#bf5af2',
+   'bg': '#1c1c1e',
+   'border': '#3f3f42',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(10,132,255,30)',
+   'card': '#3a3a3c',
+   'err': '#ff3b5c',
+   'input': '#161618',
+   'muted': '#8e8e93',
+   'ok': '#30d158',
+   'panel': '#2c2c2e',
+   'scene': {'ground': '#180b24',
+             'm1': '#3a2050',
+             'm2': '#241236',
+             'scene_type': 'sunset',
+             'sky1': '#1a1030',
+             'sky2': '#4a2a6a',
+             'sky3': '#8a4a8a',
+             'sun1': '#ffe0f0',
+             'sun2': '#ff9ad5'},
+   'text': '#f2f2f7',
+   'warn': '#ffb020'},
+  {'accent': '#007aff',
+   'accent2': '#af52de',
+   'bg': '#f5f5f7',
+   'border': '#d9d9de',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(0,122,255,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#eaeaee',
+   'muted': '#6e6e73',
+   'ok': '#0a8f5b',
+   'panel': '#ffffff',
+   'scene': {'ground': '#7d4462',
+             'm1': '#c98aa8',
+             'm2': '#a86a8c',
+             'scene_type': 'sunset',
+             'sky1': '#ffd9ec',
+             'sky2': '#ffb3d9',
+             'sky3': '#fff0f8',
+             'sun1': '#ffffff',
+             'sun2': '#ffd0e8'},
+   'text': '#1c1c1e',
+   'warn': '#ffb020'}),
+ ('iPhone',
+  {'accent': '#30b0c7',
+   'accent2': '#0a84ff',
+   'bg': '#0b0b0f',
+   'border': '#26262e',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(48,176,199,30)',
+   'card': '#1e1e26',
+   'err': '#ff3b5c',
+   'input': '#101014',
+   'muted': '#7c7c85',
+   'ok': '#30d158',
+   'panel': '#16161c',
+   'scene': {'far': '#121a28',
+             'glow': '#30b0c7',
+             'mid': '#0d1420',
+             'near': '#090e16',
+             'scene_type': 'cyber',
+             'sky1': '#080a12',
+             'sky2': '#141c2c',
+             'stars': 1,
+             'win1': '#30b0c7',
+             'win2': '#5e5ce6'},
+   'text': '#f2f2f7',
+   'warn': '#ffb020'},
+  {'accent': '#007aff',
+   'accent2': '#30b0c7',
+   'bg': '#fbfbfd',
+   'border': '#e3e3e8',
+   'btn': 'rgba(0,25,70,10)',
+   'btnhover': 'rgba(0,122,255,22)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#eef0f4',
+   'muted': '#8e8e93',
+   'ok': '#0a8f5b',
+   'panel': '#ffffff',
+   'scene': {'far': '#9db4cc',
+             'glow': '#8ac4e8',
+             'mid': '#7a92aa',
+             'near': '#596f86',
+             'scene_type': 'cyber',
+             'sky1': '#bcd4ea',
+             'sky2': '#eaf2fb',
+             'stars': 0,
+             'win1': '#1a5c8a',
+             'win2': '#3a6a9a'},
+   'text': '#1c1c1e',
+   'warn': '#ffb020'}),
+ ('Samsung',
+  {'accent': '#3a6df0',
+   'accent2': '#00c8ff',
+   'bg': '#0a0f1e',
+   'border': '#1e2c48',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(58,109,240,30)',
+   'card': '#16223c',
+   'err': '#ff3b5c',
+   'input': '#0c1428',
+   'muted': '#6b7ca0',
+   'ok': '#3ddc84',
+   'panel': '#101830',
+   'scene': {'far': '#0f1830',
+             'glow': '#3a6df0',
+             'mid': '#0a1224',
+             'near': '#060b16',
+             'scene_type': 'cyber',
+             'sky1': '#070b18',
+             'sky2': '#0e1830',
+             'stars': 1,
+             'win1': '#3a6df0',
+             'win2': '#00c8ff'},
+   'text': '#e8eefc',
+   'warn': '#ffb020'},
+  {'accent': '#1a4fd0',
+   'accent2': '#0090c8',
+   'bg': '#eef2fa',
+   'border': '#ccd6ea',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(26,79,208,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e6ecf8',
+   'muted': '#5f6c85',
+   'ok': '#0a8f5b',
+   'panel': '#ffffff',
+   'scene': {'far': '#93a8cc',
+             'glow': '#7aa7e0',
+             'mid': '#6d84a8',
+             'near': '#4c617a',
+             'scene_type': 'cyber',
+             'sky1': '#b8cbe8',
+             'sky2': '#e8f0fc',
+             'stars': 0,
+             'win1': '#1a3c78',
+             'win2': '#2a5a8a'},
+   'text': '#101828',
+   'warn': '#ffb020'}),
+ ('Nokia',
+  {'accent': '#005aff',
+   'accent2': '#9aa7b4',
+   'bg': '#061018',
+   'border': '#1c3040',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(0,90,255,30)',
+   'card': '#122230',
+   'err': '#ff3b5c',
+   'input': '#081420',
+   'muted': '#5f7a8f',
+   'ok': '#3ddc84',
+   'panel': '#0c1a26',
+   'scene': {'far': '#0c1624',
+             'glow': '#005aff',
+             'mid': '#081020',
+             'near': '#050a12',
+             'scene_type': 'cyber',
+             'sky1': '#040a12',
+             'sky2': '#0a1626',
+             'stars': 1,
+             'win1': '#005aff',
+             'win2': '#4a90d9'},
+   'text': '#e0ecf5',
+   'warn': '#ffb020'},
+  {'accent': '#005aff',
+   'accent2': '#0060c0',
+   'bg': '#e8edf2',
+   'border': '#c8d2dc',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(0,90,255,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#dde5ec',
+   'muted': '#5a6a78',
+   'ok': '#0a8f5b',
+   'panel': '#f4f7fa',
+   'scene': {'far': '#8ba2b8',
+             'glow': '#7aa7d8',
+             'mid': '#687e94',
+             'near': '#48586c',
+             'scene_type': 'cyber',
+             'sky1': '#aec4d8',
+             'sky2': '#e2ecf4',
+             'stars': 0,
+             'win1': '#1a3c6a',
+             'win2': '#2a5a8a'},
+   'text': '#101820',
+   'warn': '#ffb020'}),
+ ('Windows 95',
+  {'accent': '#000080',
+   'accent2': '#800080',
+   'bg': '#008080',
+   'border': '#808080',
+   'btn': '#c0c0c0',
+   'btnhover': '#d4d4d4',
+   'card': '#dfdfdf',
+   'err': '#ff3b5c',
+   'input': '#ffffff',
+   'muted': '#404040',
+   'ok': '#008000',
+   'panel': '#c0c0c0',
+   'scene': {'far': '#909090',
+             'glow': '#a8a8a8',
+             'mid': '#707070',
+             'near': '#505050',
+             'scene_type': 'cyber',
+             'sky1': '#7fb8b8',
+             'sky2': '#008080',
+             'stars': 0,
+             'win1': '#000080',
+             'win2': '#800080'},
+   'text': '#000000',
+   'warn': '#ffb020'},
+  {'accent': '#000080',
+   'accent2': '#800080',
+   'bg': '#008080',
+   'border': '#909090',
+   'btn': '#c8c8c8',
+   'btnhover': '#dcdcdc',
+   'card': '#efefef',
+   'err': '#ff3b5c',
+   'input': '#ffffff',
+   'muted': '#404040',
+   'ok': '#008000',
+   'panel': '#d0d0d0',
+   'scene': {'far': '#9a9a9a',
+             'glow': '#b0b0b0',
+             'mid': '#787878',
+             'near': '#585858',
+             'scene_type': 'cyber',
+             'sky1': '#8fc4c4',
+             'sky2': '#1a8f8f',
+             'stars': 0,
+             'win1': '#000080',
+             'win2': '#800080'},
+   'text': '#000000',
+   'warn': '#ffb020'}),
+ ('Windows 7',
+  {'accent': '#1ba1e2',
+   'accent2': '#6ddcff',
+   'bg': '#0d1b2a',
+   'border': '#1e3a55',
+   'btn': 'rgba(255,255,255,18)',
+   'btnhover': 'rgba(27,161,226,32)',
+   'card': '#1a3050',
+   'err': '#ff3b5c',
+   'input': '#0c1826',
+   'muted': '#6b8aa8',
+   'ok': '#3ddc84',
+   'panel': '#12253c',
+   'scene': {'far': '#0f2036',
+             'glow': '#1ba1e2',
+             'mid': '#0a1828',
+             'near': '#060e18',
+             'scene_type': 'cyber',
+             'sky1': '#081220',
+             'sky2': '#122840',
+             'stars': 1,
+             'win1': '#1ba1e2',
+             'win2': '#7ae2ff'},
+   'text': '#e6f2fc',
+   'warn': '#ffb020'},
+  {'accent': '#0078d7',
+   'accent2': '#00a4ef',
+   'bg': '#eaf4fc',
+   'border': '#c8dcf0',
+   'btn': 'rgba(0,25,70,12)',
+   'btnhover': 'rgba(0,120,215,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e0ecf8',
+   'muted': '#5f7488',
+   'ok': '#0a8f5b',
+   'panel': '#ffffff',
+   'scene': {'far': '#8fb4d4',
+             'glow': '#8ac4ee',
+             'mid': '#6b90b0',
+             'near': '#4a6a86',
+             'scene_type': 'cyber',
+             'sky1': '#aad0ec',
+             'sky2': '#e4f2fc',
+             'stars': 0,
+             'win1': '#1a4c78',
+             'win2': '#2a6a9a'},
+   'text': '#12202e',
+   'warn': '#ffb020'}),
+ ('GTA',
+  {'accent': '#f6a21e',
+   'accent2': '#39c1d8',
+   'bg': '#0c0a08',
+   'border': '#3a2c1c',
+   'btn': 'rgba(246,162,30,16)',
+   'btnhover': 'rgba(246,162,30,34)',
+   'card': '#221b15',
+   'err': '#ff3b5c',
+   'input': '#140f0a',
+   'muted': '#8a7460',
+   'ok': '#7dff8a',
+   'panel': '#171310',
+   'scene': {'ground': '#1a0d04',
+             'm1': '#3a2010',
+             'm2': '#241206',
+             'scene_type': 'sunset',
+             'sky1': '#160a04',
+             'sky2': '#4a2410',
+             'sky3': '#c96a20',
+             'sun1': '#fff0d0',
+             'sun2': '#ffb050'},
+   'text': '#ffe8d0',
+   'warn': '#ffb020'},
+  {'accent': '#d68410',
+   'accent2': '#1a9ab0',
+   'bg': '#f7ede0',
+   'border': '#e4d4c0',
+   'btn': 'rgba(200,120,10,12)',
+   'btnhover': 'rgba(214,132,16,28)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#f2e6d4',
+   'muted': '#7d6a58',
+   'ok': '#1d8a4a',
+   'panel': '#fdf8f0',
+   'scene': {'ground': '#5c3226',
+             'm1': '#b06a48',
+             'm2': '#8a4a3a',
+             'scene_type': 'sunset',
+             'sky1': '#ffd9b0',
+             'sky2': '#f0a860',
+             'sky3': '#ffe8c8',
+             'sun1': '#fff8e8',
+             'sun2': '#ffc878'},
+   'text': '#241a10',
+   'warn': '#ffb020'}),
+ ('ETS2',
+  {'accent': '#ff9e00',
+   'accent2': '#4caf50',
+   'bg': '#10120f',
+   'border': '#2c3626',
+   'btn': 'rgba(255,158,0,16)',
+   'btnhover': 'rgba(255,158,0,34)',
+   'card': '#22281e',
+   'err': '#ff3b5c',
+   'input': '#12160f',
+   'muted': '#748a68',
+   'ok': '#7dff8a',
+   'panel': '#181c16',
+   'scene': {'ground': '#101208',
+             'm1': '#2c3018',
+             'm2': '#1a1e0e',
+             'scene_type': 'sunset',
+             'sky1': '#0c0e08',
+             'sky2': '#2c3418',
+             'sky3': '#7a6420',
+             'sun1': '#fff0c0',
+             'sun2': '#ffb830'},
+   'text': '#e8f0e0',
+   'warn': '#ffb020'},
+  {'accent': '#d68400',
+   'accent2': '#3a8f40',
+   'bg': '#f2f4ea',
+   'border': '#d5dcc8',
+   'btn': 'rgba(180,110,0,12)',
+   'btnhover': 'rgba(214,132,0,28)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e8ecdc',
+   'muted': '#6a7a5c',
+   'ok': '#1d8a4a',
+   'panel': '#fafbf4',
+   'scene': {'ground': '#5c4632',
+             'm1': '#b08a58',
+             'm2': '#8a6248',
+             'scene_type': 'sunset',
+             'sky1': '#ffe9bd',
+             'sky2': '#f5c86e',
+             'sky3': '#fff2d2',
+             'sun1': '#fffdf2',
+             'sun2': '#ffd878'},
+   'text': '#1c2216',
+   'warn': '#ffb020'}),
+ ('Nostalgia',
+  {'accent': '#d4a24e',
+   'accent2': '#8a6a3a',
+   'bg': '#16120c',
+   'border': '#3a2f1c',
+   'btn': 'rgba(212,162,78,16)',
+   'btnhover': 'rgba(212,162,78,34)',
+   'card': '#2e2618',
+   'err': '#ff3b5c',
+   'input': '#1a150c',
+   'muted': '#8a7a5c',
+   'ok': '#a8d48a',
+   'panel': '#221c12',
+   'scene': {'ground': '#120c04',
+             'm1': '#2e2210',
+             'm2': '#1c1408',
+             'scene_type': 'sunset',
+             'sky1': '#140e06',
+             'sky2': '#3c2c14',
+             'sky3': '#8a6430',
+             'sun1': '#ffe8b8',
+             'sun2': '#e8b060'},
+   'text': '#efe3c8',
+   'warn': '#ffb020'},
+  {'accent': '#b08228',
+   'accent2': '#6a5228',
+   'bg': '#f4ead5',
+   'border': '#ddd0b8',
+   'btn': 'rgba(150,110,30,12)',
+   'btnhover': 'rgba(176,130,40,28)',
+   'card': '#fffaf0',
+   'err': '#ff3b5c',
+   'input': '#efe4cc',
+   'muted': '#7d6f52',
+   'ok': '#4a8a3a',
+   'panel': '#faf3e2',
+   'scene': {'ground': '#5c4c36',
+             'm1': '#b09468',
+             'm2': '#8a7050',
+             'scene_type': 'sunset',
+             'sky1': '#ffe2b0',
+             'sky2': '#eec27a',
+             'sky3': '#fff0d0',
+             'sun1': '#fff8e0',
+             'sun2': '#ffd080'},
+   'text': '#2c2416',
+   'warn': '#ffb020'}),
+ ('Terraria',
+  {'accent': '#7ec850',
+   'accent2': '#8a5a32',
+   'bg': '#0d130a',
+   'border': '#2a3a1c',
+   'btn': 'rgba(126,200,80,16)',
+   'btnhover': 'rgba(126,200,80,34)',
+   'card': '#1d2814',
+   'err': '#ff3b5c',
+   'input': '#101708',
+   'muted': '#6f8a5c',
+   'ok': '#a8e070',
+   'panel': '#141c0e',
+   'scene': {'ground': '#1a2c10',
+             'm1': '#3c5a20',
+             'm2': '#2a4218',
+             'moon': '#e8f5d8',
+             'petals': ['#7ec850', '#5aa032', '#8fce62', '#6b4a2a'],
+             'scene_type': 'sakura',
+             'sky1': '#0c1408',
+             'sky2': '#243a14',
+             'sky3': '#5a7a30',
+             'trunk': '#5a4028'},
+   'text': '#e4f0d8',
+   'warn': '#ffb020'},
+  {'accent': '#4c9a2a',
+   'accent2': '#7a4e2a',
+   'bg': '#eef5e4',
+   'border': '#d0dcc0',
+   'btn': 'rgba(60,120,30,12)',
+   'btnhover': 'rgba(76,154,42,26)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e4eed6',
+   'muted': '#5f7050',
+   'ok': '#3a8a2a',
+   'panel': '#f6faee',
+   'scene': {'ground': '#6a8a4c',
+             'm1': '#a8c888',
+             'm2': '#88a868',
+             'moon': '#ffffff',
+             'petals': ['#5aa032', '#4c8a2a', '#7ec850', '#8a6a3a'],
+             'scene_type': 'sakura',
+             'sky1': '#dff0cc',
+             'sky2': '#c8e4a8',
+             'sky3': '#eef8e0',
+             'trunk': '#6a4a2c'},
+   'text': '#1c2a14',
+   'warn': '#ffb020'}),
+ ('Ocean',
+  {'accent': '#00c2ff',
+   'accent2': '#0077b6',
+   'bg': '#04101c',
+   'border': '#16324a',
+   'btn': 'rgba(0,194,255,16)',
+   'btnhover': 'rgba(0,194,255,32)',
+   'card': '#122840',
+   'err': '#ff3b5c',
+   'input': '#061826',
+   'muted': '#5f84a8',
+   'ok': '#3ddc84',
+   'panel': '#0a1c30',
+   'scene': {'far': '#0c2036',
+             'glow': '#00c2ff',
+             'mid': '#081828',
+             'near': '#050e18',
+             'scene_type': 'cyber',
+             'sky1': '#030c16',
+             'sky2': '#0a2036',
+             'stars': 1,
+             'win1': '#00c2ff',
+             'win2': '#3a9ad9'},
+   'text': '#dff0fc',
+   'warn': '#ffb020'},
+  {'accent': '#0090c8',
+   'accent2': '#0077b6',
+   'bg': '#e6f4fc',
+   'border': '#c8e0ee',
+   'btn': 'rgba(0,80,120,12)',
+   'btnhover': 'rgba(0,144,200,25)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#dceef8',
+   'muted': '#5f7a90',
+   'ok': '#0a8f5b',
+   'panel': '#ffffff',
+   'scene': {'far': '#8abdd8',
+             'glow': '#7ac8ec',
+             'mid': '#689ab8',
+             'near': '#487690',
+             'scene_type': 'cyber',
+             'sky1': '#aadcee',
+             'sky2': '#e0f4fc',
+             'stars': 0,
+             'win1': '#1a5c8a',
+             'win2': '#2a7aa8'},
+   'text': '#0c2030',
+   'warn': '#ffb020'}),
+ ('Forest',
+  {'accent': '#4caf50',
+   'accent2': '#8bc34a',
+   'bg': '#0a120c',
+   'border': '#1e3320',
+   'btn': 'rgba(76,175,80,16)',
+   'btnhover': 'rgba(76,175,80,34)',
+   'card': '#1c2e1c',
+   'err': '#ff3b5c',
+   'input': '#0c160e',
+   'muted': '#5f7a60',
+   'ok': '#7dff8a',
+   'panel': '#122014',
+   'scene': {'ground': '#122a12',
+             'm1': '#2c5628',
+             'm2': '#1e4020',
+             'moon': '#e8f8e0',
+             'petals': ['#4caf50', '#388e3c', '#8bc34a', '#6d4c2a'],
+             'scene_type': 'sakura',
+             'sky1': '#081208',
+             'sky2': '#1c3620',
+             'sky3': '#4a7a40',
+             'trunk': '#4a3620'},
+   'text': '#e2f0e0',
+   'warn': '#ffb020'},
+  {'accent': '#2e8f32',
+   'accent2': '#6a9a2a',
+   'bg': '#edf5ea',
+   'border': '#d0dcc8',
+   'btn': 'rgba(40,110,44,12)',
+   'btnhover': 'rgba(46,143,50,26)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#e2eedc',
+   'muted': '#5c705c',
+   'ok': '#2a8a3a',
+   'panel': '#f7fbf3',
+   'scene': {'ground': '#5a8a4c',
+             'm1': '#9ec890',
+             'm2': '#7aa868',
+             'moon': '#ffffff',
+             'petals': ['#388e3c', '#2e7d32', '#8bc34a', '#7a5a30'],
+             'scene_type': 'sakura',
+             'sky1': '#d8ecd0',
+             'sky2': '#bfe0ae',
+             'sky3': '#eef8e4',
+             'trunk': '#5a4428'},
+   'text': '#1a2a1a',
+   'warn': '#ffb020'}),
+ ('Vaporwave',
+  {'accent': '#ff71ce',
+   'accent2': '#01cdfe',
+   'bg': '#120624',
+   'border': '#3c2068',
+   'btn': 'rgba(255,113,206,16)',
+   'btnhover': 'rgba(1,205,254,30)',
+   'card': '#2c1450',
+   'err': '#ff3b5c',
+   'input': '#160a2c',
+   'muted': '#8a6ab8',
+   'ok': '#05ffa1',
+   'panel': '#1e0c3a',
+   'scene': {'ground': '#180a2c',
+             'm1': '#3a1a5a',
+             'm2': '#241040',
+             'scene_type': 'sunset',
+             'sky1': '#16062e',
+             'sky2': '#4a1a6a',
+             'sky3': '#b84a9a',
+             'sun1': '#ffe0f4',
+             'sun2': '#ff71ce'},
+   'text': '#f2e4ff',
+   'warn': '#ffb020'},
+  {'accent': '#d84fb0',
+   'accent2': '#0090c8',
+   'bg': '#fdf0ff',
+   'border': '#e8d4f4',
+   'btn': 'rgba(160,60,140,12)',
+   'btnhover': 'rgba(216,79,176,26)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#f6e6fc',
+   'muted': '#7a5a9a',
+   'ok': '#0a8f6b',
+   'panel': '#ffffff',
+   'scene': {'ground': '#7d4470',
+             'm1': '#c88ab8',
+             'm2': '#a86a9c',
+             'scene_type': 'sunset',
+             'sky1': '#ffd4f0',
+             'sky2': '#f0a0d8',
+             'sky3': '#fff0fa',
+             'sun1': '#ffffff',
+             'sun2': '#ffb0e0'},
+   'text': '#2c1244',
+   'warn': '#ffb020'}),
+ ('Windows XP',
+  dict(bg='#123a6e', panel='#1a4a8a', card='#2258a0', text='#eaf4ff', muted='#9ab8d8',
+       accent='#3d95ff', accent2='#7ec850', border='#2a5a9a', ok='#7ec850', warn='#ffb020',
+       err='#ff5252', input='#0d2f5c', btn='rgba(255,255,255,20)', btnhover='rgba(61,149,255,35)',
+       scene=dict(scene_type='xp', sky1='#0d2f5c', sky2='#3d7fd0', hill1='#3d8a3d', hill2='#2c6e2c', cloud='#ffffff')),
+  dict(bg='#eaf4ff', panel='#ffffff', card='#ffffff', text='#12294a', muted='#5f7a9a',
+       accent='#2c72e0', accent2='#4caf50', border='#c8dcf0', ok='#2e8f32', warn='#b57500',
+       err='#d21f45', input='#ddeafa', btn='rgba(30,90,180,12)', btnhover='rgba(44,114,224,25)',
+       scene=dict(scene_type='xp', sky1='#2f6fc0', sky2='#7db8f0', hill1='#4caf50', hill2='#388e3c', cloud='#ffffff'))),
+ ('Gold',
+  {'accent': '#d4af37',
+   'accent2': '#f5e08a',
+   'bg': '#0e0c06',
+   'border': '#3a2f14',
+   'btn': 'rgba(212,175,55,16)',
+   'btnhover': 'rgba(212,175,55,34)',
+   'card': '#28200e',
+   'err': '#ff3b5c',
+   'input': '#141008',
+   'muted': '#8a7a50',
+   'ok': '#a8e070',
+   'panel': '#1a160a',
+   'scene': {'far': '#1e180a',
+             'glow': '#d4af37',
+             'mid': '#140f06',
+             'near': '#0a0703',
+             'scene_type': 'cyber',
+             'sky1': '#0a0804',
+             'sky2': '#1c1608',
+             'stars': 1,
+             'win1': '#d4af37',
+             'win2': '#f5e08a'},
+   'text': '#f5ecd0',
+   'warn': '#ffb020'},
+  {'accent': '#a8842a',
+   'accent2': '#8a6a1a',
+   'bg': '#f7f1de',
+   'border': '#e4d8b8',
+   'btn': 'rgba(140,110,30,12)',
+   'btnhover': 'rgba(168,132,42,26)',
+   'card': '#ffffff',
+   'err': '#ff3b5c',
+   'input': '#efe6cc',
+   'muted': '#7d7050',
+   'ok': '#4a8a3a',
+   'panel': '#fdf9ea',
+   'scene': {'far': '#c4b088',
+             'glow': '#d4b860',
+             'mid': '#a08e68',
+             'near': '#786a4e',
+             'scene_type': 'cyber',
+             'sky1': '#e8d8a8',
+             'sky2': '#f7ecd0',
+             'stars': 0,
+             'win1': '#7a5c14',
+             'win2': '#8a6e22'},
+   'text': '#2c2410',
+   'warn': '#ffb020'})]
+
+
+# EN: per-theme scene tweaks (logo, palms, special renderers).
+# RU: доработки сцен под темы (логотипы, пальмы, особые рендереры).
+WORLD_TWEAKS = {
+    "samsung": {"scene_type": "flat", "color": "#04070e", "color2": "#0e1830", "logo": "S"},
+    "nokia": {"scene_type": "flat", "color": "#8fb4dd", "color2": "#dceafa", "logo": "NOKIA"},
+    "freebsd": {"scene_type": "flat", "color": "#180b0b", "color2": "#301214", "beastie": 1},
+    "gold": {"scene_type": "flat", "color": "#1a1408", "color2": "#3d2f10"},
+    "gta": {"palms": 1},
+    "windows 7": {"scene_type": "flat", "color": "#1b6fde", "color2": "#0a2f6e", "radial": 1},
+    "windows 95": {"scene_type": "flat", "color": "#008080"},
+    "iphone": {"scene_type": "wave", "sky1": "#0b0b0f", "sky2": "#1c1c20",
+               "w1": "#333338", "w2": "#e8e8ee", "detail": 0},
+    "macos": {"scene_type": "wave", "sky1": "#14101e", "sky2": "#2c1c40",
+              "w1": "#3a2a55", "w2": "#bf5af2", "detail": 1},
+    "terraria": {"scene_type": "minecraft"},
+    "forest": {"scene_type": "forest"},
+    "ets2": {"scene_type": "road"},
+    "ocean": {"scene_type": "sea", "sky1": "#04203a", "sky2": "#0a4a7a",
+              "m1": "#123a55", "m2": "#0a2a40", "water": "#06283c", "glow": "#bfe8ff"},
+}
+
+# EN: keep only the original 4 + Windows XP + Windows 95.
+# RU: оставляем 4 оригинальные + Windows XP + Windows 95.
+KEEP_WORLDS = ("Cyber", "Matrix", "Sunset", "Sakura", "Windows XP", "Windows 95")
+WORLDS = [w for w in WORLDS if w[0] in KEEP_WORLDS]
+
 PALETTES = [(n, d, l) for n, d, l in WORLDS]
 
 
@@ -228,6 +990,33 @@ def _lc(c1, c2, t):
 
 def _lcs(c1, c2, t):  # вернуть строку hex
     return _lc(c1, c2, t).name()
+
+
+def _theme_extra(th):
+    """EN: per-theme stylesheet extras (authentic controls). RU: аутентичные контролы тем."""
+    name = th.get("_name", "")
+    if name == "Windows 95":
+        return """
+QPushButton, QCheckBox, QComboBox { background: #c0c0c0; color: #000000; border: 2px outset #dfdfdf; border-radius: 0; }
+QPushButton:pressed { border-style: inset; }
+QPushButton#primary, QPushButton#good { border: 2px outset #dfdfdf; border-radius: 0; }
+QLineEdit, QTextEdit { background: #ffffff; color: #000000; border: 2px inset #808080; border-radius: 0; }
+QLabel#big, QLabel#title { color: #000080; }
+"""
+    if name in ("Windows XP", "Windows 95"):
+        return """
+QFrame#panel, QFrame#card { background: #ece9d8; border: 2px outset #ffffff; border-radius: 0; }
+QPushButton, QCheckBox, QComboBox { background: #ece9d8; color: #000000; border: 2px outset #ffffff; border-radius: 0; }
+QPushButton:hover, QCheckBox:hover { background: #dce9f5; }
+QPushButton:pressed { border-style: inset; }
+QPushButton#primary { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #5cb3ff, stop:1 #2268d8); color: #ffffff; }
+QPushButton#good { background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #7ec850, stop:1 #3d8a3d); color: #ffffff; }
+QLineEdit, QTextEdit { background: #ffffff; color: #000000; border: 2px inset #808080; border-radius: 0; }
+QLabel#big, QLabel#title { color: #0a246a; }
+#nav { background: #ece9d8; border: 2px outset #ffffff; }
+#nav QListWidget::item:selected { background: #316ac5; color: #ffffff; }
+"""
+    return ""
 
 
 def build_qss(th):
@@ -275,7 +1064,7 @@ QScrollBar:vertical {{ background: transparent; width: 8px; }}
 QScrollBar::handle:vertical {{ background: rgba(127,200,255,70); border-radius: 4px; min-height: 30px; }}
 QProgressBar {{ border: 1px solid {hx('border')}; border-radius: 8px; background: rgba(0,0,0,50); text-align: center; height: 14px; }}
 QProgressBar::chunk {{ background: qlineargradient(x1:0,y1:0,x2:1,y2:0, stop:0 {a}, stop:1 {th['accent2']}); border-radius: 8px; }}
-"""
+""" + _theme_extra(th)
 
 
 class Theme(QObject):
@@ -320,6 +1109,7 @@ class Theme(QObject):
             else:
                 th[k] = dv
         th["scene_raw"] = dk["scene"] if self._t < 0.5 else lt["scene"]
+        th["_name"] = self.palette_name()
         return th
 
     def palette_name(self):
@@ -331,6 +1121,18 @@ class Theme(QObject):
             self._pal = idx
             i18n.save("theme", idx)
             self.changed.emit()
+            try:
+                from PySide6.QtWidgets import QApplication
+                for w in QApplication.topLevelWidgets():
+                    if hasattr(w, "xpbar"):
+                        nm = w.theme.palette_name()
+                        mode = "xp" if nm == "Windows XP" else ("95" if nm == "Windows 95" else None)
+                        w.xpbar.set_mode(mode)
+                        if hasattr(w, "navw"):
+                            w.navw.setVisible(mode is None)
+            except Exception:
+                import traceback
+                traceback.print_exc()
 
     def qss(self):
         """EN: stylesheet for the current interpolated theme. RU: стили текущей темы."""
@@ -349,7 +1151,10 @@ class Theme(QObject):
                 out[k] = _lcs(v, sl[k], self._t)
             else:
                 out[k] = v
-        out["world"] = self.palette_name().lower()
+        nm = self.palette_name().lower()
+        out.update(WORLD_TWEAKS.get(nm, {}))
+        out["world"] = (out.get("scene_type") or
+                        {"matrix": "matrix", "sunset": "sunset", "sakura": "sakura"}.get(nm, "cyber")).lower()
         out["t"] = self._t
         return out
 
@@ -445,8 +1250,39 @@ class NeonFrame(QFrame):
             self._draw_city(pt, w, h, sc, ov)
         elif world == "sunset":
             self._draw_sunset(pt, w, h, sc, ov)
+            if sc.get("palms"):
+                self._draw_palms(pt, w, h, sc)
         elif world == "sakura":
             self._draw_sakura(pt, w, h, sc, ov)
+        elif world == "wave":
+            pass  # волны рисуются живьём в paintEvent
+        elif world == "flat":
+            if sc.get("color2") and sc.get("radial"):
+                fg = QRadialGradient(w / 2, h * 0.42, max(w, h) * 0.75)
+                fg.setColorAt(0, QColor(sc["color"]))
+                fg.setColorAt(1, QColor(sc["color2"]))
+                pt.fillRect(0, 0, w, h, fg)
+            elif sc.get("color2"):
+                fg = QLinearGradient(0, 0, 0, h)
+                fg.setColorAt(0, QColor(sc["color"]))
+                fg.setColorAt(1, QColor(sc["color2"]))
+                pt.fillRect(0, 0, w, h, fg)
+            else:
+                pt.fillRect(0, 0, w, h, QColor(sc.get("color", "#008080")))
+        elif world == "minecraft":
+            self._draw_minecraft(pt, w, h, sc, ov)
+        elif world == "forest":
+            self._draw_forest(pt, w, h, sc, ov)
+        elif world == "road":
+            self._draw_road(pt, w, h, sc, ov)
+        elif world == "xp":
+            self._draw_xp(pt, w, h, sc, ov)
+        elif world == "sea":
+            self._draw_sea(pt, w, h, sc, ov)
+        if sc.get("logo"):
+            self._draw_logo(pt, w, h, sc["logo"], sc.get("win1", "#ffffff"))
+        if sc.get("beastie"):
+            self._draw_beastie(pt, w, h)
         pt.end()
         self._cache = pm
 
@@ -634,6 +1470,15 @@ class NeonFrame(QFrame):
             if c["x"] > w + 30:
                 c["x"] = -20
 
+    def _draw_palms(self, p, w, h, sc):
+        near = QColor(sc["ground"]).lighter(150)
+        for x, s in ((w * 0.1, 1.0), (w * 0.24, 0.75), (w * 0.82, 1.1), (w * 0.94, 0.8)):
+            p.setPen(QPen(near, 7, Qt.SolidLine, Qt.RoundCap))
+            p.drawLine(int(x), int(h * 0.88), int(x + 10), int(h * 0.6))
+            p.setPen(Qt.NoPen); p.setBrush(near)
+            for d in (-1, -0.5, 0, 0.5, 1):
+                p.drawEllipse(int(x + 10 + d * 26 - 20), int(h * 0.58), 40, 16)
+
     def _draw_cars(self, p):
         w, h = self.width(), self.height()
         road_y = h - 46
@@ -651,6 +1496,268 @@ class NeonFrame(QFrame):
             p.drawEllipse(int(hx), int(y), 4, 3)
             p.setBrush(tail)
             p.drawEllipse(int(tx), int(y), 3, 3)
+
+
+    def _draw_wave(self, p, w, h, sc):
+        """EN: liquid black&white waves (iPhone/macOS), drifting. RU: жидкие ч/б волны."""
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor(sc["sky1"]))
+        g.setColorAt(1, QColor(sc["sky2"]))
+        p.fillRect(0, 0, w, h, g)
+        layers = 4 if sc.get("detail") else 3
+        for i in range(layers):
+            base = h * (0.5 + 0.15 * i)
+            amp = 34 + 26 * i
+            path = QPainterPath()
+            crest = QPainterPath()
+            x = 0
+            first = True
+            while x <= w + 24:
+                y = base + math.sin(x * 0.004 + i * 1.7 + self._phase) * amp \
+                    + math.sin(x * 0.011 + i * 0.9 + self._phase * 1.4) * amp * 0.4
+                if first:
+                    path.moveTo(x, y); crest.moveTo(x, y); first = False
+                else:
+                    path.lineTo(x, y); crest.lineTo(x, y)
+                x += 24
+            path.lineTo(w, h); path.lineTo(0, h); path.closeSubpath()
+            col = QColor(sc["w1"]); col.setAlpha(70 + i * 45)
+            p.fillPath(path, col)
+            cp = QColor(sc["w2"]); cp.setAlpha(60 + i * 40)
+            p.setPen(QPen(cp, 2))
+            p.drawPath(crest)
+
+    def _draw_minecraft(self, p, w, h, sc, ov):
+        """EN: blocky voxel landscape. RU: кубический мир."""
+        cell = max(10, w // 80)
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor("#7db3e8")); g.setColorAt(1, QColor("#c8e0f5"))
+        p.fillRect(0, 0, w, h, g)
+        # квадратное солнце
+        p.fillRect(int(w * 0.78), int(h * 0.1), cell * 3, cell * 3, QColor("#f8f0a0"))
+        rnd = random.Random(5)
+        ground = int(h * 0.55)
+        grass = QColor("#5f9e3a"); dirt = QColor("#8a5a32"); dirt2 = QColor("#7a4e2a")
+        for row in range(ground, h + cell, cell):
+            depth = (row - ground) // cell
+            for x in range(0, w + cell, cell):
+                if depth == 0:
+                    c = grass
+                else:
+                    c = dirt if rnd.random() < 0.5 else dirt2
+                p.fillRect(x, row, cell - 1, cell - 1, c)
+        # кубические деревья
+        for tx in range(int(w * 0.08), w, int(w * 0.22)):
+            th = int(h * 0.12) + rnd.randint(0, int(h * 0.1))
+            ty = ground - th
+            p.fillRect(tx, ty, cell, th, QColor("#6b4a2a"))
+            for dx, dy, s in ((0, -cell * 2, cell * 3), (-cell, -cell, cell * 2), (cell, -cell, cell * 2)):
+                p.fillRect(tx + dx, ty + dy, s, s, QColor("#3f7a24"))
+
+    def _draw_forest(self, p, w, h, sc, ov):
+        """EN: lush forest — layered pines, moon glow, mist. RU: густой лес."""
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor("#0c1f2a")); g.setColorAt(0.6, QColor("#14342c")); g.setColorAt(1, QColor("#1d4a30"))
+        p.fillRect(0, 0, w, h, g)
+        rg = QRadialGradient(w * 0.72, h * 0.2, 180)
+        rg.setColorAt(0, QColor(220, 240, 220, 90)); rg.setColorAt(1, QColor(0, 0, 0, 0))
+        p.fillRect(QRectF(0, 0, w, h), rg)
+        p.fillEllipse(int(w * 0.72 - 26), int(h * 0.2 - 26), 52, 52, QColor(235, 245, 225, 200))
+        rnd = random.Random(9)
+        for layer, (col, count, size, base) in enumerate((("#1d4530", 12, 2.1, 0.86),
+                                                           ("#173a26", 16, 1.5, 0.92),
+                                                           ("#102c1a", 22, 1.0, 1.0))):
+            p.setBrush(QColor(col)); p.setPen(Qt.NoPen)
+            for i in range(count):
+                tx = rnd.randint(-20, w + 20)
+                th = int(h * 0.16 * size * (0.7 + rnd.random() * 0.7))
+                ty = int(h * base)
+                p.drawRect(tx - max(3, th // 14), ty - th // 4, max(6, th // 7), th)
+                for k in range(4):
+                    ww = int(th * (1.0 - k * 0.22))
+                    yy = ty - th // 4 - k * th // 5
+                    p.drawPolygon(QPolygon([QPoint(tx - ww, yy), QPoint(tx + ww, yy), QPoint(tx, yy - th // 3)]))
+        mist = QLinearGradient(0, int(h * 0.6), 0, h)
+        mist.setColorAt(0, QColor(140, 190, 150, 0)); mist.setColorAt(1, QColor(140, 190, 150, 46))
+        p.fillRect(QRectF(0, h * 0.6, w, h * 0.4), mist)
+
+    def _draw_road(self, p, w, h, sc, ov):
+        """EN: endless road through a clearing (ETS2). RU: бесконечная дорога в поляне."""
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor("#1a2a4a")); g.setColorAt(0.55, QColor("#7a4a6a")); g.setColorAt(0.56, QColor("#2c3418"))
+        g.setColorAt(1, QColor("#1a2010"))
+        p.fillRect(0, 0, w, h, g)
+        p.fillEllipse(int(w * 0.62), int(h * 0.36), 70, 70, QColor("#ffd9a0"))  # солнце
+        # поляна и лес по краям
+        p.setPen(Qt.NoPen)
+        rnd = random.Random(3)
+        for side in (0, 1):
+            for i in range(8):
+                tx = int(w * (0.04 + 0.1 * i)) if side == 0 else int(w * (0.96 - 0.1 * i))
+                th = rnd.randint(int(h * 0.1), int(h * 0.22))
+                p.setBrush(QColor("#12200f"))
+                p.drawPolygon(QPolygon([QPoint(tx - th // 2, int(h * 0.56)), QPoint(tx + th // 2, int(h * 0.56)), QPoint(tx, int(h * 0.56) - th)]))
+        # дорога в перспективе
+        cx = w // 2
+        p.setBrush(QColor("#20242c"))
+        p.drawPolygon(QPolygon([QPoint(cx - 14, int(h * 0.56)), QPoint(cx + 14, int(h * 0.56)),
+                                QPoint(w, h), QPoint(0, h)]))
+        p.setPen(QPen(QColor("#e8c860"), 4, Qt.DashLine))
+        p.drawLine(cx, int(h * 0.58), cx, h)
+
+    def _draw_xp(self, p, w, h, sc, ov):
+        """EN: Bliss — one smooth grass slope to the horizon, sky above.
+           RU: Блисс — один плавный травяной склон до горизонта, выше небо."""
+        g = QLinearGradient(0, 0, 0, h)
+        g.setColorAt(0, QColor(sc["sky1"])); g.setColorAt(0.55, QColor(sc["sky2"]))
+        g.setColorAt(0.56, QColor("#2f7a2f")); g.setColorAt(1, QColor("#58a83c"))
+        p.fillRect(0, 0, w, h, g)
+        rg = QRadialGradient(w * 0.76, h * 0.14, 200)
+        rg.setColorAt(0, QColor(255, 252, 235, 230)); rg.setColorAt(1, QColor(255, 252, 235, 0))
+        p.fillRect(QRectF(0, 0, w, h), rg)
+        p.setPen(Qt.NoPen)
+        p.setBrush(QColor(sc["cloud"]))
+        for cx, cy, cw, ch in ((w * 0.22, h * 0.16, 150, 40), (w * 0.55, h * 0.09, 190, 48),
+                               (w * 0.85, h * 0.24, 120, 32), (w * 0.38, h * 0.3, 100, 26)):
+            for k in range(3):
+                p.drawEllipse(int(cx - cw / 2 + k * cw * 0.32), int(cy), int(cw * 0.6), int(ch))
+        p.setBrush(QColor("#fffbe8"))
+        p.drawEllipse(int(w * 0.76 - 20), int(h * 0.14 - 20), 40, 40)
+        # дальний холм (светлее)
+        far = QPainterPath()
+        far.moveTo(0, h * 0.58)
+        far.quadTo(w * 0.35, h * 0.46, w * 0.7, h * 0.56)
+        far.quadTo(w * 0.9, h * 0.6, w, h * 0.55)
+        far.lineTo(w, h); far.lineTo(0, h); far.closeSubpath()
+        p.fillPath(far, QColor("#69b84c"))
+        # главный склон: от нижнего левого к горизонту справа
+        hill = QPainterPath()
+        hill.moveTo(0, h)
+        hill.lineTo(0, h * 0.78)
+        hill.quadTo(w * 0.3, h * 0.66, w * 0.62, h * 0.6)
+        hill.quadTo(w * 0.85, h * 0.57, w, h * 0.56)
+        hill.lineTo(w, h); hill.closeSubpath()
+        p.fillPath(hill, QColor(sc["hill1"]))
+        # травяная текстура — короткие штрихи
+        rnd = random.Random(12)
+        p.setPen(QPen(QColor("#3d8a2f"), 1))
+        for _ in range(260):
+            x = rnd.randint(0, w); y = rnd.randint(int(h * 0.62), h)
+            p.drawLine(x, y, x + rnd.randint(2, 6), y)
+
+    def _draw_sea(self, p, w, h, sc, ov):
+        """EN: sea with mountains on the horizon (Ocean). RU: море, за ним горы."""
+        hz = int(h * 0.52)
+        g = QLinearGradient(0, 0, 0, hz)
+        g.setColorAt(0, QColor(sc["sky1"])); g.setColorAt(1, QColor(sc["sky2"]))
+        p.fillRect(0, 0, w, hz, g)
+        rg = QRadialGradient(w * 0.7, hz * 0.7, 160)
+        rg.setColorAt(0, QColor(sc["glow"])); rg.setColorAt(1, QColor(0, 0, 0, 0))
+        p.fillRect(QRectF(0, 0, w, hz), rg)
+        for pts, col in (([(-40, hz), (w * 0.2, hz - h * 0.2), (w * 0.45, hz), (w * 0.7, hz - h * 0.24), (w + 40, hz - h * 0.06)], sc["m1"]),
+                         ([(-40, hz), (w * 0.3, hz - h * 0.12), (w * 0.6, hz), (w * 0.9, hz - h * 0.14)], sc["m2"])):
+            path = QPainterPath(); path.moveTo(*pts[0])
+            for q in pts[1:]:
+                path.lineTo(*q)
+            path.lineTo(w, hz + 4); path.lineTo(0, hz + 4); path.closeSubpath()
+            p.fillPath(path, QColor(col))
+        wg = QLinearGradient(0, hz, 0, h)
+        wg.setColorAt(0, QColor(sc["sky2"]).lighter(110)); wg.setColorAt(1, QColor(sc["water"]))
+        p.fillRect(0, hz, w, h - hz, wg)
+        rnd = random.Random(4)
+        p.setPen(QPen(QColor(sc["glow"]), 1))
+        for _ in range(40):
+            y = rnd.randint(hz + 8, h - 8)
+            x = rnd.randint(0, w - 80)
+            ln = rnd.randint(20, 80)
+            c = QColor(sc["glow"]); c.setAlpha(rnd.randint(30, 90))
+            p.setPen(QPen(c, 1))
+            p.drawLine(x, y, x + ln, y)
+
+    def _draw_logo(self, p, w, h, text, color="#ffffff"):
+        p.save()
+        p.setFont(QFont("Noto Sans", 220, QFont.Bold))
+        c = QColor(color); c.setAlpha(24)
+        p.setPen(c)
+        p.drawText(QRectF(0, 0, w, h), Qt.AlignCenter, text)
+        p.restore()
+
+    def _draw_beastie(self, p, w, h):
+        """EN: Beastie logo exactly: a red ball with two horns, nothing else.
+           RU: логотип Beastie в точности: красный круг и два рога, без лица."""
+        cx, cy, r = w * 0.5, h * 0.46, h * 0.28
+        red = QColor("#d6202f"); red.setAlpha(82)
+        p.setPen(Qt.NoPen)
+        p.setBrush(red)
+        # левый рог (как на фото: от верхнего левого края круга, наружу-вверх)
+        horn = QPainterPath()
+        horn.moveTo(cx - r * 0.72, cy - r * 0.62)
+        horn.quadTo(cx - r * 1.55, cy - r * 1.35, cx - r * 1.15, cy - r * 1.85)
+        horn.quadTo(cx - r * 1.05, cy - r * 1.0, cx - r * 0.28, cy - r * 0.85)
+        horn.closeSubpath()
+        p.fillPath(horn, red)
+        # правый рог
+        horn2 = QPainterPath()
+        horn2.moveTo(cx + r * 0.72, cy - r * 0.62)
+        horn2.quadTo(cx + r * 1.55, cy - r * 1.35, cx + r * 1.15, cy - r * 1.85)
+        horn2.quadTo(cx + r * 1.05, cy - r * 1.0, cx + r * 0.28, cy - r * 0.85)
+        horn2.closeSubpath()
+        p.fillPath(horn2, red)
+        # сам круг
+        p.drawEllipse(int(cx - r), int(cy - r), int(2 * r), int(2 * r))
+
+    def _draw_logo(self, p, w, h, text, color="#ffffff"):
+        p.save()
+        p.setFont(QFont("Noto Sans", 220, QFont.Bold))
+        c = QColor(color); c.setAlpha(24)
+        p.setPen(c)
+        p.drawText(QRectF(0, 0, w, h), Qt.AlignCenter, text)
+        p.restore()
+
+    def _draw_beastie(self, p, w, h):
+        """EN: the real Beastie logo — red ball with two horns (as on the photo).
+           RU: настоящий логотип Beastie — красный шар с двумя рожками."""
+        cx, cy, r = w * 0.5, h * 0.44, h * 0.26
+        red = QColor("#d6202f"); red.setAlpha(78)
+        p.setPen(Qt.NoPen)
+        for sgn in (-1, 1):
+            path = QPainterPath()
+            bx = cx + sgn * r * 0.6
+            path.moveTo(bx, cy - r * 0.45)
+            path.quadTo(bx + sgn * r * 0.95, cy - r * 1.55, bx + sgn * r * 0.1, cy - r * 1.75)
+            path.quadTo(bx + sgn * r * 0.5, cy - r * 1.0, bx - sgn * r * 0.3, cy - r * 0.7)
+            path.closeSubpath()
+            p.fillPath(path, red)
+        p.setBrush(red)
+        p.drawEllipse(int(cx - r), int(cy - r), int(2 * r), int(2 * r))
+
+    def _draw_logo(self, p, w, h, text, color="#ffffff"):
+        p.save()
+        p.setFont(QFont("Noto Sans", 220, QFont.Bold))
+        c = QColor(color); c.setAlpha(24)
+        p.setPen(c)
+        p.drawText(QRectF(0, 0, w, h), Qt.AlignCenter, text)
+        p.restore()
+
+    def _draw_beastie(self, p, w, h):
+        """EN: the BSD daemon — red ball with horns. RU: демон BSD — красный шар с рожками."""
+        cx, cy, r = w * 0.5, h * 0.4, h * 0.24
+        red = QColor("#e03c31"); red.setAlpha(64)
+        p.setPen(Qt.NoPen); p.setBrush(red)
+        p.drawEllipse(int(cx - r), int(cy - r), int(r * 2), int(r * 2))
+        p.setPen(QPen(red, int(r * 0.22), Qt.SolidLine, Qt.RoundCap))
+        # рожки
+        p.drawArc(int(cx - r * 1.2), int(cy - r * 1.9), int(r * 1.1), int(r * 1.6), 0, 130 * 16)
+        p.drawArc(int(cx + r * 0.1), int(cy - r * 1.9), int(r * 1.1), int(r * 1.6), 50 * 16, 130 * 16)
+        # глаза и улыбка
+        p.setBrush(QColor("#ffffff"))
+        p.drawEllipse(int(cx - r * 0.42), int(cy - r * 0.25), int(r * 0.3), int(r * 0.42))
+        p.drawEllipse(int(cx + r * 0.12), int(cy - r * 0.25), int(r * 0.3), int(r * 0.42))
+        p.setBrush(QColor("#101820"))
+        p.drawEllipse(int(cx - r * 0.33), int(cy - r * 0.05), int(r * 0.12), int(r * 0.2))
+        p.drawEllipse(int(cx + r * 0.21), int(cy - r * 0.05), int(r * 0.12), int(r * 0.2))
+        p.setPen(QPen(red, int(r * 0.1), Qt.SolidLine, Qt.RoundCap))
+        p.drawArc(int(cx - r * 0.35), int(cy + r * 0.05), int(r * 0.7), int(r * 0.6), 200 * 16, 140 * 16)
 
     # ---------- рамка ----------
     def _render_borders(self, th):
@@ -713,6 +1820,8 @@ class NeonFrame(QFrame):
             self._draw_rain(p)
         else:
             p.drawPixmap(int(-self._ov + self._px * -16), int(-self._ov + self._py * -12), self._cache)
+        if world == "wave":
+            self._draw_wave(p, self.width(), self.height(), sc)
         if world == "sakura":
             self._draw_petals(p)
         if world == "cyber":
@@ -727,8 +1836,14 @@ def pm_rect(w, h):
 
 
 # ============================================================
-# EN: generic workers. RU: фоновые потоки.
+# EN: generic workers with a global registry — the app never aborts
+# with "QThread destroyed while running" anymore.
+# RU: фоновые потоки с глобальным реестром — приложение больше не
+# падает с "QThread destroyed while running".
 # ============================================================
+_ACTIVE_WORKERS = []
+
+
 class Worker(QThread):
     line = Signal(str)
     done = Signal()
@@ -736,10 +1851,19 @@ class Worker(QThread):
     def __init__(self, fn):
         super().__init__()
         self.fn = fn
+        _ACTIVE_WORKERS.append(self)
 
     def run(self):
-        self.fn()
-        self.done.emit()
+        try:
+            self.fn()
+        except Exception as e:
+            import traceback
+            print("Worker error:", e)
+            traceback.print_exc()
+        finally:
+            if self in _ACTIVE_WORKERS:
+                _ACTIVE_WORKERS.remove(self)
+            self.done.emit()
 
 
 class ShellThread(QThread):
@@ -921,8 +2045,13 @@ class AddGameDialog(QDialog):
         except ValueError as e:
             QMessageBox.warning(self, "Zapusk", str(e))
             return
+        from zapusk.core import oracle
+        warn = oracle.check(self.name.text(), self.exe.text(),
+                            str(pathlib.Path(self.exe.text()).parent))
         self.result_game = g
         super().accept()
+        if warn:
+            QMessageBox.warning(self, "🔮 Оракул совместимости", warn)
 
 
 # ============================================================
@@ -960,6 +2089,7 @@ class GameDialog(QDialog):
         chk("Fsync", "fsync", True)
         chk("Esync", "esync", True)
         chk("DXVK HUD", "dxvk_hud")
+        chk("🔧 " + _("Auto-heal"), "autofix", True)
         chk("Wine debug-лог", "debug")
         chk("Large Address Aware", "large_address")
 
@@ -967,6 +2097,10 @@ class GameDialog(QDialog):
         self.vdesk = QLineEdit(g.get("virtual_desktop", "")); lay.addWidget(self.vdesk)
 
         row = QHBoxLayout()
+        row3 = QHBoxLayout()
+        for text, fn in (("📸 Снапшот", self.mk_snap), ("⏪ Откат", self.do_rollback)):
+            b = QPushButton(text); b.clicked.connect(fn); row3.addWidget(b)
+        lay.addLayout(row3)
         for text, fn in (("🚀 " + _("Fix & Launch"), self.fix_run),
                          ("📁 " + _("Game folder"), self.opengame),
                          ("📂 " + _("Prefix"), self.openpfx),
@@ -993,6 +2127,23 @@ class GameDialog(QDialog):
     def save(self):
         library.update(self.game["name"], self.collect())
         self.accept()
+
+    def mk_snap(self):
+        from zapusk.core import snapshots
+        g = library.get(self.game["name"]) or self.game
+        snapshots.snapshot_prefix(g, progress=lambda m: print(m))
+        QMessageBox.information(self, "Zapusk", "📸 Снапшот сохранён (хранятся последние 3)")
+
+    def do_rollback(self):
+        from zapusk.core import snapshots
+        g = library.get(self.game["name"]) or self.game
+        snaps = snapshots.list_snapshots(g)
+        if not snaps:
+            QMessageBox.information(self, "Zapusk", "Снапшотов нет"); return
+        pick, ok = QInputDialog.getItem(self, "⏪ Откат префикса", "К какому снапшоту откатить?", snaps, 0, False)
+        if ok and pick:
+            ok2, info = snapshots.rollback(g, pick, progress=lambda m: print(m))
+            QMessageBox.information(self, "Zapusk", f"⏪ Откат к {info}" if ok2 else "Не удалось откатить")
 
     def fix_run(self):
         library.update(self.game["name"], self.collect())
@@ -1512,8 +2663,13 @@ class AddGameDialog(QDialog):
         except ValueError as e:
             QMessageBox.warning(self, "Zapusk", str(e))
             return
+        from zapusk.core import oracle
+        warn = oracle.check(self.name.text(), self.exe.text(),
+                            str(pathlib.Path(self.exe.text()).parent))
         self.result_game = g
         super().accept()
+        if warn:
+            QMessageBox.warning(self, "🔮 Оракул совместимости", warn)
 
 
 # ============================================================
@@ -1551,6 +2707,7 @@ class GameDialog(QDialog):
         chk("Fsync", "fsync", True)
         chk("Esync", "esync", True)
         chk("DXVK HUD", "dxvk_hud")
+        chk("🔧 " + _("Auto-heal"), "autofix", True)
         chk("Wine debug-лог", "debug")
         chk("Large Address Aware", "large_address")
 
@@ -1558,6 +2715,10 @@ class GameDialog(QDialog):
         self.vdesk = QLineEdit(g.get("virtual_desktop", "")); lay.addWidget(self.vdesk)
 
         row = QHBoxLayout()
+        row3 = QHBoxLayout()
+        for text, fn in (("📸 Снапшот", self.mk_snap), ("⏪ Откат", self.do_rollback)):
+            b = QPushButton(text); b.clicked.connect(fn); row3.addWidget(b)
+        lay.addLayout(row3)
         for text, fn in (("🚀 " + _("Fix & Launch"), self.fix_run),
                          ("📁 " + _("Game folder"), self.opengame),
                          ("📂 " + _("Prefix"), self.openpfx),
@@ -1584,6 +2745,23 @@ class GameDialog(QDialog):
     def save(self):
         library.update(self.game["name"], self.collect())
         self.accept()
+
+    def mk_snap(self):
+        from zapusk.core import snapshots
+        g = library.get(self.game["name"]) or self.game
+        snapshots.snapshot_prefix(g, progress=lambda m: print(m))
+        QMessageBox.information(self, "Zapusk", "📸 Снапшот сохранён (хранятся последние 3)")
+
+    def do_rollback(self):
+        from zapusk.core import snapshots
+        g = library.get(self.game["name"]) or self.game
+        snaps = snapshots.list_snapshots(g)
+        if not snaps:
+            QMessageBox.information(self, "Zapusk", "Снапшотов нет"); return
+        pick, ok = QInputDialog.getItem(self, "⏪ Откат префикса", "К какому снапшоту откатить?", snaps, 0, False)
+        if ok and pick:
+            ok2, info = snapshots.rollback(g, pick, progress=lambda m: print(m))
+            QMessageBox.information(self, "Zapusk", f"⏪ Откат к {info}" if ok2 else "Не удалось откатить")
 
     def fix_run(self):
         library.update(self.game["name"], self.collect())
@@ -2002,6 +3180,379 @@ class WaveOverlay(QWidget):
         qp.end()
 
 
+
+# ============================================================
+# EN: Saper (Minesweeper) — a real, working game. XP desktop icon.
+# RU: Сапёр — настоящая рабочая игра. Ярлык на рабочем столе XP.
+# ============================================================
+class CellButton(QPushButton):
+    """EN: minesweeper cell with a hand-drawn icon (flag / mine).
+       RU: клетка сапёра с нарисованной иконкой (флаг / мина)."""
+    def __init__(self):
+        super().__init__()
+        self._icon = ""
+
+    def set_icon(self, name):
+        self._icon = name
+        self.update()
+
+    def paintEvent(self, e):
+        super().paintEvent(e)
+        if not self._icon:
+            return
+        p = QPainter(self)
+        s = min(self.width(), self.height())
+        if self._icon == "flag":
+            p.setPen(QPen(Qt.black, max(2, s // 12)))
+            p.drawLine(int(s * 0.38), int(s * 0.12), int(s * 0.38), int(s * 0.85))
+            p.setBrush(QColor("#e00000")); p.setPen(Qt.NoPen)
+            p.drawPolygon(QPolygon([QPoint(int(s * 0.44), int(s * 0.1)),
+                                    QPoint(int(s * 0.88), int(s * 0.26)),
+                                    QPoint(int(s * 0.44), int(s * 0.44))]))
+            p.setBrush(Qt.black)
+            p.drawRect(int(s * 0.24), int(s * 0.82), int(s * 0.34), max(2, s // 10))
+        elif self._icon == "mine":
+            cx = cy = s / 2
+            r = s * 0.26
+            p.setPen(QPen(Qt.black, max(2, s // 14)))
+            for a in range(8):
+                ang = math.radians(a * 45)
+                p.drawLine(int(cx), int(cy), int(cx + math.cos(ang) * s * 0.44),
+                           int(cy + math.sin(ang) * s * 0.44))
+            p.setBrush(Qt.black); p.setPen(Qt.NoPen)
+            p.drawEllipse(int(cx - r), int(cy - r), int(2 * r), int(2 * r))
+            p.setBrush(QColor("#c0c0c0"))
+            p.drawEllipse(int(cx - r * 0.35), int(cy - r * 0.55), max(2, int(r * 0.42)), max(2, int(r * 0.42)))
+        elif self._icon == "mine_red":
+            p.fillRect(self.rect(), QColor("#e00000"))
+            p.end()
+            self._icon = "mine"
+            self.paintEvent(e)
+            return
+        p.end()
+
+
+class FaceButton(QPushButton):
+    """EN: the smiley — normal / dead / cool(win). RU: смайлик — обычный / мёртвый / в очках."""
+    def __init__(self):
+        super().__init__()
+        self._state = "normal"
+
+    def set_state(self, st):
+        self._state = st
+        self.update()
+
+    def paintEvent(self, e):
+        super().paintEvent(e)
+        p = QPainter(self)
+        s = min(self.width(), self.height())
+        cx = cy = s / 2
+        r = s * 0.36
+        p.setBrush(QColor("#f8e000")); p.setPen(QPen(QColor("#000000"), 1))
+        p.drawEllipse(int(cx - r), int(cy - r), int(2 * r), int(2 * r))
+        p.setPen(QPen(Qt.black, max(2, s // 14)))
+        if self._state == "dead":
+            for sx in (-1, 1):
+                ex, ey = cx + sx * r * 0.42, cy - r * 0.25
+                p.drawLine(int(ex - 3), int(ey - 3), int(ex + 3), int(ey + 3))
+                p.drawLine(int(ex - 3), int(ey + 3), int(ex + 3), int(ey - 3))
+            p.drawArc(int(cx - r * 0.5), int(cy + r * 0.15), int(r), int(r * 0.7), 0, 180 * 16)
+        elif self._state == "win":
+            p.setBrush(Qt.black); p.setPen(Qt.NoPen)
+            p.drawRect(int(cx - r * 0.75), int(cy - r * 0.45), int(r * 1.5), int(r * 0.38))
+            p.setPen(QPen(Qt.black, max(2, s // 14)))
+            p.drawArc(int(cx - r * 0.5), int(cy - r * 0.1), int(r), int(r * 0.8), 180 * 16, 180 * 16)
+        else:
+            p.setBrush(Qt.black); p.setPen(Qt.NoPen)
+            p.drawEllipse(int(cx - r * 0.5), int(cy - r * 0.4), max(2, s // 10), max(2, s // 10))
+            p.drawEllipse(int(cx + r * 0.3), int(cy - r * 0.4), max(2, s // 10), max(2, s // 10))
+            p.setPen(QPen(Qt.black, max(2, s // 14)))
+            p.drawArc(int(cx - r * 0.5), int(cy - r * 0.35), int(r), int(r), 200 * 16, 140 * 16)
+        p.end()
+
+
+class SaperGame(QDialog):
+    """EN: classic Minesweeper — drawn icons, LCD counters, colored numbers.
+       RU: классический Сапёр — нарисованные иконки, LCD-счётчики, цветные цифры."""
+
+    NUM_COLORS = {1: "#0000ff", 2: "#007b00", 3: "#ff0000", 4: "#00007b",
+                  5: "#7b0000", 6: "#007b7b", 7: "#000000", 8: "#7b7b7b"}
+
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Сапёр")
+        self.setFixedSize(330, 420)
+        self.setStyleSheet("""
+QDialog { background: #c0c0c0; border-radius: 0; }
+QLabel { color: #000000; font-weight: bold; }
+QPushButton { border-radius: 0; }
+""")
+        self.N, self.MINES = 9, 10
+        self.reset(first=True)
+        lay = QVBoxLayout(self)
+        lay.setContentsMargins(10, 10, 10, 10)
+        top = QHBoxLayout()
+        lcd = ("background: #000000; color: #ff0000; font-family: monospace;"
+               " font-size: 20px; font-weight: bold; border: 2px inset #808080; padding: 2px 6px;")
+        self.mine_lbl = QLabel(f"{self.MINES:03d}")
+        self.mine_lbl.setStyleSheet(lcd)
+        face = FaceButton(); face.setFixedSize(38, 38)
+        face.setStyleSheet("background: #c0c0c0; border: 2px outset #ffffff; border-radius: 0;")
+        face.clicked.connect(lambda: self.reset())
+        self.face = face
+        self.time_lbl = QLabel("000")
+        self.time_lbl.setStyleSheet(lcd)
+        top.addWidget(self.mine_lbl); top.addStretch(1)
+        top.addWidget(face); top.addStretch(1); top.addWidget(self.time_lbl)
+        lay.addLayout(top)
+        field = QFrame(); field.setStyleSheet("border: 3px inset #808080; background: #c0c0c0;")
+        fl = QVBoxLayout(field); fl.setContentsMargins(6, 6, 6, 6)
+        self.grid = QGridLayout(); self.grid.setSpacing(0)
+        fl.addLayout(self.grid)
+        lay.addWidget(field)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._tick)
+        self._build()
+
+    def reset(self, first=False):
+        self.t = 0; self.over = False; self.first = True
+        self.mines = set(random.sample(range(self.N * self.N), self.MINES))
+        self.opened = set(); self.flags = set()
+        if hasattr(self, "timer"):
+            self.timer.stop()
+            self.time_lbl.setText("000")
+            self.mine_lbl.setText(f"{self.MINES:03d}")
+            self.face.set_state("normal")
+        if hasattr(self, "grid"):
+            while self.grid.count():
+                it = self.grid.takeAt(0)
+                if it.widget():
+                    it.widget().deleteLater()
+            self._build()
+
+    def _build(self):
+        self.btns = []
+        closed = "background: #c0c0c0; border: 2px outset #ffffff; border-radius: 0;"
+        open_ = "background: #c0c0c0; border: 1px solid #808080; border-radius: 0;"
+        self._st_closed = closed; self._st_open = open_
+        for i in range(self.N * self.N):
+            b = CellButton(); b.setFixedSize(30, 30)
+            b.setStyleSheet(closed)
+            b.setContextMenuPolicy(Qt.CustomContextMenu)
+            b.clicked.connect(lambda _, i=i: self.open(i))
+            b.customContextMenuRequested.connect(lambda _, i=i: self.flag(i))
+            self.grid.addWidget(b, i // self.N, i % self.N)
+            self.btns.append(b)
+
+    def _tick(self):
+        self.t = min(999, self.t + 1)
+        self.time_lbl.setText(f"{self.t:03d}")
+
+    def neighbors(self, i):
+        r, c = divmod(i, self.N)
+        return [nr * self.N + nc for nr in (r - 1, r, r + 1) for nc in (c - 1, c, c + 1)
+                if (nr != r or nc != c) and 0 <= nr < self.N and 0 <= nc < self.N]
+
+    def _counts(self):
+        self.cnt = {i: (0 if i in self.mines else sum(n in self.mines for n in self.neighbors(i)))
+                    for i in range(self.N * self.N)}
+
+    def open(self, i):
+        if self.over or i in self.flags or i in self.opened:
+            return
+        if self.first:
+            while i in self.mines:
+                self.mines.remove(i)
+                self.mines.add(random.choice([x for x in range(self.N * self.N)
+                                              if x not in self.mines and x != i]))
+            self._counts(); self.first = False; self.timer.start(1000)
+        if i in self.mines:
+            self.lose(i); return
+        stack = [i]
+        while stack:
+            j = stack.pop()
+            if j in self.opened:
+                continue
+            self.opened.add(j)
+            b = self.btns[j]; b.setEnabled(False)
+            b.setStyleSheet(self._st_open)
+            n = self.cnt[j]
+            if n > 0:
+                b.setText(str(n))
+                b.setStyleSheet(self._st_open + f" color: {self.NUM_COLORS.get(n, '#000')};")
+            else:
+                for k in self.neighbors(j):
+                    if k not in self.opened and k not in self.flags:
+                        stack.append(k)
+        if len(self.opened) == self.N * self.N - self.MINES:
+            self.win()
+
+    def flag(self, i):
+        if self.over or i in self.opened:
+            return
+        b = self.btns[i]
+        if i in self.flags:
+            self.flags.discard(i); b.setText(""); b.set_icon("")
+        else:
+            self.flags.add(i); b.set_icon("flag")
+        self.mine_lbl.setText(f"{self.MINES - len(self.flags):03d}")
+
+    def lose(self, hit):
+        self.over = True; self.timer.stop(); self.face.set_state("dead")
+        for i in self.mines:
+            b = self.btns[i]
+            b.setEnabled(False)
+            b.setStyleSheet(self._st_open + (" background: #e00000;" if i == hit else ""))
+            b.set_icon("mine")
+        QMessageBox.information(self, "Сапёр", "Бум! Нажми на смайлик, чтобы сыграть ещё.")
+
+    def win(self):
+        self.over = True; self.timer.stop(); self.face.set_state("win")
+        for i in self.mines:
+            self.btns[i].set_icon("flag")
+        QMessageBox.information(self, "Сапёр", f"Победа за {self.t} секунд!")
+
+
+class XPBar(QFrame):
+    """EN: XP taskbar — the whole navigation lives in the Start menu.
+       RU: панель задач XP — вся навигация живёт в меню «Пуск»."""
+
+    PAGES = ["Библиотека", "Обновления", "Оптимизация", "Установка", "Настройки", "Логи"]
+
+    def __init__(self, win):
+        super().__init__(win.glass)
+        self.win = win
+        self.setFixedHeight(42)
+        lay = QHBoxLayout(self)
+        lay.setContentsMargins(6, 4, 10, 4)
+        self.start_btn = QPushButton("start")
+        self.start_btn.setFixedSize(92, 32)
+        self.start_btn.setStyleSheet(
+            "background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #7ec850, stop:1 #2e8f32);"
+            "color: white; font-weight: bold; border-radius: 8px 16px 16px 8px;")
+        self.start_btn.clicked.connect(self.toggle_menu)
+        lay.addWidget(self.start_btn)
+        self.page_lbl = QLabel("")
+        self.page_lbl.setStyleSheet("color: white; font-weight: bold;")
+        lay.addWidget(self.page_lbl, 1)
+        self.clock = QLabel("")
+        self.clock.setStyleSheet("color: white; font-weight: bold;")
+        lay.addWidget(self.clock)
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self._clock)
+        self.timer.start(1000)
+        self._clock()
+        # меню Пуск — настоящий popup (клик вне = закрытие, как в Windows)
+        self.menu = QFrame()
+        self.menu.setWindowFlags(Qt.Popup)
+        self.menu.setStyleSheet(
+            "background: #f4f1e8; border: 2px outset #ffffff;")
+        ml = QVBoxLayout(self.menu)
+        for idx, name in enumerate(self.PAGES):
+            b = QPushButton(name)
+            b.setStyleSheet("text-align: left; padding: 8px 14px; background: #ece9d8;"
+                            "color: #000; border: 2px outset #ffffff;")
+            b.clicked.connect(lambda _, i=idx: self._go(i))
+            ml.addWidget(b)
+        sep = QLabel("─" * 12); sep.setStyleSheet("color: #808080"); ml.addWidget(sep)
+        for text, fn in (("Сапёр", self.saper), ("Выключить", self.win.close)):
+            b = QPushButton(text)
+            b.setStyleSheet("text-align: left; padding: 8px 14px; background: #ece9d8;"
+                            "color: #000; border: 2px outset #ffffff;")
+            b.clicked.connect(fn)
+            ml.addWidget(b)
+        self.menu.setFixedWidth(210)
+        self.menu.adjustSize()
+        self.menu.hide()
+        # ярлык Сапёра — сверху по центру
+        self.saper_icon = QPushButton("(*)\nСапёр", win.glass)
+        self.saper_icon.setFixedSize(76, 66)
+        self.saper_icon.setStyleSheet(
+            "background: transparent; border: none; color: white; font-weight: bold;")
+        self.saper_icon.clicked.connect(self.saper)
+        self.raise_()
+
+    def set_mode(self, mode):
+        """EN: 'xp' | '95' | None — taskbar style and visibility per theme.
+           RU: 'xp' | '95' | None — панель и стиль под тему."""
+        self._mode = mode
+        self.menu.hide()
+        if mode is None:
+            self.hide()
+            self.saper_icon.hide()
+            return
+        if mode == "xp":
+            self.start_btn.setText("start")
+            self.start_btn.setStyleSheet(
+                "background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #7ec850, stop:1 #2e8f32);"
+                "color: white; font-weight: bold; border-radius: 8px 16px 16px 8px;")
+            self.setStyleSheet("background: qlineargradient(x1:0,y1:0,x2:0,y2:1, stop:0 #316ac5, stop:1 #245edb);")
+        else:
+            self.start_btn.setText("Пуск")
+            self.start_btn.setStyleSheet(
+                "background: #c0c0c0; color: #000; font-weight: bold; border: 2px outset #dfdfdf;")
+            self.setStyleSheet("background: #c0c0c0; border-top: 2px outset #ffffff;")
+        self._rebuild_menu(mode)
+        self.saper_icon.setVisible(mode == "xp")
+        self.show()
+        self.apply_geometry()
+        self.raise_()
+
+    def _rebuild_menu(self, mode):
+        while self.menu.layout().count():
+            it = self.menu.layout().takeAt(0)
+            if it.widget():
+                it.widget().deleteLater()
+        border = "2px outset #ffffff" if mode == "xp" else "2px outset #dfdfdf"
+        for idx, name in enumerate(self.PAGES):
+            b = QPushButton(name)
+            b.setStyleSheet(f"text-align: left; padding: 8px 14px; background: #ece9d8;"
+                            f" color: #000; border: {border};")
+            b.clicked.connect(lambda _, i=idx: self._go(i))
+            self.menu.layout().addWidget(b)
+        if mode == "xp":
+            b = QPushButton("Сапёр")
+            b.setStyleSheet(f"text-align: left; padding: 8px 14px; background: #ece9d8;"
+                            f" color: #000; border: {border};")
+            b.clicked.connect(self.saper)
+            self.menu.layout().addWidget(b)
+        b = QPushButton("Выключить")
+        b.setStyleSheet(f"text-align: left; padding: 8px 14px; background: #ece9d8;"
+                        f" color: #000; border: {border};")
+        b.clicked.connect(self.win.close)
+        self.menu.layout().addWidget(b)
+        self.menu.adjustSize()
+
+    def apply_geometry(self):
+        gw, gh = self.win.glass.width(), self.win.glass.height()
+        self.setGeometry(0, gh - 42, gw, 42)
+        self.saper_icon.move(int(gw * 0.5 - 38), 56)
+
+    def toggle_menu(self):
+        if self.menu.isVisible():
+            self.menu.hide()
+            return
+        g = self.start_btn.mapToGlobal(QPoint(0, 0))
+        self.menu.adjustSize()
+        self.menu.move(int(g.x()), int(g.y()) - self.menu.height())
+        self.menu.show()
+
+    def _go(self, idx):
+        self.win.nav.setCurrentRow(idx)
+        self.page_lbl.setText("▸ " + self.PAGES[idx])
+        self.menu.hide()
+
+    def saper(self):
+        self.menu.hide()
+        if self.win.theme.palette_name() != "Windows XP":
+            return
+        SaperGame(self.win).exec()
+
+    def _clock(self):
+        import time as _t
+        self.clock.setText(_t.strftime("%H:%M"))
+
+
 # ============================================================
 # EN: frameless title bar. RU: кастомный заголовок.
 # ============================================================
@@ -2032,7 +3583,7 @@ class TitleBar(QFrame):
         for pi, (nm, _dk, _lt) in enumerate(PALETTES):
             self.combo_theme.addItem(f"🎨 {nm}", pi)
         self.combo_theme.setCurrentIndex(win.theme._pal)
-        self.combo_theme.setFixedWidth(110)
+        self.combo_theme.setFixedWidth(150)
         self.combo_theme.setToolTip(_("Theme"))
         self.combo_theme.currentIndexChanged.connect(
             lambda i: win.theme.set_palette(self.combo_theme.itemData(i)))
@@ -2088,6 +3639,7 @@ class MainWindow(QMainWindow):
         root.addLayout(body, 1)
 
         navw = QFrame(); navw.setObjectName("nav"); navw.setFixedWidth(210)
+        self.navw = navw
         nl = QVBoxLayout(navw)
         self.nav = QListWidget()
         self.nav.addItems(["🎮  " + _("Library"), "🔄  " + _("Updates"), "🚀  " + _("Optimization"), "⚙️  " + _("Setup"), "🔧  " + _("Settings"), "📋  " + _("Logs")])
@@ -2110,8 +3662,13 @@ class MainWindow(QMainWindow):
         # EN: no splash — start straight to the app. RU: без заставки — сразу в приложение
         self._splashed = True
         self.wave = WaveOverlay(self.glass, None)   # theme проставим в run_gui
+        self.xpbar = XPBar(self)                     # панель задач Windows XP
         self.stack.setGraphicsEffect(None)
         self.nav.setCurrentRow(0)
+        _nm = self.theme.palette_name()
+        _mode = "xp" if _nm == "Windows XP" else ("95" if _nm == "Windows 95" else None)
+        self.xpbar.set_mode(_mode)
+        self.navw.setVisible(_mode is None)
         self.refresh()
         self.refresh_updates()
         self.refresh_optimize()
@@ -2119,6 +3676,9 @@ class MainWindow(QMainWindow):
     def showEvent(self, e):
         super().showEvent(e)
         self.stack.show()   # EN: no splash — content immediately / RU: без заставки
+        if hasattr(self, "xpbar") and self.xpbar._mode is not None:
+            self.xpbar.apply_geometry()
+            self.xpbar.raise_()
 
     def _reveal(self):
         """EN: after splash — fade the main content in. RU: после сплэша плавно показываем окно."""
@@ -2137,6 +3697,8 @@ class MainWindow(QMainWindow):
         super().resizeEvent(e)
         if hasattr(self, "wave"):
             self.wave.setGeometry(self.glass.rect())
+        if hasattr(self, "xpbar"):
+            self.xpbar.apply_geometry()
 
     def closeEvent(self, e):
         try:
@@ -2209,7 +3771,12 @@ class MainWindow(QMainWindow):
         add = QPushButton("＋ " + _("Add game")); add.setObjectName("primary")
         add.clicked.connect(lambda: self.add_game(""))
         ref = QPushButton(_("Refresh")); ref.clicked.connect(self.refresh)
-        top.addWidget(title); top.addStretch(1); top.addWidget(ref); top.addWidget(add)
+        self.search = QLineEdit(); self.search.setPlaceholderText("🔍 поиск по играм...")
+        self.search.setFixedWidth(200)
+        self.search.textChanged.connect(self.refresh)
+        imp = QPushButton("📥 " + _("Import games"))
+        imp.clicked.connect(self.import_games)
+        top.addWidget(self.search); top.addStretch(1); top.addWidget(ref); top.addWidget(imp); top.addWidget(add)
         lay.addLayout(top)
         hint = QLabel(_("Drop hint"))
         hint.setObjectName("muted")
@@ -2227,6 +3794,10 @@ class MainWindow(QMainWindow):
             if item.widget():
                 item.widget().deleteLater()
         gs = library.games()
+        q = getattr(self, "search", None)
+        if q and q.text().strip():
+            needle = q.text().strip().lower()
+            gs = [g for g in gs if needle in g["name"].lower()]
         if not gs:
             hint = QLabel(_("Empty"))
             hint.setObjectName("muted")
@@ -2234,6 +3805,20 @@ class MainWindow(QMainWindow):
         for i, g in enumerate(gs):
             self.grid.addWidget(Card(g, self), i // 3, i % 3)
         self.refresh_log_combo()
+
+    def import_games(self):
+        """EN: scan all stores and import games. RU: скан всех магазинов + импорт."""
+        from zapusk.core import importer
+        self.setup_out.setPlainText("🔍 Сканирую Steam, Heroic, Lutris, Bottles, GOG...")
+        self.nav.setCurrentRow(3)
+        def job():
+            found = importer.scan(progress=lambda m: self._imp_line.sig.emit(m))
+            n = importer.import_all(found, progress=lambda m: self._imp_line.sig.emit(m))
+            self._imp_line.sig.emit(f"\n✅ Готово: найдено {len(found)}, добавлено {n}. Обнови библиотеку.")
+        self._imp_line = _Signal()
+        self._imp_line.sig.connect(lambda m: (self.setup_out.append(m), QApplication.processEvents()))
+        self._imp_worker = Worker(job)
+        self._imp_worker.start()
 
     def add_game(self, initial_exe=""):
         d = AddGameDialog(self, initial_exe)
@@ -2541,6 +4126,34 @@ class MainWindow(QMainWindow):
         QApplication.processEvents()
         self.setup_out.setPlainText(doctor())
 
+    def self_update(self):
+        """EN: check and self-update Zapusk. RU: проверить и установить обновление."""
+        from zapusk.core import selfupdate
+        new, info = selfupdate.check()
+        if not new:
+            QMessageBox.information(self, "Zapusk", f"У вас актуальная версия. ({info})")
+            return
+        if QMessageBox.question(self, "Zapusk", f"Доступна {info}. Обновиться?") != QMessageBox.Yes:
+            return
+        ok, msg = selfupdate.download_and_install(progress=lambda m: print(m))
+        QMessageBox.information(self, "Zapusk", msg)
+
+    def _lib_backup(self, export):
+        from zapusk.core.util import LIBRARY_FILE
+        if export:
+            path, _ = QFileDialog.getSaveFileName(self, "Экспорт библиотеки", "zapusk-library.json", "JSON (*.json)")
+            if path:
+                import shutil
+                shutil.copy(str(LIBRARY_FILE), path)
+                QMessageBox.information(self, "Zapusk", "💾 Экспортировано: " + path)
+        else:
+            path, _ = QFileDialog.getOpenFileName(self, "Восстановить библиотеку", "", "JSON (*.json)")
+            if path:
+                import shutil
+                shutil.copy(path, str(LIBRARY_FILE))
+                self.refresh()
+                QMessageBox.information(self, "Zapusk", "📥 Библиотека восстановлена")
+
     # ================= ЛОГИ / LOGS =================
     def _build_logs(self):
         p = QWidget(); lg = QVBoxLayout(p)
@@ -2681,14 +4294,29 @@ class MainWindow(QMainWindow):
         self._worker.done.connect(lambda: self._after_fix(g, lp))
         self._worker.start()
 
+    def _start_autofix(self, g):
+        """EN: launch with auto-heal loop. RU: запуск с циклом авто-лечения."""
+        from zapusk.core import autofix
+        self.setup_out.append("\n🔧 Авто-лечение: если игра вылетит — Zapusk сам поймёт, починит и перезапустит (до 4 попыток)")
+        def job():
+            autofix.run_with_autofix(g, timeout=90, tries=4,
+                                     progress=lambda m: self._fix_line.sig.emit(m))
+        self._fix_line = _Signal()
+        self._fix_line.sig.connect(lambda m: (self.setup_out.append(m), QApplication.processEvents()))
+        self._worker2 = Worker(job)
+        self._worker2.start()
+
     def _after_fix(self, g, lp):
         self.progress.hide(); self.btn_install.setEnabled(True)
         preset = PRESETS.get(g.get("preset", "dx11"), {})
         if preset.get("note"):
             self.setup_out.append(f"\n💡 {preset['note']}")
         if getattr(self, "_launch_after", True):
-            self.setup_out.append(f"\n✅ Запускаю / Launching {g['name']}…")
-            self.launch(g)
+            if g.get("autofix", True):
+                self._start_autofix(g)
+            else:
+                self.setup_out.append(f"\n✅ Запускаю / Launching {g['name']}…")
+                self.launch(g)
         else:
             self.setup_out.append(f"\n✅ Готово! Жми ▶ {g['name']}")
 
@@ -2708,5 +4336,6 @@ def run_gui():
     theme.changed.connect(_apply_theme)
     app.setStyleSheet(theme.qss())
     app.installEventFilter(ParallaxFilter(win))
+    app.aboutToQuit.connect(lambda: [w.wait(4000) for w in list(_ACTIVE_WORKERS)])
     win.show()
     return app.exec()

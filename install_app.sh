@@ -17,7 +17,7 @@ cat > "$DESK/zapusk.desktop" <<EOF
 Name=Zapusk
 Comment=Launch any Windows game on Arch Linux
 Comment[ru]=Запуск любых Windows-игр на Arch Linux
-Exec=python -m zapusk gui
+Exec=python -m zapusk
 Path=$APP
 Icon=zapusk
 Terminal=false
@@ -26,4 +26,4 @@ Categories=Game;Utility;
 EOF
 
 command -v update-desktop-database >/dev/null && update-desktop-database "$DESK" || true
-echo "✅ Zapusk installed / установлено. Запуск из меню приложений или: python -m zapusk gui (в $APP)"
+echo "✅ Zapusk installed / установлено. Запуск из меню приложений или: python -m zapusk (в $APP)"

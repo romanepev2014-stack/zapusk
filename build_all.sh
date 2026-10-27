@@ -3,6 +3,7 @@
 # EN: build every package format into dist/. RU: собрать все форматы пакетов в dist/.
 set -e
 cd "$(dirname "$0")"
+rm -rf dist
 mkdir -p dist
 
 echo "=== pacman ==="

@@ -22,7 +22,7 @@ cp install.sh requirements.txt "$STAGE/usr/local/lib/zapusk/"
 
 cat > "$STAGE/usr/local/bin/zapusk" <<'EOF'
 #!/bin/sh
-cd /usr/local/lib/zapusk && exec python3 -m zapusk gui "$@"
+cd /usr/local/lib/zapusk && exec python3 -m zapusk "$@"
 EOF
 chmod 755 "$STAGE/usr/local/bin/zapusk"
 install -m644 zapusk.desktop "$STAGE/usr/local/share/applications/zapusk.desktop"

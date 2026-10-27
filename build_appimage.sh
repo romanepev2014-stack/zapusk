@@ -4,7 +4,7 @@
 # RU: сборка AppImage (нужны: python3+pip, appimagetool).
 set -e
 cd "$(dirname "$0")"
-VER=2.9.3
+VER=3.0.0
 APPDIR=AppDir
 
 rm -rf "$APPDIR" *.AppImage 2>/dev/null || true
@@ -19,7 +19,7 @@ cp install.sh requirements.txt "$APPDIR/usr/lib/zapusk/"
 cat > "$APPDIR/usr/bin/zapusk" <<EOF
 #!/bin/sh
 export PYTHONPATH=$APPDIR/usr/lib/python:$APPDIR/usr/lib/zapusk
-exec python3 -m zapusk gui "\$@"
+exec python3 -m zapusk "\$@"
 EOF
 chmod 755 "$APPDIR/usr/bin/zapusk"
 

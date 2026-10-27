@@ -30,7 +30,7 @@ modules:
         #!/bin/sh
         export PYTHONPATH=/app/lib/zapusk
         cd /app/lib/zapusk
-        exec python3 -m zapusk gui "$@"
+        exec python3 -m zapusk "$@"
         EOF
       - chmod 755 /app/bin/zapusk
     sources:

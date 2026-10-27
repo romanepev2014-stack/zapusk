@@ -1,5 +1,5 @@
 Name:           zapusk
-Version:        2.9.3
+Version:        3.0.0
 Release:        1%{?dist}
 Summary:        Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)
 License:        GPLv3+
@@ -22,7 +22,7 @@ cp -r zapusk %{buildroot}/opt/zapusk/
 cp install.sh requirements.txt %{buildroot}/opt/zapusk/
 cat > %{buildroot}/usr/bin/zapusk <<'EOF'
 #!/bin/sh
-cd /opt/zapusk && exec python3 -m zapusk gui "$@"
+cd /opt/zapusk && exec python3 -m zapusk "$@"
 EOF
 chmod 755 %{buildroot}/usr/bin/zapusk
 install -Dm644 zapusk.desktop %{buildroot}/usr/share/applications/zapusk.desktop

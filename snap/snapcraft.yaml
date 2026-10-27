@@ -24,7 +24,7 @@ parts:
       mkdir -p $CRAFT_PART_INSTALL/bin
       cat > $CRAFT_PART_INSTALL/bin/zapusk-launch <<'EOF'
       #!/bin/sh
-      exec python3 -m zapusk gui "$@"
+      exec python3 -m zapusk "$@"
       EOF
       chmod 755 $CRAFT_PART_INSTALL/bin/zapusk-launch
       cp install.sh $CRAFT_PART_INSTALL/

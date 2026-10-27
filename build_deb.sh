@@ -3,7 +3,7 @@
 # EN: build a .deb package for Debian/Ubuntu. / RU: сборка .deb для Debian/Ubuntu.
 set -e
 cd "$(dirname "$0")"
-VER=2.9.3
+VER=3.0.0
 STAGE="deb-build/zapusk_${VER}_all"
 
 rm -rf deb-build
@@ -15,7 +15,7 @@ cp install.sh requirements.txt "$STAGE/usr/lib/zapusk/"
 
 cat > "$STAGE/usr/bin/zapusk" <<'EOF'
 #!/bin/sh
-cd /usr/lib/zapusk && exec python3 -m zapusk gui "$@"
+cd /usr/lib/zapusk && exec python3 -m zapusk "$@"
 EOF
 chmod 755 "$STAGE/usr/bin/zapusk"
 
