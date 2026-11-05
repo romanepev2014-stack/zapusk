@@ -1,116 +1,86 @@
-# 🎮 ZAPUSK — run any Windows game on Arch Linux with one click
+# 🎮 ZAPUSK 3.2
 
-**Download → launch → drag an .exe in → play.** No terminals, no prefix wizardry.
+**A game launcher for Linux & FreeBSD: drop a file in — Zapusk figures out what it is, installs everything and launches it.**
 
-Zapusk is a launcher that **installs the whole stack for you** (Wine, DXVK, VKD3D-Proton,
-Vulkan drivers, gamemode) and **configures every game automatically**: Windows dependencies
-(vcrun, d3dx9, dotnet, fonts), Windows version, performance tweaks. You only point it at an .exe.
+[![Release](https://img.shields.io/github/v/release/romanepev2014-stack/zapusk)](https://github.com/romanepev2014-stack/zapusk/releases)
+[![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
----
+Windows games, PlayStation/Xbox disc images, Java games — one library, one "Fix & Launch" click.
 
-## 🌍 Zapusk 2.9 Global
+## 🎮 Console Mode — drop an ISO, we handle the rest
 
-- 🌐 **10 UI languages** — RU, EN, DE, FR, ES, PT, UK, PL, ZH, JA (selector in the title bar)
-- 🎨 **4 color palettes** — Cyber, Matrix, Sunset, Sakura, each with light & dark modes
-- 🐧 **Any distro** — Arch, Debian/Ubuntu, Fedora, openSUSE, Void, Alpine, Gentoo, **FreeBSD**: universal `install.sh` detects the package manager; DXVK auto-downloads if your repos lack it
-- 🗑 **Remove games** right from the card — from the list, with files, with prefix
-- ⚡ **Auto-config**: drop an exe in — dependencies install themselves
+Zapusk reads **image signatures** (PS serials, Xbox magic bytes) and decides how to run the game:
 
-## 🚀 Usage (dead simple)
-
-```bash
-cd zapusk
-python -m zapusk gui
-```
-
-Then everything happens in the window:
-
-1. **⚙️ Setup → «🔧 Install everything»** — one time, enter your password.
-   **Reboot afterwards** (required for Vulkan).
-2. **Drag & drop an .exe or a game folder into the window.**
-3. Press **«🚀 Fix & Launch»** on the game card.
-   First run installs dependencies (10–20 min) — afterwards it's instant.
-
-Done. Play.
-
-## 🎯 Repacks, official copies, DRM-free releases (GOG), old games
-
-All of them work: repacks, licensed installers, GOG builds. For GTA 5 pick the **gta5** preset — it sets up Rockstar Social Club.
-If Social Club doesn't hook on first launch, run `Social-Club-Setup.exe` from the game
-folder once via the «▶ Launch» button.
-
-## 📦 What «Install everything» sets up
-
-| Component | Purpose |
+| Platform | Emulator |
 |---|---|
-| `wine-staging` | run .exe (fresh, with fsync/esync) |
-| `dxvk` | DirectX 9/10/11 → Vulkan (huge FPS boost) |
-| `vkd3d-proton` | DirectX 12 → Vulkan |
-| `lib32-*` drivers | **games silently fail without them** — the most common issue |
-| `gamemode`, `mangohud` | performance & FPS overlay |
+| PlayStation 1 | DuckStation |
+| PlayStation 2 | PCSX2 |
+| PlayStation 3 | RPCS3 (+ auto-install of Sony's official firmware) |
+| **PlayStation 4** | **shadPS4** (experimental) |
+| **PlayStation 5** | ⏳ no emulator exists — honestly. **Streaming from your own console via Chiaki** works (button in the app) |
+| PSP | PPSSPP |
+| Original Xbox | xemu |
+| **Xbox 360** | **Xenia running through our own Wine prefix with DXVK** |
 
-## ⚙️ Presets for any game
+Emulators install themselves: package manager → flatpak → GitHub download. `zapusk consoles` shows the status of all platforms.
 
-`gta5` · `dx12` · `dx11` · `dx9` · `unity` · `unreal` · `old` (XP era) · `launcher` (Epic etc.)
+### 🪐 Project Prospero — honest PS5 groundwork
 
-Not sure which one? Use `dx11` — it fits most games since ~2010.
+The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Wine), not emulation. The wall: Sony encrypts binaries and no public keys exist. Already prepared (`core/prospero.py`, PROSPERO.md): PKG container parser, dump catalog by `PPSA` serials, a draft Orbis→Linux syscall translation table, Chiaki streaming. When the wall falls, Zapusk will adopt the layer in one evening.
 
-## 🔧 If a game won't start
+## 🧨 Features 3.0–3.2
 
-1. **⚙️ Setup → «🔎 Check system»** — everything must be ✅.
-2. **📋 Logs** page — pick the game, read the last lines, look for `err:`.
-3. In the game settings (⚙ on the card) try: disable Fsync, enable «Virtual desktop», change preset.
-4. Paste the log into a GitHub Issue — we'll figure it out.
+- 🔧 **Auto-heal** — game crashes → Zapusk reads the log, diagnoses (DXVK, vcrun, d3dx9, .NET, memory, fsync), fixes and relaunches — up to 4 attempts
+- 📥 **Universal import** — Steam, Heroic, Lutris, Bottles, GOG in one click (Windows builds; native Linux Steam games play as-is)
+- ⏪ **Prefix Time Machine** — snapshot before risky changes, one-click rollback
+- 🔮 **Compat oracle** — warns before launching unfixable games (Vanguard, GFWL...)
+- 💀 **Panic kill** — instantly terminates a frozen game
+- 📊 **MSI Afterburner-style overlay** — FPS, frametime, CPU/GPU, RAM/VRAM (right Shift+F12)
+- ⬆ **Self-update** — a button downloads the right package for your distro
 
-## ⚠️ Honest notes
+## 🐧 FreeBSD GPU Layer
 
-- Anticheat-protected online games (Vanguard, EAC without Linux support) will **not** work
-  outside official Steam. Single-player always works.
-- Zapusk is not a new translator — it's the standard stack (Wine + DXVK + VKD3D), correctly
-  assembled and fully automated. That's exactly why it actually works.
+`zapusk fbsdgpu` — an "individual FreeBSD for gaming": detects your GPU, installs **only its** driver, **removes the rest**, remembers the hardware — swap the card and the next run reconfigures everything. `--kernel` builds a tuned kernel. On FreeBSD games run on the host GPU (wine-devel + DXVK); passthrough is only needed for heavy/online titles.
 
-## 💻 For developers
+## 🎨 7 themes
 
-- GUI: `zapusk/gui.py` (PySide6), logic: `zapusk/core/`, CLI: `python -m zapusk --help`.
-- All code is commented in English and Russian.
-- GPL-3.0 (copyleft: все версии остаются открытыми / all versions stay open source) — fork it, improve it.
-## 📦 Install as an app (menu icon)
+**Cyber** (neon city with traffic), **Matrix** (digital rain), **Sunset** (mountains at dusk), **Sakura** (blossoms falling), **Windows XP** (Bliss + working Start menu + playable Minesweeper with drawn flags and mines), **Windows 95** (working Start, chunky bevels), **Xbox 360** (boot screen: sphere rings, glow, bubbles). Each has dark & light modes, a liquid wave transition and cursor parallax.
+
+## ⚡ Usage
+
+1. Install the package for your system (table below) or run `./install.sh` — it detects your distro
+2. Run `zapusk`
+3. Drag an `.exe`, `.iso`, `.pkg` or a game folder into the window
+4. Press **"Fix & Launch"** — everything else is automatic
+
+## 📦 Install
+
+| System | Command |
+|---|---|
+| Arch / Manjaro | `sudo pacman -U zapusk-3.2.0-1-any.pkg.tar.zst` |
+| Debian / Ubuntu / Mint | `sudo apt install ./zapusk_3.2.0_all.deb` |
+| Fedora / openSUSE | `sudo dnf install ./zapusk-3.2.0-1.noarch.rpm` |
+| Any Linux | `./zapusk-3.2.0-x86_64.AppImage` |
+| FreeBSD | `pkg install wine-devel winetricks && sh install.sh` (+ `zapusk fbsdgpu`) |
+| From source | `git clone ... && cd zapusk && python3 -m zapusk gui` |
+
+## 💻 CLI
 
 ```bash
-./install_app.sh        # ~/.local: icon + menu entry, no root
-```
-Or a native Arch package: run `makepkg -si` (PKGBUILD included) → `zapusk` in /usr/bin.
-
-Or a single binary: `pip install pyinstaller && pyinstaller zapusk.spec` → `dist/zapusk`.
-## ❓ Empty squares instead of icons?
-
-Install symbol fonts:
-
-```bash
-sudo pacman -S ttf-nerd-fonts-symbols noto-fonts-emoji ttf-font-awesome
+zapusk doctor              # system diagnostics
+zapusk import              # import from Steam/Heroic/Lutris/Bottles/GOG
+zapusk consoles            # console emulator status
+zapusk run "GTA5" --fix    # launch with auto-heal
+zapusk kill "GTA5"         # panic kill
+zapusk snapshot "GTA5"     # prefix snapshot
+zapusk rollback "GTA5"     # prefix rollback
+zapusk fbsdgpu [--kernel]  # FreeBSD: auto GPU drivers (+ kernel tuning)
+zapusk update              # self-update
 ```
 
-Tested on Arch Linux (snapshot 2026.2).
-## 🎮 FreeBSD Gaming Mode (bhyve + GPU passthrough)
+## ❓ Honest answers
 
-Run **heavy and online games** on FreeBSD at ~100% GPU speed: a Linux (Zen kernel) VM
-gets your real video card via PCIe passthrough, and Looking Glass shows the game
-picture in a window on your FreeBSD desktop.
-
-```sh
-sudo sh scripts/freebsd_gaming_mode.sh
-```
-
-The script checks IOMMU (VT-d/AMD-Vi), finds GPUs, configures `pptdevs` passthrough,
-creates a ZFS zvol and generates a ready bhyve start script with an IVSHMEM region
-for Looking Glass.
-
-**Requirements:** FreeBSD 14+, CPU with VT-d/AMD-Vi (enabled in BIOS), a GPU for the
-VM **plus any output for the host** (iGPU or a cheap card). Almost all anti-cheats
-work inside the VM; Vanguard (Valorant) intentionally refuses VMs.
-
-**Status:** untested on real hardware — you are the first tester. Logs → GitHub Issues.
-
-Packages for everyone: Arch (PKGBUILD), Debian/Ubuntu (build_deb.sh), Flatpak (flatpak/) — see [FLATHUB.md](FLATHUB.md).
-
-Publishing everywhere: [RELEASE.md](RELEASE.md) — pacman, deb, rpm, Flatpak, Snap, AppImage, Nix, Gentoo, Void, Alpine, FreeBSD.
+- **Anti-cheats** (Vanguard, kernel-level EAC/BattlEye) — don't work anywhere outside the official Windows client; Zapusk warns upfront
+- **PS5** — no emulator exists; the honest path (streaming from your console via Chiaki) is built in
+- **Xbox One / Series** — no emulators
+- Written by a 12-year-old developer with an AI assistant. **GPL-3.0**: code always open

@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 PORTNAME=	zapusk
-DISTVERSION=	3.0.0
+DISTVERSION=	3.2.0
 CATEGORIES=	games
 MASTER_SITES=	https://github.com/romanepev2014-stack/${PORTNAME}/archive/refs/tags/
 DISTNAME=	v${DISTVERSION}

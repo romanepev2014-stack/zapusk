@@ -1,5 +1,5 @@
 Name:           zapusk
-Version:        3.0.0
+Version:        3.2.0
 Release:        1%{?dist}
 Summary:        Cyberpunk launcher for Windows games (Wine + DXVK auto-setup)
 License:        GPLv3+
@@ -20,6 +20,7 @@ any-distro support, FreeBSD Gaming Mode (bhyve passthrough).
 mkdir -p %{buildroot}/opt/zapusk %{buildroot}/usr/bin %{buildroot}/usr/share/applications %{buildroot}/usr/share/icons/hicolor/scalable/apps %{buildroot}/usr/share/licenses/%{name}
 cp -r zapusk %{buildroot}/opt/zapusk/
 cp install.sh requirements.txt %{buildroot}/opt/zapusk/
+cp -r scripts %{buildroot}/opt/zapusk/
 cat > %{buildroot}/usr/bin/zapusk <<'EOF'
 #!/bin/sh
 cd /opt/zapusk && exec python3 -m zapusk "$@"

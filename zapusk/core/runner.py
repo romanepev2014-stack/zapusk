@@ -11,6 +11,10 @@ def build_command(game):
     # RU: Java-игры (Minecraft и т.д.) идут нативно — wine не нужен.
     if exe.lower().endswith(".jar"):
         return ["java", "-jar", exe] + (args.split() if args else [])
+    # EN: console ROMs — through the emulator layer, no wine.
+    # RU: консольные образы — через эмуляторный слой, без wine.
+    if pathlib.Path(exe).suffix.lower() in (".iso", ".img", ".chd", ".cso", ".pbp", ".pkg", ".xex", ".xbe"):
+        return None  # launch() handles consoles separately
     cmd = []
     if game.get("gamemode", True) and which("gamemoderun"):
         cmd.append("gamemoderun")
@@ -52,6 +56,13 @@ def launch(game, extra_env=None, want_pid=False):
         env = dict(os.environ)
         if extra_env:
             env.update(extra_env)
+        p = run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
+        return (log, p.pid) if want_pid else log
+    if pathlib.Path(game["exe"]).suffix.lower() in (".iso", ".img", ".chd", ".cso", ".pbp", ".pkg", ".xex", ".xbe"):
+        from zapusk.core import consoles
+        cmd, env = consoles.build_console_command(game, extra_env)
+        if game.get("gamemode", True) and which("gamemoderun"):
+            cmd = ["gamemoderun"] + cmd
         p = run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
         return (log, p.pid) if want_pid else log
     prefix = prefix_path(slug, game.get("shared_prefix", False))

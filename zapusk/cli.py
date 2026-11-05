@@ -151,6 +151,20 @@ def cmd_update(a):
     ok, msg = selfupdate.download_and_install(progress=print)
     return 0 if ok else 1
 
+def cmd_consoles(a):
+    from zapusk.core import consoles
+    print("🎮 Консольный режим / Console Mode\n")
+    for key, (name, state, note) in consoles.platform_status().items():
+        print(f"{name:16} {state}  {note}")
+    print("\nПоддержка: PS1-PS4 (shadPS4 экспериментально), PSP, Xbox, Xbox 360 (Wine+DXVK). PS5 — не существует.")
+    return 0
+
+def cmd_fbsdgpu(a):
+    import subprocess, pathlib
+    script = pathlib.Path(__file__).resolve().parent.parent.parent / "scripts" / "fbsd_gaming_gpu.sh"
+    rc = subprocess.run(["sh", str(script)] + (["--kernel"] if a.kernel else [])).returncode
+    return rc
+
 def cmd_gui(a):
     from zapusk.gui import run_gui
     return run_gui()
@@ -213,6 +227,12 @@ def main():
 
     sp = sub.add_parser("update", help="проверить и установить обновление Zapusk")
     sp.set_defaults(fn=cmd_update)
+
+    sub.add_parser("consoles", help="статус консольного режима (эмуляторы)").set_defaults(fn=cmd_consoles)
+
+    sp = sub.add_parser("fbsdgpu", help="FreeBSD: авто-драйверы GPU под игры (детект железа, чистка)")
+    sp.add_argument("--kernel", action="store_true", help="также собрать тюнингованное ядро")
+    sp.set_defaults(fn=cmd_fbsdgpu)
 
     sub.add_parser("gui", help="графический интерфейс").set_defaults(fn=cmd_gui)
 

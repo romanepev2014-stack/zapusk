@@ -21,6 +21,7 @@ modules:
       - mkdir -p /app/lib/zapusk /app/bin
       - cp -r zapusk /app/lib/zapusk/
       - cp install.sh install_arch.sh requirements.txt /app/lib/zapusk/
+      - cp -r scripts /app/lib/zapusk/
       - install -Dm644 assets/zapusk.svg /app/share/icons/hicolor/scalable/apps/io.github.romaogon.zapusk.svg
       - sed -i 's/Icon=zapusk/Icon=io.github.romaogon.zapusk/' zapusk.desktop
       - install -Dm644 zapusk.desktop /app/share/applications/io.github.romaogon.zapusk.desktop

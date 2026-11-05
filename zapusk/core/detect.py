@@ -145,6 +145,11 @@ def detect_preset(exe_path: str, game_name: str = ""):
     exe_path = str(exe_path)
     if exe_path.lower().endswith(".jar"):
         return "java", "Java-архив — нативный запуск / native Java launch"
+    from zapusk.core import consoles
+    plat, serial = consoles.detect_rom(exe_path)
+    if plat:
+        name = consoles.PLATFORMS[plat]["name"]
+        return "console", f"{name} (серийник: {serial or '—'}) — запуск через эмулятор"
     folder = pathlib.Path(exe_path).parent
     info = pe_info(exe_path)
     arch, dlls = info if info else (None, set())

@@ -59,7 +59,9 @@ def scan_folder(folder):
     found = []
     skip = ("unins", "setup", "installer", "redist", "vcredist", "directx", "dotnet",
             "socialclub", "activate", "crash", "report", "updater", "patch")
-    for p in list(pathlib.Path(folder).rglob("*.exe")) + list(pathlib.Path(folder).rglob("*.jar")):
+    for p in list(pathlib.Path(folder).rglob("*.exe")) + list(pathlib.Path(folder).rglob("*.jar")) + \
+              list(pathlib.Path(folder).rglob("*.iso")) + list(pathlib.Path(folder).rglob("*.chd")) + \
+              list(pathlib.Path(folder).rglob("*.xex")) + list(pathlib.Path(folder).rglob("*.pkg")):
         pl = str(p).lower()
         if any(s in pl for s in ("windows/", "system32", "syswow64", "_commonredist", "__installer")):
             continue

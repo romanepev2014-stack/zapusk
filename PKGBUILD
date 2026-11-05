@@ -1,6 +1,6 @@
 # Maintainer: roma_ogon
 pkgname=zapusk
-pkgver=3.0.0
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="Cyberpunk launcher for Windows games on Arch Linux (Wine + DXVK + VKD3D)"
 arch=('any')

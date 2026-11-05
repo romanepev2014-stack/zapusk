@@ -61,6 +61,15 @@ PRESETS = {
         "virtual_desktop": "1280x720",
         "note": "Включён виртуальный рабочий стол — меняется в настройках игры.",
     },
+    "console": {
+        "label": "Консоль (PS/Xbox через эмулятор)",
+        "winver": "win7",
+        "verbs": [],
+        "vkd3d": False,
+        "env": {},
+        "note": "Zapusk определит платформу по образу, поставит эмулятор и запустит. "
+                "Detects the platform from the image, installs the emulator and launches.",
+    },
     "java": {
         "label": "Java-игра (Minecraft и т.д.)",
         "winver": "win7",

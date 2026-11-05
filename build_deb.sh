@@ -3,7 +3,7 @@
 # EN: build a .deb package for Debian/Ubuntu. / RU: сборка .deb для Debian/Ubuntu.
 set -e
 cd "$(dirname "$0")"
-VER=3.0.0
+VER=3.2.0
 STAGE="deb-build/zapusk_${VER}_all"
 
 rm -rf deb-build
@@ -11,6 +11,7 @@ mkdir -p "$STAGE/usr/lib/zapusk" "$STAGE/usr/bin" "$STAGE/usr/share/applications
          "$STAGE/usr/share/icons/hicolor/scalable/apps" "$STAGE/DEBIAN"
 
 cp -r zapusk "$STAGE/usr/lib/zapusk/"
+cp -r scripts "$STAGE/usr/lib/zapusk/"
 cp install.sh requirements.txt "$STAGE/usr/lib/zapusk/"
 
 cat > "$STAGE/usr/bin/zapusk" <<'EOF'

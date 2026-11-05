@@ -4,7 +4,7 @@
 # RU: сборка AppImage (нужны: python3+pip, appimagetool).
 set -e
 cd "$(dirname "$0")"
-VER=3.0.0
+VER=3.2.0
 APPDIR=AppDir
 
 rm -rf "$APPDIR" *.AppImage 2>/dev/null || true
@@ -14,6 +14,7 @@ mkdir -p "$APPDIR/usr/lib/zapusk" "$APPDIR/usr/bin" "$APPDIR/usr/share/applicati
 # EN: bundle PySide6 (big, ~100MB) / RU: вшиваем PySide6 (~100 МБ)
 python3 -m pip install --quiet --target "$APPDIR/usr/lib/python" PySide6
 cp -r zapusk "$APPDIR/usr/lib/zapusk/"
+cp -r scripts "$APPDIR/usr/lib/zapusk/"
 cp install.sh requirements.txt "$APPDIR/usr/lib/zapusk/"
 
 cat > "$APPDIR/usr/bin/zapusk" <<EOF

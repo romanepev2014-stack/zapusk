@@ -1,6 +1,6 @@
 # Maintainer: roma_ogon <you@example.com>
 pkgname=zapusk
-pkgver=3.0.0
+pkgver=3.2.0
 pkgrel=1
 pkgdesc="Cyberpunk launcher for Windows games on Arch Linux (Wine + DXVK + VKD3D)"
 arch=('any')
@@ -33,6 +33,7 @@ package() {
   install -dm755 "$pkgdir/opt/zapusk"
   cp -r zapusk "$pkgdir/opt/zapusk/"
   cp install_arch.sh requirements.txt "$pkgdir/opt/zapusk/"
+  cp -r scripts "$pkgdir/opt/zapusk/"
   install -Dm755 run.sh "$pkgdir/opt/zapusk/run.sh"
 
   install -dm755 "$pkgdir/usr/bin"
