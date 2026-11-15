@@ -18,10 +18,11 @@ BIN_PATH     := $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME)
 ONEFILE_PATH := $(BUILD_DIR)/$(APP_NAME)
 
 NUITKA_FLAGS := \
-	--enable-plugin=pyside6 \
-	--output-dir=$(BUILD_DIR) \
+	--enable-plugin=pyside6       \
+	--include-package-data=zapusk \
+	--output-dir=$(BUILD_DIR)     \
 	--output-filename=$(APP_NAME) \
-	--assume-yes-for-downloads \
+	--assume-yes-for-downloads    \
 	--show-progress
 
 .DEFAULT_GOAL := build

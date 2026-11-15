@@ -234,11 +234,8 @@ def cmd_fbsdgpu(a):
     import pathlib
     import subprocess
 
-    script = (
-        pathlib.Path(__file__).resolve().parent.parent.parent
-        / "scripts"
-        / "fbsd_gaming_gpu.sh"
-    )
+    script = pathlib.Path(__file__).resolve().parent / "scripts" / "fbsd_gaming_gpu.sh"
+
     rc = subprocess.run(
         ["sh", str(script)] + (["--kernel"] if a.kernel else [])
     ).returncode

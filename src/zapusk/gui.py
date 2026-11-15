@@ -97,12 +97,11 @@ def _cfg(key, default=None):
 from zapusk.core.prefix import open_prefix, prefix_path
 from zapusk.core.util import host_prefix
 
-INSTALL_SCRIPT = (
-    pathlib.Path(__file__).resolve().parent.parent / "install.sh"
-)  # универсальный
-INSTALL_ARCH = (
-    pathlib.Path(__file__).resolve().parent.parent / "install_arch.sh"
-)  # arch-only fallback
+SCRIPTS_DIR = pathlib.Path(__file__).resolve().parent / "scripts"
+
+INSTALL_SCRIPT = SCRIPTS_DIR / "install.sh"
+INSTALL_ARCH = SCRIPTS_DIR / "install_arch.sh"
+
 
 # ============================================================
 # EN: 4 worlds x 2 modes (dark/light) — same scenes as the website.
