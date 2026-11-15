@@ -1,0 +1,30 @@
+name: Code Quality Check
+
+on:
+  push:
+    branches: [main, master]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+  pull_request:
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+
+jobs:
+  lint:
+    name: Ruff Lint & Format Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Run Ruff linter
+        run: uvx ruff check .
+
+      - name: Run Ruff formatter check
+        run: uvx ruff format --check .

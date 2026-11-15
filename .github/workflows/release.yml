@@ -1,0 +1,68 @@
+name: Build & Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    name: Build Linux x86_64 (glibc 2.35)
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install system dependencies for Nuitka & PySide6
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            patchelf \
+            gcc \
+            g++ \
+            ccache \
+            libxcb-cursor0 \
+            libxcb-xinerama0 \
+            libegl1 \
+            libopengl0 \
+            fuse
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Install Python dependencies
+        run: uv sync --frozen
+
+      - name: Cache Nuitka C-compilation
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Nuitka
+          key: nuitka-${{ runner.os }}-${{ hashFiles('uv.lock') }}
+          restore-keys: |
+            nuitka-${{ runner.os }}-
+
+      - name: Build single-file binary
+        run: uv run make build
+
+      - name: Rename binary for release
+        run: cp build/zapusk build/zapusk-linux-x86_64
+
+      - name: Upload build artifact (for manual runs)
+        uses: actions/upload-artifact@v4
+        with:
+          name: zapusk-linux-x86_64
+          path: build/zapusk-linux-x86_64
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: build/zapusk-linux-x86_64
+          generate_release_notes: true
