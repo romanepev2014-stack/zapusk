@@ -7,6 +7,8 @@ __pycache__/
 venv/
 env/
 
+nuitka-crash-report.xml
+
 .ruff_cache/
 
 # Nuitka & Build artifacts
