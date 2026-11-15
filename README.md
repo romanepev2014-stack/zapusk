@@ -1,86 +1,90 @@
 # 🎮 ZAPUSK 3.2
 
-**A game launcher for Linux & FreeBSD: drop a file in — Zapusk figures out what it is, installs everything and launches it.**
+**Лаунчер игр для Linux и FreeBSD: кинул файл — Zapusk сам поймёт, что это, сам всё поставит и запустит.**
 
 [![Release](https://img.shields.io/github/v/release/romanepev2014-stack/zapusk)](https://github.com/romanepev2014-stack/zapusk/releases)
 [![License: GPL v3](https://img.shields.io/badge/license-GPL--3.0-blue)](LICENSE)
 
-Windows games, PlayStation/Xbox disc images, Java games — one library, one "Fix & Launch" click.
+> [!NOTE]
+> If you need a translation of the README.md file, use this [link](https://github-com.translate.goog/romanepev2014-stack/zapusk/blob/main/README.md?_x_tr_sl=auto&_x_tr_tl=ru&_x_tr_hl=ru&_x_tr_pto=wapp),
+> or the [English version](./README-EN.md).
 
-## 🎮 Console Mode — drop an ISO, we handle the rest
+Windows-игры, консольные образы PS/Xbox, Java-игры — одна библиотека, один клик «Починить и запустить».
 
-Zapusk reads **image signatures** (PS serials, Xbox magic bytes) and decides how to run the game:
+## 🎮 Console Mode — кинь ISO, всё остальное наши проблемы
 
-| Platform | Emulator |
+Zapusk читает **сигнатуры образов** (серийники PS, магические байты Xbox) и сам решает, как запустить игру:
+
+| Платформа | Чем запускаем |
 |---|---|
 | PlayStation 1 | DuckStation |
 | PlayStation 2 | PCSX2 |
-| PlayStation 3 | RPCS3 (+ auto-install of Sony's official firmware) |
-| **PlayStation 4** | **shadPS4** (experimental) |
-| **PlayStation 5** | ⏳ no emulator exists — honestly. **Streaming from your own console via Chiaki** works (button in the app) |
+| PlayStation 3 | RPCS3 (+ автоустановка официальной прошивки с Sony) |
+| **PlayStation 4** | **shadPS4** (экспериментально) |
+| **PlayStation 5** | ⏳ эмулятора не существует — честно. Работает **стриминг с вашей консоли через Chiaki** (кнопка «📺 Стрим с PS5») |
 | PSP | PPSSPP |
-| Original Xbox | xemu |
-| **Xbox 360** | **Xenia running through our own Wine prefix with DXVK** |
+| Xbox (original) | xemu |
+| **Xbox 360** | **Xenia, запущенная через собственный префикс Wine с DXVK** |
 
-Emulators install themselves: package manager → flatpak → GitHub download. `zapusk consoles` shows the status of all platforms.
+Эмулятор ставится сам: пакетный менеджер → flatpak → скачивание с GitHub. `zapusk consoles` показывает статус всех платформ.
 
-### 🪐 Project Prospero — honest PS5 groundwork
+### 🪐 Project Prospero — честный фундамент PS5
 
-The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Wine), not emulation. The wall: Sony encrypts binaries and no public keys exist. Already prepared (`core/prospero.py`, PROSPERO.md): PKG container parser, dump catalog by `PPSA` serials, a draft Orbis→Linux syscall translation table, Chiaki streaming. When the wall falls, Zapusk will adopt the layer in one evening.
+PS5 — это x86-64 AMD, как ваш ПК: нужна прослойка (как Wine), а не эмуляция. Стена — Sony шифрует бинарники, публичных ключей нет. Что уже готово (`core/prospero.py`, PROSPERO.md): парсер PKG-контейнеров, каталог дампов по серийникам `PPSA`, черновик таблицы трансляции сисколов Orbis→Linux, Chiaki-стриминг. Когда стена падёт — Zapusk подхватит прослойку за один вечер.
 
-## 🧨 Features 3.0–3.2
+## 🧨 Фичи 3.0–3.2
 
-- 🔧 **Auto-heal** — game crashes → Zapusk reads the log, diagnoses (DXVK, vcrun, d3dx9, .NET, memory, fsync), fixes and relaunches — up to 4 attempts
-- 📥 **Universal import** — Steam, Heroic, Lutris, Bottles, GOG in one click (Windows builds; native Linux Steam games play as-is)
-- ⏪ **Prefix Time Machine** — snapshot before risky changes, one-click rollback
-- 🔮 **Compat oracle** — warns before launching unfixable games (Vanguard, GFWL...)
-- 💀 **Panic kill** — instantly terminates a frozen game
-- 📊 **MSI Afterburner-style overlay** — FPS, frametime, CPU/GPU, RAM/VRAM (right Shift+F12)
-- ⬆ **Self-update** — a button downloads the right package for your distro
+- 🔧 **Авто-лечение** — игра вылетела → Zapusk читает лог, определяет причину (DXVK, vcrun, d3dx9, .NET, память, fsync), чинит и перезапускает до 4 попыток
+- 📥 **Импорт из всех магазинов** — Steam, Heroic, Lutris, Bottles, GOG одной кнопкой (Windows-версии; нативные Linux-игры Steam импортировать не нужно — они и так играют)
+- ⏪ **Машина времени префикса** — снапшот перед рискованными действиями, откат в один клик
+- 🔮 **Оракул совместимости** — предупреждает до запуска об играх, которые не заведутся (Vanguard, GFWL и т.д.)
+- 💀 **Паник-килл** — мгновенно убивает зависшую игру целиком
+- 📊 **Оверлей как MSI Afterburner** — FPS, фреймтайм, CPU/GPU, RAM/VRAM (правая Shift+F12)
+- ⬆ **Самообновление** — кнопка в настройках качает пакет под ваш дистрибутив
 
 ## 🐧 FreeBSD GPU Layer
 
-`zapusk fbsdgpu` — an "individual FreeBSD for gaming": detects your GPU, installs **only its** driver, **removes the rest**, remembers the hardware — swap the card and the next run reconfigures everything. `--kernel` builds a tuned kernel. On FreeBSD games run on the host GPU (wine-devel + DXVK); passthrough is only needed for heavy/online titles.
+`zapusk fbsdgpu` — «индивидуальная FreeBSD для игр»: определяет вашу видеокарту, ставит **только её** драйвер, **удаляет ненужные**, запоминает железо — поменяли карту, следующий запуск всё перенастроит. Флаг `--kernel` собирает тюнингованное ядро. Игры на FreeBSD идут через обычную видеокарту (wine-devel + DXVK); проброс нужен только для тяжёлых/онлайн-игр.
 
-## 🎨 7 themes
+## 🎨 7 тем оформления
 
-**Cyber** (neon city with traffic), **Matrix** (digital rain), **Sunset** (mountains at dusk), **Sakura** (blossoms falling), **Windows XP** (Bliss + working Start menu + playable Minesweeper with drawn flags and mines), **Windows 95** (working Start, chunky bevels), **Xbox 360** (boot screen: sphere rings, glow, bubbles). Each has dark & light modes, a liquid wave transition and cursor parallax.
+**Cyber** (неоновый город с трафиком), **Matrix** (цифровой дождь), **Sunset** (закат в горах), **Sakura** (сакуры с лепестками), **Windows XP** (Блисс + рабочий Пуск + играбельный Сапёр с нарисованными флажками и минами), **Windows 95** (рабочий Пуск, бевелы), **Xbox 360** (стартовый экран: кольца сферы, свечение, пузыри). У каждой — тёмный и светлый режим, смена жидкой волной, параллакс за курсором.
 
-## ⚡ Usage
+## ⚡ Как пользоваться
 
-1. Install the package for your system (table below) or run `./install.sh` — it detects your distro
-2. Run `zapusk`
-3. Drag an `.exe`, `.iso`, `.pkg` or a game folder into the window
-4. Press **"Fix & Launch"** — everything else is automatic
+1. Установите пакет под вашу систему (таблица ниже) или `./install.sh` — он определит дистрибутив
+2. Запустите `zapusk`
+3. Перетащите в окно `.exe`, `.iso`, `.pkg` или папку с игрой
+4. «Починить и запустить» — всё остальное автоматически
 
-## 📦 Install
+## 📦 Установка
 
-| System | Command |
+| Система | Команда |
 |---|---|
 | Arch / Manjaro | `sudo pacman -U zapusk-3.2.0-1-any.pkg.tar.zst` |
 | Debian / Ubuntu / Mint | `sudo apt install ./zapusk_3.2.0_all.deb` |
 | Fedora / openSUSE | `sudo dnf install ./zapusk-3.2.0-1.noarch.rpm` |
-| Any Linux | `./zapusk-3.2.0-x86_64.AppImage` |
+| Любой Linux | `./zapusk-3.2.0-x86_64.AppImage` |
 | FreeBSD | `pkg install wine-devel winetricks && sh install.sh` (+ `zapusk fbsdgpu`) |
-| From source | `git clone ... && cd zapusk && python3 -m zapusk gui` |
+| Из исходников | `git clone ... && cd zapusk && python3 -m zapusk gui` |
 
 ## 💻 CLI
 
 ```bash
-zapusk doctor              # system diagnostics
-zapusk import              # import from Steam/Heroic/Lutris/Bottles/GOG
-zapusk consoles            # console emulator status
-zapusk run "GTA5" --fix    # launch with auto-heal
-zapusk kill "GTA5"         # panic kill
-zapusk snapshot "GTA5"     # prefix snapshot
-zapusk rollback "GTA5"     # prefix rollback
-zapusk fbsdgpu [--kernel]  # FreeBSD: auto GPU drivers (+ kernel tuning)
-zapusk update              # self-update
+zapusk doctor              # диагностика системы
+zapusk import              # импорт игр из Steam/Heroic/Lutris/Bottles/GOG
+zapusk consoles            # статус эмуляторов консолей
+zapusk run "GTA5" --fix    # запуск с авто-лечением
+zapusk kill "GTA5"         # паник-килл
+zapusk snapshot "GTA5"     # снапшот префикса
+zapusk rollback "GTA5"     # откат
+zapusk fbsdgpu [--kernel]  # FreeBSD: авто-драйверы GPU (+ тюнинг ядра)
+zapusk update              # самообновление
 ```
 
-## ❓ Honest answers
+## ❓ Честные ответы
 
-- **Anti-cheats** (Vanguard, kernel-level EAC/BattlEye) — don't work anywhere outside the official Windows client; Zapusk warns upfront
-- **PS5** — no emulator exists; the honest path (streaming from your console via Chiaki) is built in
-- **Xbox One / Series** — no emulators
-- Written by a 12-year-old developer with an AI assistant. **GPL-3.0**: code always open
+- **Античиты** (Vanguard, ядерные EAC/BattlEye) — не работают нигде вне официального Windows-клиента; Zapusk предупредит заранее
+- **PS5** — эмулятора не существует; честный путь: стриминг со своей консоли (Chiaki) встроен
+- **Xbox One / Series** — эмуляторов нет
+- Проект написан 12-летним разработчиком при поддержке ИИ-ассистента. **GPL-3.0**: код всегда открыт
