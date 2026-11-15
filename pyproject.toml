@@ -1,0 +1,21 @@
+[project]
+name = "zapusk"
+version = "3.2.0"
+description = "A game launcher for Linux & FreeBSD: drop a file in — Zapusk figures out what it is, installs everything and launches it"
+readme = "README.md"
+authors = [
+    { name = "romanepev", email = "romanepev2014@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "nuitka>=4.3.5",
+    "ordered-set>=4.1.0",
+    "pyside6>=6.12.0",
+]
+
+[project.scripts]
+zapusk = "zapusk:main"
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"
