@@ -31,11 +31,8 @@ def _parse_version(tag: str) -> tuple[int, ...]:
 
 
 def _target_binary() -> pathlib.Path | None:
-    """Return path to the installed binary if running as a compiled executable."""
+    """Return path to the compiled binary, or None when running from source."""
     if not getattr(sys, "frozen", False) and "__compiled__" not in globals():
-        which_bin = shutil.which("zapusk")
-        if which_bin:
-            return pathlib.Path(which_bin).resolve()
         return None
     return pathlib.Path(sys.executable).resolve()
 
@@ -64,13 +61,11 @@ def check() -> tuple[bool, str]:
 def download_and_install(progress=print) -> tuple[bool, str]:
     """EN: download the release binary and atomically replace the current one.
     RU: скачать релизный бинарник и атомарно заменить текущий."""
-    tag, assets = latest()
-    if not tag or isinstance(assets, str):
-        return False, str(assets)
-
-    url = assets.get(ASSET_NAME)
-    if not url:
-        return False, f"файл {ASSET_NAME} не найден в релизе {tag}"
+    if sys.platform != "linux":
+        return (
+            False,
+            f"автообновление доступно только для Linux-бинарника (текущая ОС: {sys.platform}); обновитесь через git pull",
+        )
 
     target = _target_binary()
     if not target:
@@ -84,6 +79,14 @@ def download_and_install(progress=print) -> tuple[bool, str]:
 
     if not os.access(target.parent, os.W_OK):
         return False, f"нет прав на запись в {target.parent}"
+
+    tag, assets = latest()
+    if not tag or isinstance(assets, str):
+        return False, str(assets)
+
+    url = assets.get(ASSET_NAME)
+    if not url:
+        return False, f"файл {ASSET_NAME} не найден в релизе {tag}"
 
     tmp_path = target.with_name(f"{target.name}.new")
     progress(f"⬇ скачиваю {ASSET_NAME} ({tag}) ...")
