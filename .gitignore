@@ -1,10 +1,23 @@
-# Python-generated files
+# Python
 __pycache__/
-*.py[oc]
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+
+# Nuitka & Build artifacts
 build/
 dist/
-wheels/
-*.egg-info
+*.build/
+*.dist/
+*.onefile-build/
+*.bin
+*.exe
+*.so
 
-# Virtual environments
-.venv
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
