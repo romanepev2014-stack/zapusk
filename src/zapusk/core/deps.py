@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os
-from zapusk.core.util import run, which
 from zapusk.core.prefix import wine_env
+from zapusk.core.util import run, which
+
 
 def winetricks_install(prefix, verbs, log=None):
     """Тихая установка winetricks-вербов в префикс."""
@@ -14,14 +14,23 @@ def winetricks_install(prefix, verbs, log=None):
     # winetricks любит X, но -q всё равно лезет в GUI для некоторых вербов — глушим отладку
     return run(["winetricks", "-q"] + verbs, env=env, log=log)
 
+
 def fix_game(prefix, preset_cfg, log=None, progress=None):
     """Полный 'замочи и запусти': dxvk (+vkd3d) + winver + verbs + твики реестра."""
-    from zapusk.core.prefix import (wineboot, set_winver, install_dxvk,
-                                    install_vkd3d, reg_add)
+    from zapusk.core.prefix import (
+        install_dxvk,
+        install_vkd3d,
+        reg_add,
+        set_winver,
+        wineboot,
+    )
+
     def say(msg):
-        if progress: progress(msg)
+        if progress:
+            progress(msg)
         if log:
-            with open(log, 'a') as f: f.write(f"\n=== {msg} ===\n")
+            with open(log, "a") as f:
+                f.write(f"\n=== {msg} ===\n")
 
     say("Инициализация префикса (wineboot)")
     wineboot(prefix, log)
@@ -44,7 +53,9 @@ def fix_game(prefix, preset_cfg, log=None, progress=None):
             say(f"⚠ winetricks завершился с кодом {rc} — смотри лог")
 
     # Полезные твики реестра
-    reg_add(prefix, "HKCU\\Software\\Wine\\Direct3D", "UseGLSL", "disabled", log)  # dxvk сам ок, но для wined3d-фолбэка
+    reg_add(
+        prefix, "HKCU\\Software\\Wine\\Direct3D", "UseGLSL", "disabled", log
+    )  # dxvk сам ок, но для wined3d-фолбэка
     reg_add(prefix, "HKCU\\Control Panel\\Desktop", "LogPixels", "96", log)
     say("Готово. Играй: zapusk run <имя>")
     return True

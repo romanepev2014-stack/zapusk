@@ -20,13 +20,15 @@ RU: Сегодня запустить PS5-бинарники нельзя (не�
 # RU: парсер контейнера PKG (ключи не нужны — это просто коробка).
 # ============================================================
 PKG_MAGIC = b"\x7fPKG"
-PS5_SERIAL_RE = rb"PPSA[0-9]{5}"   # EN: PS5 title IDs. RU: серийники игр PS5
+PS5_SERIAL_RE = rb"PPSA[0-9]{5}"  # EN: PS5 title IDs. RU: серийники игр PS5
 PS4_SERIAL_RE = rb"CUSA[0-9]{5}"
 
 
 def sniff_ps5_pkg(path):
     """EN: -> dict(serial, size) or None. RU: -> словарь(серийник, размер) или None."""
-    import re, os
+    import os
+    import re
+
     try:
         with open(path, "rb") as f:
             head = f.read(16 * 1024 * 1024)
@@ -43,9 +45,9 @@ def sniff_ps5_pkg(path):
 
 def parse_self_info(path):
     """EN: minimal SELF/SCE-ELF header reader. Works on decrypted/fake-signed
-       binaries; on retail-encrypted ones it reports the wall honestly.
-       RU: минимальное чтение заголовка SELF. Работает на расшифрованных
-       бинарниках; на розничных шифрованных честно сообщает о стене."""
+    binaries; on retail-encrypted ones it reports the wall honestly.
+    RU: минимальное чтение заголовка SELF. Работает на расшифрованных
+    бинарниках; на розничных шифрованных честно сообщает о стене."""
     try:
         with open(path, "rb") as f:
             head = f.read(0x400)
@@ -54,13 +56,15 @@ def parse_self_info(path):
     if head[:4] != b"\x7fELF":
         return None
     ei = head[0x07]
-    info = dict(elf_class="64-bit" if ei == 2 else "32-bit",
-                endian="little" if head[0x05] == 1 else "big",
-                type=__import__("struct").unpack("<H", head[0x10:0x12])[0])
+    info = dict(
+        elf_class="64-bit" if ei == 2 else "32-bit",
+        endian="little" if head[0x05] == 1 else "big",
+        type=__import__("struct").unpack("<H", head[0x10:0x12])[0],
+    )
     # EN: Sony marks encrypted SELF files via proprietary header flags at
     #     e_flags / extended headers. Without keys we can only see the shell.
     # RU: Sony помечает шифрованные SELF флагами; без ключей видим лишь оболочку.
-    info["encrypted"] = True   # EN: safe default until decrypted images exist
+    info["encrypted"] = True  # EN: safe default until decrypted images exist
     info["note"] = "SELF-контейнер Sony. Розничные бинарники зашифрованы — нужны ключи."
     return info
 

@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os, pathlib
-from zapusk.core.util import which, run_detached, LOGS_DIR
+import os
+import pathlib
+
 from zapusk.core.prefix import prefix_path, wine_env
+from zapusk.core.util import LOGS_DIR, run_detached, which
+
 
 def build_command(game):
     """Собрать команду запуска: [gamemoderun] [mangohud] wine game.exe args"""
@@ -13,7 +16,16 @@ def build_command(game):
         return ["java", "-jar", exe] + (args.split() if args else [])
     # EN: console ROMs — through the emulator layer, no wine.
     # RU: консольные образы — через эмуляторный слой, без wine.
-    if pathlib.Path(exe).suffix.lower() in (".iso", ".img", ".chd", ".cso", ".pbp", ".pkg", ".xex", ".xbe"):
+    if pathlib.Path(exe).suffix.lower() in (
+        ".iso",
+        ".img",
+        ".chd",
+        ".cso",
+        ".pbp",
+        ".pkg",
+        ".xex",
+        ".xbe",
+    ):
         return None  # launch() handles consoles separately
     cmd = []
     if game.get("gamemode", True) and which("gamemoderun"):
@@ -32,6 +44,7 @@ def build_command(game):
         cmd += args.split()
     return cmd
 
+
 def build_env(game, prefix, extra_env=None):
     env = wine_env(prefix, debug=game.get("debug", False))
     if game.get("dxvk_hud"):
@@ -47,6 +60,7 @@ def build_env(game, prefix, extra_env=None):
         env.update(extra_env)
     return env
 
+
 def launch(game, extra_env=None, want_pid=False):
     slug = game.get("slug") or game["name"]
     log = LOGS_DIR / f"{slug}.log"
@@ -58,8 +72,18 @@ def launch(game, extra_env=None, want_pid=False):
             env.update(extra_env)
         p = run_detached(cmd, env=env, cwd=game.get("workdir") or None, log=str(log))
         return (log, p.pid) if want_pid else log
-    if pathlib.Path(game["exe"]).suffix.lower() in (".iso", ".img", ".chd", ".cso", ".pbp", ".pkg", ".xex", ".xbe"):
+    if pathlib.Path(game["exe"]).suffix.lower() in (
+        ".iso",
+        ".img",
+        ".chd",
+        ".cso",
+        ".pbp",
+        ".pkg",
+        ".xex",
+        ".xbe",
+    ):
         from zapusk.core import consoles
+
         cmd, env = consoles.build_console_command(game, extra_env)
         if game.get("gamemode", True) and which("gamemoderun"):
             cmd = ["gamemoderun"] + cmd

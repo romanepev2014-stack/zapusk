@@ -10,7 +10,7 @@ PRESETS = {
         "vkd3d": False,
         "env": {},
         "note": "Первый запуск ставит Social Club — просто жди. "
-                "Не запустится — запусти Social-Club-Setup.exe из папки игры один раз через Zapusk.",
+        "Не запустится — запусти Social-Club-Setup.exe из папки игры один раз через Zapusk.",
     },
     "dx12": {
         "label": "Современная игра (DirectX 12)",
@@ -68,7 +68,7 @@ PRESETS = {
         "vkd3d": False,
         "env": {},
         "note": "Zapusk определит платформу по образу, поставит эмулятор и запустит. "
-                "Detects the platform from the image, installs the emulator and launches.",
+        "Detects the platform from the image, installs the emulator and launches.",
     },
     "java": {
         "label": "Java-игра (Minecraft и т.д.)",
@@ -77,7 +77,7 @@ PRESETS = {
         "vkd3d": False,
         "env": {},
         "note": "Запускается через системную Java (java -jar). Шейдеры/моды — настройки самой игры. "
-                "Runs via system Java; shaders/mods are the game's own settings.",
+        "Runs via system Java; shaders/mods are the game's own settings.",
     },
     "launcher": {
         "label": "Лаунчер (Epic / Origin / др.)",

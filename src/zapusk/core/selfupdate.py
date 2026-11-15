@@ -2,7 +2,11 @@
 """EN: self-update — check GitHub releases, download the right package for the
 detected distro, install via pkexec. RU: самообновление — проверка релизов,
 скачивание пакета под дистрибутив, установка через pkexec."""
-import json, urllib.request, pathlib, subprocess
+
+import json
+import pathlib
+import subprocess
+import urllib.request
 
 from zapusk import __version__
 from zapusk.core import distro as _distro
@@ -17,7 +21,9 @@ def latest():
         req = urllib.request.Request(url, headers=UA)
         with urllib.request.urlopen(req, timeout=15) as r:
             d = json.loads(r.read().decode())
-        return d["tag_name"], {a["name"]: a["browser_download_url"] for a in d.get("assets", [])}
+        return d["tag_name"], {
+            a["name"]: a["browser_download_url"] for a in d.get("assets", [])
+        }
     except Exception as e:
         return None, str(e)
 
@@ -33,6 +39,7 @@ def check():
 def download_and_install(progress=print):
     """EN: fetch the right package for this distro and install it. RU: скачать и установить."""
     import shutil as _sh
+
     tag, assets = latest()
     if not tag:
         return False, assets

@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """EN: prefix Time Machine — snapshot before risky changes, one-click rollback.
 RU: машина времени префикса — снапшот перед рискованными действиями, откат в клик."""
-import shutil, time
+
+import shutil
+import time
 
 from zapusk.core.util import DATA_DIR
 
@@ -17,8 +19,9 @@ def _snapdir(slug):
 
 def snapshot_prefix(game, progress=None):
     """EN: copy the game's prefix into a timestamped snapshot, prune old ones.
-       RU: копия префикса игры в снапшот с меткой времени, старые чистятся."""
+    RU: копия префикса игры в снапшот с меткой времени, старые чистятся."""
     from zapusk.core.prefix import prefix_path
+
     src = prefix_path(game["slug"], game.get("shared_prefix", False))
     if not src.exists():
         return None
@@ -48,6 +51,7 @@ def list_snapshots(game):
 def rollback(game, snap_name=None, progress=None):
     """EN: restore prefix from a snapshot (latest by default). RU: откат префикса из снапшота."""
     from zapusk.core.prefix import prefix_path
+
     snaps = list_snapshots(game)
     if not snaps:
         return False, "снапшотов нет"

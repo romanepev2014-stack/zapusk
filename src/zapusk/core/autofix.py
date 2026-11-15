@@ -3,21 +3,36 @@
 restart, repeat until the game runs. No other launcher does this.
 RU: Авто-лечение — поймать вылет, прочитать лог, применить нужный фикс,
 перезапустить, повторять, пока игра не заведётся. Больше ни у кого такого нет."""
-import os, re, time, pathlib
 
-from zapusk.core import runner, library
-from zapusk.core.util import LOGS_DIR
+import os
+import pathlib
+import re
+import time
+
+from zapusk.core import library, runner
 from zapusk.core.prefix import prefix_path, winetricks_install
 
 # EN: log signature -> (fix key, human description). Order matters.
 # RU: подпись в логе -> (ключ фикса, описание). Порядок важен.
 RULES = [
     (r"d3dx9", "d3dx9", "d3dx9 (DirectX 9 библиотеки)"),
-    (r"VCRUNTIME|MSVCP|vcruntime|msvcp", "vcrun2019", "Visual C++ 2015-2022 (vcrun2019)"),
+    (
+        r"VCRUNTIME|MSVCP|vcruntime|msvcp",
+        "vcrun2019",
+        "Visual C++ 2015-2022 (vcrun2019)",
+    ),
     (r"\.NET Framework|mscoree|Microsoft\.NET|CLR", "dotnet48", ".NET Framework 4.8"),
     (r"XAudio|xact|xaudio", "xact", "XAudio/Xact (звук)"),
-    (r"DXVK.*(fail|error)|failed to create.*[Vv]ulkan|vkCreate.*fail", "dxvk", "проблема DXVK/Vulkan"),
-    (r"out of memory|Out Of Memory|не хватает памяти", "laa", "нехватка памяти (Large Address Aware)"),
+    (
+        r"DXVK.*(fail|error)|failed to create.*[Vv]ulkan|vkCreate.*fail",
+        "dxvk",
+        "проблема DXVK/Vulkan",
+    ),
+    (
+        r"out of memory|Out Of Memory|не хватает памяти",
+        "laa",
+        "нехватка памяти (Large Address Aware)",
+    ),
 ]
 
 
@@ -26,11 +41,13 @@ def pick_fix(log_tail, applied):
     for pat, key, desc in RULES:
         if key in applied:
             continue
-        if re.search(pat, log_tail, re.I):
+        if re.search(pat, log_tail, re.IGNORECASE):
             return key, desc
     # EN: generic fallbacks. RU: запасные универсальные фики
-    for key, desc in (("fsync", "fsync (подозрение на падения futex2)"),
-                      ("wined3d", "откат DXVK на встроенный DirectX Wine (wined3d)")):
+    for key, desc in (
+        ("fsync", "fsync (подозрение на падения futex2)"),
+        ("wined3d", "откат DXVK на встроенный DirectX Wine (wined3d)"),
+    ):
         if key not in applied:
             return key, desc
     return None, None
@@ -38,9 +55,11 @@ def pick_fix(log_tail, applied):
 
 def apply_fix(key, game, progress=None):
     """EN: apply one fix to the game's prefix/settings. RU: применить один фикс."""
+
     def say(m):
         if progress:
             progress(m)
+
     slug = game["slug"]
     prefix = prefix_path(slug, game.get("shared_prefix", False))
     if key in ("d3dx9", "vcrun2019", "dotnet48", "xact"):
@@ -48,10 +67,12 @@ def apply_fix(key, game, progress=None):
         winetricks_install(prefix, [key])
     elif key == "dxvk":
         from zapusk.core import prefix as P
+
         say("   🧊 переустановка DXVK ...")
         P.install_dxvk(prefix)
     elif key == "wined3d":
         from zapusk.core import prefix as P
+
         say("   🍷 откат на wined3d (DXVK выключен для этой игры)")
         P.uninstall_dxvk(prefix)
         library.update(game["name"], {"_dxvk_off": True})
@@ -65,7 +86,7 @@ def apply_fix(key, game, progress=None):
 
 def _wait_alive(pid, timeout, progress=None):
     """EN: True if the process is still alive after `timeout` seconds.
-       RU: True, если процесс жив через timeout секунд."""
+    RU: True, если процесс жив через timeout секунд."""
     t = 0
     while t < timeout:
         try:
@@ -83,10 +104,12 @@ def _wait_alive(pid, timeout, progress=None):
 
 def run_with_autofix(game, timeout=90, tries=4, progress=None):
     """EN: launch -> monitor -> on crash read log -> fix -> relaunch. Returns (ok, applied fixes).
-       RU: запуск -> наблюдение -> при вылете читает лог -> чинит -> перезапускает."""
+    RU: запуск -> наблюдение -> при вылете читает лог -> чинит -> перезапускает."""
+
     def say(m):
         if progress:
             progress(m)
+
     applied = []
     for attempt in range(1, tries + 1):
         say(f"▶ Попытка {attempt}/{tries}: запускаю '{game['name']}'")
@@ -100,16 +123,23 @@ def run_with_autofix(game, timeout=90, tries=4, progress=None):
             return True, applied
         say(f"💀 Процесс умер через <{timeout} сек — читаю лог")
         try:
-            tail = "\n".join(pathlib.Path(lp).read_text(encoding="utf-8", errors="replace").splitlines()[-80:])
+            tail = "\n".join(
+                pathlib.Path(lp)
+                .read_text(encoding="utf-8", errors="replace")
+                .splitlines()[-80:]
+            )
         except OSError:
             tail = ""
         key, desc = pick_fix(tail, applied)
         if not key:
-            say("❌ В логе не нашёл знакомых ошибок — автолечение остановлено. Скинь лог разработчику.")
+            say(
+                "❌ В логе не нашёл знакомых ошибок — автолечение остановлено. Скинь лог разработчику."
+            )
             return False, applied
         say(f"🔧 Определил проблему: {desc}")
         if not applied:
             from zapusk.core import snapshots
+
             snapshots.snapshot_prefix(game, progress=say)
         applied.append(key)
         try:

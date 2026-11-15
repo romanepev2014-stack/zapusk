@@ -1,6 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os, shutil, pathlib
-from zapusk.core.util import run, which, DEFAULT_PREFIX, PREFIXES_DIR
+import os
+import pathlib
+import shutil
+
+from zapusk.core.util import DEFAULT_PREFIX, PREFIXES_DIR, run, which
+
 
 def prefix_path(slug: str, shared: bool):
     if shared:
@@ -9,6 +13,7 @@ def prefix_path(slug: str, shared: bool):
     p = PREFIXES_DIR / slug
     p.mkdir(parents=True, exist_ok=True)
     return p
+
 
 def wine_env(prefix: pathlib.Path, extra=None, debug=False):
     env = os.environ.copy()
@@ -20,39 +25,54 @@ def wine_env(prefix: pathlib.Path, extra=None, debug=False):
         env.update({k: v for k, v in extra.items() if v is not None})
     return env
 
+
 def wineboot(prefix: pathlib.Path, log=None):
     if not which("wine"):
         raise RuntimeError("wine не установлен. Запусти install_arch.sh")
     run(["wineboot", "-u"], env=wine_env(prefix), log=log)
 
+
 def set_winver(prefix: pathlib.Path, winver: str, log=None):
     if winver:
         run(["winecfg", "-v", winver], env=wine_env(prefix), log=log)
 
+
 def reg_add(prefix: pathlib.Path, key: str, value: str, data: str, log=None):
-    run(["wine", "reg", "add", key, "/v", value, "/d", data, "/f"],
-        env=wine_env(prefix), log=log)
+    run(
+        ["wine", "reg", "add", key, "/v", value, "/d", data, "/f"],
+        env=wine_env(prefix),
+        log=log,
+    )
+
 
 def _local_dxvk():
     """EN: find or download DXVK (for distros without a dxvk package).
-       RU: ищем или скачиваем DXVK (для дистрибутивов без пакета dxvk)."""
+    RU: ищем или скачиваем DXVK (для дистрибутивов без пакета dxvk)."""
     d = DATA_DIR / "dxvk"
     if (d / "x64").exists():
         return d
     from zapusk.core import runners
+
     try:
-        tag = runners.latest_dxvk()               # e.g. "v2.4.1"
+        tag = runners.latest_dxvk()  # e.g. "v2.4.1"
         ver = tag.lstrip("v")
         tmp = DATA_DIR / "dxvk.tar.gz"
-        runners.download_file(f"https://github.com/doitsujin/dxvk/releases/download/{tag}/dxvk-{ver}.tar.gz", tmp, None)
+        runners.download_file(
+            f"https://github.com/doitsujin/dxvk/releases/download/{tag}/dxvk-{ver}.tar.gz",
+            tmp,
+            None,
+        )
         import tarfile
+
         with tarfile.open(tmp, "r:gz") as tf:
             try:
                 tf.extractall(DATA_DIR, filter="data")
             except TypeError:
                 tf.extractall(DATA_DIR)
         tmp.unlink(missing_ok=True)
-        hits = sorted(pathlib.Path(DATA_DIR).glob("dxvk-*"), key=lambda p: p.stat().st_mtime)
+        hits = sorted(
+            pathlib.Path(DATA_DIR).glob("dxvk-*"), key=lambda p: p.stat().st_mtime
+        )
         for h in hits:
             if (h / "x64").exists() and h.name != "dxvk":
                 h.rename(d)
@@ -82,10 +102,12 @@ def install_dxvk(prefix: pathlib.Path, log=None):
         reg_add(prefix, "HKCU\\Software\\Wine\\DllOverrides", dll, "native", log)
     return True
 
+
 def uninstall_dxvk(prefix: pathlib.Path, log=None):
     setup = "/usr/share/dxvk/setup_dxvk.sh"
     if os.path.exists(setup):
         run(["bash", setup, "uninstall"], env=wine_env(prefix), log=log)
+
 
 def install_vkd3d(prefix: pathlib.Path, log=None):
     setup = "/usr/share/vkd3d-proton/setup_vkd3d_proton.sh"
@@ -102,6 +124,7 @@ def install_vkd3d(prefix: pathlib.Path, log=None):
     reg_add(prefix, "HKCU\\Software\\Wine\\DllOverrides", "d3d12", "native", log)
     reg_add(prefix, "HKCU\\Software\\Wine\\DllOverrides", "d3d12core", "native", log)
     return True
+
 
 def open_prefix(prefix: pathlib.Path):
     for fm in ("dolphin", "nautilus", "thunar", "pcmanfm", "xdg-open"):

@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-import json, os, pathlib
+import json
+import pathlib
+
 from zapusk.core.util import LIBRARY_FILE, ensure_dirs, slugify
+
 
 def load():
     ensure_dirs()
@@ -11,12 +14,17 @@ def load():
             return {"games": []}
     return {"games": []}
 
+
 def save(data):
     ensure_dirs()
-    LIBRARY_FILE.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+    LIBRARY_FILE.write_text(
+        json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
+    )
+
 
 def games():
     return load().get("games", [])
+
 
 def get(name):
     for g in games():
@@ -24,21 +32,32 @@ def get(name):
             return g
     return None
 
+
 def add(name, exe, preset, shared_prefix=True, args="", workdir=""):
     data = load()
     if any(g["name"] == name for g in data["games"]):
         raise ValueError(f"Игра '{name}' уже есть в библиотеке")
     g = {
-        "name": name, "slug": slugify(name), "exe": exe,
-        "preset": preset, "shared_prefix": shared_prefix,
-        "args": args, "workdir": workdir or str(pathlib.Path(exe).parent),
-        "gamemode": True, "mangohud": False, "fsync": True, "esync": True,
-        "dxvk_hud": False, "large_address": False, "debug": False,
+        "name": name,
+        "slug": slugify(name),
+        "exe": exe,
+        "preset": preset,
+        "shared_prefix": shared_prefix,
+        "args": args,
+        "workdir": workdir or str(pathlib.Path(exe).parent),
+        "gamemode": True,
+        "mangohud": False,
+        "fsync": True,
+        "esync": True,
+        "dxvk_hud": False,
+        "large_address": False,
+        "debug": False,
         "virtual_desktop": "",
     }
     data["games"].append(g)
     save(data)
     return g
+
 
 def update(name, fields):
     data = load()
@@ -49,21 +68,50 @@ def update(name, fields):
             return g
     raise KeyError(name)
 
+
 def remove(name):
     data = load()
     data["games"] = [g for g in data["games"] if g["name"] != name]
     save(data)
 
+
 def scan_folder(folder):
     """Найти подозрительно игровые .exe в папке (рекурсивно, без system32)."""
     found = []
-    skip = ("unins", "setup", "installer", "redist", "vcredist", "directx", "dotnet",
-            "socialclub", "activate", "crash", "report", "updater", "patch")
-    for p in list(pathlib.Path(folder).rglob("*.exe")) + list(pathlib.Path(folder).rglob("*.jar")) + \
-              list(pathlib.Path(folder).rglob("*.iso")) + list(pathlib.Path(folder).rglob("*.chd")) + \
-              list(pathlib.Path(folder).rglob("*.xex")) + list(pathlib.Path(folder).rglob("*.pkg")):
+    skip = (
+        "unins",
+        "setup",
+        "installer",
+        "redist",
+        "vcredist",
+        "directx",
+        "dotnet",
+        "socialclub",
+        "activate",
+        "crash",
+        "report",
+        "updater",
+        "patch",
+    )
+    for p in (
+        list(pathlib.Path(folder).rglob("*.exe"))
+        + list(pathlib.Path(folder).rglob("*.jar"))
+        + list(pathlib.Path(folder).rglob("*.iso"))
+        + list(pathlib.Path(folder).rglob("*.chd"))
+        + list(pathlib.Path(folder).rglob("*.xex"))
+        + list(pathlib.Path(folder).rglob("*.pkg"))
+    ):
         pl = str(p).lower()
-        if any(s in pl for s in ("windows/", "system32", "syswow64", "_commonredist", "__installer")):
+        if any(
+            s in pl
+            for s in (
+                "windows/",
+                "system32",
+                "syswow64",
+                "_commonredist",
+                "__installer",
+            )
+        ):
             continue
         try:
             size = p.stat().st_size

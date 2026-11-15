@@ -1,6 +1,8 @@
 """EN: app config (language, auto mode) in ~/.local/share/zapusk/config.json.
-   RU: конфиг приложения (язык, авто-режим) в ~/.local/share/zapusk/config.json."""
+RU: конфиг приложения (язык, авто-режим) в ~/.local/share/zapusk/config.json."""
+
 import json
+
 from zapusk.core.util import DATA_DIR, ensure_dirs
 
 CFG_FILE = DATA_DIR / "config.json"

@@ -3,7 +3,12 @@
 and plain folders; detect presets; skip games already in the library.
 RU: универсальный импорт — Steam, Heroic, Lutris, Bottles, GOG, itch и просто
 папки; автоопределение пресетов; без дублей."""
-import os, re, json, pathlib, sqlite3
+
+import json
+import os
+import pathlib
+import re
+import sqlite3
 
 from zapusk.core import library
 from zapusk.core.detect import detect_preset
@@ -12,8 +17,11 @@ from zapusk.core.detect import detect_preset
 def _exes(folder):
     """EN: best-guess main exe/jar of a game folder. RU: главный exe/jar папки игры."""
     try:
-        files = [p for p in pathlib.Path(folder).iterdir()
-                 if p.suffix.lower() in (".exe", ".jar") and p.is_file()]
+        files = [
+            p
+            for p in pathlib.Path(folder).iterdir()
+            if p.suffix.lower() in (".exe", ".jar") and p.is_file()
+        ]
     except OSError:
         return None
     if not files:
@@ -32,8 +40,11 @@ def _add(found, name, exe, preset, source):
 
 
 def from_steam(found, home, progress=None):
-    roots = [home / ".steam/steam", home / ".local/share/Steam",
-             home / ".var/app/com.valvesoftware.Steam/.local/share/Steam"]
+    roots = [
+        home / ".steam/steam",
+        home / ".local/share/Steam",
+        home / ".var/app/com.valvesoftware.Steam/.local/share/Steam",
+    ]
     scanned = 0
     wins = 0
     for root in roots:
@@ -58,17 +69,29 @@ def from_steam(found, home, progress=None):
                 exe = _exes(game_dir)
                 if exe:
                     wins += 1
-                    _add(found, game_dir.name, exe, detect_preset(exe, game_dir.name)[0], "Steam")
+                    _add(
+                        found,
+                        game_dir.name,
+                        exe,
+                        detect_preset(exe, game_dir.name)[0],
+                        "Steam",
+                    )
     if progress:
         progress(f"   папок игр в common: {scanned}, windows-версий (exe): {wins}")
         if scanned and not wins:
-            progress("   → у тебя Linux-версии игр, они и так нативные. Zapusk импортирует Windows-игры:")
-            progress("     включи в Steam: Свойства игры → Совместимость → Принудительно Proton")
+            progress(
+                "   → у тебя Linux-версии игр, они и так нативные. Zapusk импортирует Windows-игры:"
+            )
+            progress(
+                "     включи в Steam: Свойства игры → Совместимость → Принудительно Proton"
+            )
 
 
 def from_heroic(found, home):
-    for cfg in [home / ".config/heroic/installed.json",
-                home / ".var/app/com.heroicgameslauncher.hgl/config/heroic/installed.json"]:
+    for cfg in [
+        home / ".config/heroic/installed.json",
+        home / ".var/app/com.heroicgameslauncher.hgl/config/heroic/installed.json",
+    ]:
         try:
             data = json.loads(cfg.read_text(encoding="utf-8"))
         except (OSError, json.JSONDecodeError):
@@ -83,7 +106,13 @@ def from_heroic(found, home):
                 exe = info.get("executable") or _exes(folder)
                 name = info.get("title") or pathlib.Path(str(folder)).name
                 if exe and os.path.exists(str(exe)):
-                    _add(found, str(name), str(exe), detect_preset(str(exe), str(name))[0], "Heroic")
+                    _add(
+                        found,
+                        str(name),
+                        str(exe),
+                        detect_preset(str(exe), str(name))[0],
+                        "Heroic",
+                    )
 
 
 def from_lutris(found, home):
@@ -92,7 +121,9 @@ def from_lutris(found, home):
         return
     try:
         con = sqlite3.connect(str(db))
-        for name, directory in con.execute("SELECT name, directory FROM games WHERE directory IS NOT NULL"):
+        for name, directory in con.execute(
+            "SELECT name, directory FROM games WHERE directory IS NOT NULL"
+        ):
             if directory:
                 exe = _exes(directory)
                 if exe:
@@ -135,8 +166,13 @@ def from_folders(found, folders):
             _add(found, name, exe, detect_preset(exe, name)[0], "Папка")
 
 
-SOURCES = [("steam", from_steam), ("heroic", from_heroic), ("lutris", from_lutris),
-           ("bottles", from_bottles), ("gog", from_gog)]
+SOURCES = [
+    ("steam", from_steam),
+    ("heroic", from_heroic),
+    ("lutris", from_lutris),
+    ("bottles", from_bottles),
+    ("gog", from_gog),
+]
 
 
 def _wrap(fn):
@@ -145,6 +181,7 @@ def _wrap(fn):
             fn(found, home, progress)
         else:
             fn(found, home)
+
     return w
 
 

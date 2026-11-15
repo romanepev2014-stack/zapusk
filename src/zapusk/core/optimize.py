@@ -1,22 +1,31 @@
 """EN: System optimization helpers (governor, swappiness, shader caches, gamemode).
 RU: Оптимизация системы (губернатор CPU, swappiness, кэши шейдеров, gamemode)."""
+
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os, glob, subprocess, shutil
+import glob
+import os
+import shutil
+import subprocess
+
 from zapusk.core.util import host_prefix
 
 
 def governor_get():
     """EN: current CPU governor. RU: текущий губернатор CPU."""
     try:
-        return open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor").read().strip()
+        return (
+            open("/sys/devices/system/cpu/cpu0/cpufreq/scaling_governor").read().strip()
+        )
     except OSError:
         return None
 
 
 def governor_set_performance():
     """EN: set performance governor (needs root via pkexec outside). RU: performance-губернатор."""
-    cmd = ("for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; "
-           "do echo performance > $c; done")
+    cmd = (
+        "for c in /sys/devices/system/cpu/cpu*/cpufreq/scaling_governor; "
+        "do echo performance > $c; done"
+    )
     return subprocess.run(host_prefix() + ["pkexec", "sh", "-c", cmd]).returncode == 0
 
 
@@ -29,20 +38,30 @@ def swappiness_get():
 
 def swappiness_set(v: int = 10):
     """EN: lower swappiness -> less stutter in games. RU: меньше свопа -> меньше фризов."""
-    return subprocess.run(host_prefix() + ["pkexec", "sysctl", f"vm.swappiness={v}"]).returncode == 0
+    return (
+        subprocess.run(
+            host_prefix() + ["pkexec", "sysctl", f"vm.swappiness={v}"]
+        ).returncode
+        == 0
+    )
 
 
 def gamemode_active():
     """EN: is gamemoded user service running. RU: работает ли gamemoded."""
     if not shutil.which("gamemoded"):
         return False
-    r = subprocess.run(host_prefix() + ["systemctl", "--user", "is-active", "gamemoded"],
-                       capture_output=True, text=True)
+    r = subprocess.run(
+        host_prefix() + ["systemctl", "--user", "is-active", "gamemoded"],
+        capture_output=True,
+        text=True,
+    )
     return r.stdout.strip() == "active"
 
 
 def gamemode_enable():
-    subprocess.run(host_prefix() + ["systemctl", "--user", "enable", "--now", "gamemoded"])
+    subprocess.run(
+        host_prefix() + ["systemctl", "--user", "enable", "--now", "gamemoded"]
+    )
     return gamemode_active()
 
 

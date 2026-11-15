@@ -1,7 +1,10 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """EN: panic kill — terminate every process of a running game (wine/proton/exe).
 RU: паник-килл — убить все процессы запущенной игры (wine/proton/exe)."""
-import os, signal, pathlib
+
+import os
+import pathlib
+import signal
 
 
 def kill_game(game, prefix=None):

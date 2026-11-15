@@ -1,7 +1,12 @@
 """EN: Game auto-detection — PE import analysis + engine heuristics + offline DB.
 RU: Автоопределение игры — анализ импортов PE-файла + эвристики движка + офлайн-база."""
+
 # SPDX-License-Identifier: GPL-3.0-or-later
-import os, struct, pathlib, json, urllib.request, urllib.parse
+import json
+import pathlib
+import struct
+import urllib.parse
+import urllib.request
 
 
 # ============================================================
@@ -10,7 +15,7 @@ import os, struct, pathlib, json, urllib.request, urllib.parse
 # ============================================================
 def pe_info(exe_path: str):
     """EN: -> (machine, set_of_imported_dlls) or None on parse failure.
-       RU: -> (архитектура, множество импортированных dll) или None при ошибке."""
+    RU: -> (архитектура, множество импортированных dll) или None при ошибке."""
     try:
         data = open(exe_path, "rb").read()
     except OSError:
@@ -18,20 +23,20 @@ def pe_info(exe_path: str):
     if len(data) < 0x1000 or data[:2] != b"MZ":
         return None
     pe_off = struct.unpack_from("<I", data, 0x3C)[0]
-    if data[pe_off:pe_off + 4] != b"PE\0\0":
+    if data[pe_off : pe_off + 4] != b"PE\0\0":
         return None
-    machine = struct.unpack_from("<H", data, pe_off + 4)[0]   # 0x14C=x86, 0x8664=x64
+    machine = struct.unpack_from("<H", data, pe_off + 4)[0]  # 0x14C=x86, 0x8664=x64
     opt_size = struct.unpack_from("<H", data, pe_off + 20)[0]
     opt_off = pe_off + 24
     magic = struct.unpack_from("<H", data, opt_off)[0]
-    dd_off = opt_off + (96 if magic == 0x20B else 80)          # data directories
-    imp_rva, imp_size = struct.unpack_from("<II", data, dd_off + 8)   # dir #1 = import
+    dd_off = opt_off + (96 if magic == 0x20B else 80)  # data directories
+    imp_rva, imp_size = struct.unpack_from("<II", data, dd_off + 8)  # dir #1 = import
     nsec = struct.unpack_from("<H", data, pe_off + 6)[0]
     sec_off = opt_off + opt_size
     sections = []
     for i in range(nsec):
         off = sec_off + 40 * i
-        name = data[off:off + 8].rstrip(b"\0").decode(errors="replace")
+        name = data[off : off + 8].rstrip(b"\0").decode(errors="replace")
         vsize, vaddr, raw_size, raw_off = struct.unpack_from("<IIII", data, off + 8)
         sections.append((vaddr, max(vsize, raw_size), raw_off))
 
@@ -51,7 +56,7 @@ def pe_info(exe_path: str):
     if imp_rva:
         pos = rva2off(imp_rva)
         while pos and pos + 20 <= len(data):
-            desc = data[pos:pos + 20]
+            desc = data[pos : pos + 20]
             original, _, _, _, name_rva = struct.unpack("<IIIII", desc)
             if original == 0 and name_rva == 0:
                 break
@@ -65,24 +70,45 @@ def pe_info(exe_path: str):
 # RU: офлайн-база популярных игр (рус/англ имя -> пресет).
 # ============================================================
 GAME_DB = {
-    "gta5": "gta5", "gta 5": "gta5", "grand theft auto v": "gta5", "гта 5": "gta5",
-    "terraria": "dx9", "терария": "dx9",
-    "cyberpunk": "dx12", "cyberpunk 2077": "dx12", "киберпанк": "dx12",
-    "elden ring": "dx12", "эльден ринг": "dx12",
-    "witcher 3": "dx11", "ведьмак 3": "dx11",
-    "skyrim": "dx9", "скайрим": "dx9",
-    "stardew valley": "old", "стардью валлей": "old",
-    "hollow knight": "unity", "холлоу найт": "unity",
-    "hades": "dx11", "хейдес": "dx11",
-    "celeste": "old", "селеста": "old",
-    "undertale": "old", "андертейл": "old",
-    "hotline miami": "dx9", "хотлайн майами": "dx9",
-    "red dead redemption 2": "dx12", "ред дед 2": "dx12",
-    "baldur's gate 3": "dx11", "балдурс гейт 3": "dx11",
-    "sekiro": "dx11", "секиро": "dx11",
-    "doom eternal": "dx12", "doom 2016": "dx11",
-    "metro exodus": "dx12", "метро исход": "dx12",
-    "fallout 4": "dx11", "фоллаут 4": "dx11",
+    "gta5": "gta5",
+    "gta 5": "gta5",
+    "grand theft auto v": "gta5",
+    "гта 5": "gta5",
+    "terraria": "dx9",
+    "терария": "dx9",
+    "cyberpunk": "dx12",
+    "cyberpunk 2077": "dx12",
+    "киберпанк": "dx12",
+    "elden ring": "dx12",
+    "эльден ринг": "dx12",
+    "witcher 3": "dx11",
+    "ведьмак 3": "dx11",
+    "skyrim": "dx9",
+    "скайрим": "dx9",
+    "stardew valley": "old",
+    "стардью валлей": "old",
+    "hollow knight": "unity",
+    "холлоу найт": "unity",
+    "hades": "dx11",
+    "хейдес": "dx11",
+    "celeste": "old",
+    "селеста": "old",
+    "undertale": "old",
+    "андертейл": "old",
+    "hotline miami": "dx9",
+    "хотлайн майами": "dx9",
+    "red dead redemption 2": "dx12",
+    "ред дед 2": "dx12",
+    "baldur's gate 3": "dx11",
+    "балдурс гейт 3": "dx11",
+    "sekiro": "dx11",
+    "секиро": "dx11",
+    "doom eternal": "dx12",
+    "doom 2016": "dx11",
+    "metro exodus": "dx12",
+    "метро исход": "dx12",
+    "fallout 4": "dx11",
+    "фоллаут 4": "dx11",
     "nvidia": "dx11",
 }
 
@@ -141,11 +167,12 @@ def web_lookup(name: str):
 # ============================================================
 def detect_preset(exe_path: str, game_name: str = ""):
     """EN: -> (preset, reason) — best guess for a game.
-       RU: -> (пресет, причина) — лучшее предположение по игре."""
+    RU: -> (пресет, причина) — лучшее предположение по игре."""
     exe_path = str(exe_path)
     if exe_path.lower().endswith(".jar"):
         return "java", "Java-архив — нативный запуск / native Java launch"
     from zapusk.core import consoles
+
     plat, serial = consoles.detect_rom(exe_path)
     if plat:
         name = consoles.PLATFORMS[plat]["name"]
@@ -156,8 +183,11 @@ def detect_preset(exe_path: str, game_name: str = ""):
     dlls = dlls or set()
 
     # EN: engine hints from folder / RU: признаки движка по папке
-    is_unity = (folder / "UnityPlayer.dll").exists() or (folder / "GameAssembly.dll").exists() \
-               or any(folder.glob("*_Data/"))
+    is_unity = (
+        (folder / "UnityPlayer.dll").exists()
+        or (folder / "GameAssembly.dll").exists()
+        or any(folder.glob("*_Data/"))
+    )
     is_unreal = "-win64-shipping" in exe_path.lower() or (folder / "Engine").is_dir()
 
     # EN: DirectX from imports / RU: DirectX по импортам

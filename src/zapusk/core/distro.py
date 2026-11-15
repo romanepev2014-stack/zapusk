@@ -1,11 +1,12 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 """EN: distro/PM detection — Linux + FreeBSD. RU: определение дистрибутива и пакетного менеджера."""
-import platform, shutil
+
+import platform
 
 
 def detect():
     """EN: -> (distro_name, pm) — pm in pacman|apt|dnf|zypper|emerge|apk|xbps|pkg|None.
-       RU: -> (дистрибутив, пакетный менеджер) или (name, None) если неизвестен."""
+    RU: -> (дистрибутив, пакетный менеджер) или (name, None) если неизвестен."""
     if platform.system() == "FreeBSD":
         return ("freebsd", "pkg")
     info = {}
@@ -19,9 +20,17 @@ def detect():
     did = (info.get("ID") or "").lower()
     like = (info.get("ID_LIKE") or "").lower()
     name = info.get("NAME") or did or "linux"
-    for fam, pm in (("arch", "pacman"), ("debian", "apt"), ("ubuntu", "apt"),
-                    ("fedora", "dnf"), ("rhel", "dnf"), ("opensuse", "zypper"),
-                    ("gentoo", "emerge"), ("alpine", "apk"), ("void", "xbps")):
+    for fam, pm in (
+        ("arch", "pacman"),
+        ("debian", "apt"),
+        ("ubuntu", "apt"),
+        ("fedora", "dnf"),
+        ("rhel", "dnf"),
+        ("opensuse", "zypper"),
+        ("gentoo", "emerge"),
+        ("alpine", "apk"),
+        ("void", "xbps"),
+    ):
         if fam in did or fam in like:
             return (name, pm)
     return (name, None)
@@ -48,19 +57,68 @@ def pm_install_cmd(pm, pkgs):
 
 # EN: package names per distro family / RU: имена пакетов по семействам
 PKGS = {
-    "pacman": ["wine-staging", "winetricks", "vulkan-icd-loader", "lib32-vulkan-icd-loader",
-               "vulkan-tools", "gamemode", "lib32-gamemode", "mangohud", "lib32-mangohud",
-               "curl", "jq", "cabextract", "unzip", "p7zip"],
-    "apt": ["wine64", "wine32:i386", "winetricks", "vulkan-tools", "gamemode",
-            "mangohud", "curl", "jq", "cabextract", "unzip", "p7zip-full"],
-    "dnf": ["wine", "winetricks", "vulkan-tools", "gamemode", "mangohud",
-            "curl", "jq", "cabextract", "unzip", "p7zip"],
-    "zypper": ["wine", "winetricks", "vulkan-tools", "gamemode", "mangohud",
-               "curl", "jq", "cabextract", "unzip", "p7zip"],
+    "pacman": [
+        "wine-staging",
+        "winetricks",
+        "vulkan-icd-loader",
+        "lib32-vulkan-icd-loader",
+        "vulkan-tools",
+        "gamemode",
+        "lib32-gamemode",
+        "mangohud",
+        "lib32-mangohud",
+        "curl",
+        "jq",
+        "cabextract",
+        "unzip",
+        "p7zip",
+    ],
+    "apt": [
+        "wine64",
+        "wine32:i386",
+        "winetricks",
+        "vulkan-tools",
+        "gamemode",
+        "mangohud",
+        "curl",
+        "jq",
+        "cabextract",
+        "unzip",
+        "p7zip-full",
+    ],
+    "dnf": [
+        "wine",
+        "winetricks",
+        "vulkan-tools",
+        "gamemode",
+        "mangohud",
+        "curl",
+        "jq",
+        "cabextract",
+        "unzip",
+        "p7zip",
+    ],
+    "zypper": [
+        "wine",
+        "winetricks",
+        "vulkan-tools",
+        "gamemode",
+        "mangohud",
+        "curl",
+        "jq",
+        "cabextract",
+        "unzip",
+        "p7zip",
+    ],
     "apk": ["wine", "winetricks", "vulkan-tools", "curl", "unzip"],
     "xbps": ["wine", "winetricks", "vulkan-tools", "gamemode", "curl", "unzip"],
     "pkg": ["wine-devel", "winetricks", "vulkan-tools", "curl", "jq", "unzip"],
-    "emerge": ["app-emulation/wine-staging", "app-emulation/winetricks", "curl", "unzip"],
+    "emerge": [
+        "app-emulation/wine-staging",
+        "app-emulation/winetricks",
+        "curl",
+        "unzip",
+    ],
 }
 
 
