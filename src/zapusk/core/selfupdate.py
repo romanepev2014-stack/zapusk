@@ -1,18 +1,43 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
-"""EN: self-update — check GitHub releases, download the right package for the
-detected distro, install via pkexec. RU: самообновление — проверка релизов,
-скачивание пакета под дистрибутив, установка через pkexec."""
+"""
+EN: self-update — check GitHub releases, download the right package for the
+    detected distro, install via pkexec.
+RU: самообновление — проверка релизов,
+    скачивание пакета под дистрибутив, установка через pkexec.
+"""
 
 import json
+import os
 import pathlib
-import subprocess
+import shutil
+import sys
 import urllib.request
 
 from zapusk import __version__
-from zapusk.core import distro as _distro
 
 REPO = "romanepev2014-stack/zapusk"
+ASSET_NAME = "zapusk-linux-x86_64"
 UA = {"User-Agent": "zapusk-selfupdate"}
+
+def _parse_version(tag: str) -> tuple[int, ...]:
+    clean = tag.lstrip("v").split("-")[0]
+    parts = []
+    for part in clean.split("."):
+        try:
+            parts.append(int(part))
+        except ValueError:
+            parts.append(0)
+    return tuple(parts)
+
+
+def _target_binary() -> pathlib.Path | None:
+    """Return path to the installed binary if running as a compiled executable."""
+    if not getattr(sys, "frozen", False) and "__compiled__" not in globals():
+        which_bin = shutil.which("zapusk")
+        if which_bin:
+            return pathlib.Path(which_bin).resolve()
+        return None
+    return pathlib.Path(sys.executable).resolve()
 
 
 def latest():
@@ -28,56 +53,52 @@ def latest():
         return None, str(e)
 
 
-def check():
+def check() -> tuple[bool, str]:
     """EN: -> (newer: bool, info). RU: -> (есть ли новее, инфо)."""
     tag, assets = latest()
-    if not tag:
+    if not tag or isinstance(assets, str):
         return False, f"не удалось проверить: {assets}"
-    return tag.lstrip("v") > __version__, tag
+    return _parse_version(tag) > _parse_version(__version__), tag
 
 
-def download_and_install(progress=print):
-    """EN: fetch the right package for this distro and install it. RU: скачать и установить."""
-    import shutil as _sh
-
+def download_and_install(progress=print) -> tuple[bool, str]:
+    """EN: download the release binary and atomically replace the current one.
+    RU: скачать релизный бинарник и атомарно заменить текущий."""
     tag, assets = latest()
-    if not tag:
-        return False, assets
-    _, pm = _distro.detect()
-    if pm == "pacman":
-        pref = ".pkg.tar.zst"
-    elif pm == "apt":
-        pref = "_all.deb"
-    elif pm in ("dnf", "zypper"):
-        pref = ".noarch.rpm"
-    else:
-        pref = ".AppImage"
-    pick = next((n for n in assets if n.endswith(pref)), None)
-    if not pick:
-        pick = next((n for n in assets if n.endswith(".AppImage")), None)
-    if not pick:
-        return False, "подходящий пакет не найден в релизе"
-    url = assets[pick]
-    dest = pathlib.Path.home() / "Downloads" / pick
-    progress(f"⬇ скачиваю {pick} ...")
-    req = urllib.request.Request(url, headers=UA)
-    with urllib.request.urlopen(req, timeout=300) as r, open(dest, "wb") as f:
-        _sh.copyfileobj(r, f)
-    if pick.endswith(".AppImage"):
-        dest.chmod(0o755)
-        subprocess.Popen([str(dest)])
-        return True, f"AppImage запущен: {dest}"
-    if pick.endswith(".pkg.tar.zst"):
-        cmd = ["pkexec", "pacman", "-U", "--noconfirm", str(dest)]
-    elif pick.endswith(".deb"):
-        cmd = ["pkexec", "apt", "install", "-y", str(dest)]
-    elif pick.endswith(".rpm"):
-        cmd = ["pkexec", "dnf", "install", "-y", str(dest)]
-    else:
-        return False, "не знаю как установить"
-    progress("📦 установка (введи пароль) ...")
-    rc = subprocess.run(cmd).returncode
-    if rc == 0:
-        progress("✅ обновлено! Перезапусти Zapusk.")
-        return True, "ok"
-    return False, f"установка не удалась (код {rc})"
+    if not tag or isinstance(assets, str):
+        return False, str(assets)
+
+    url = assets.get(ASSET_NAME)
+    if not url:
+        return False, f"файл {ASSET_NAME} не найден в релизе {tag}"
+
+    target = _target_binary()
+    if not target:
+        return False, "запуск из исходников: обновите репозиторий через git pull && uv sync"
+
+    if str(target).startswith(("/usr/", "/opt/")):
+        return (
+            False,
+            f"установлено системно ({target}): обновите через пакетный менеджер (AUR / makepkg)",
+        )
+
+    if not os.access(target.parent, os.W_OK):
+        return False, f"нет прав на запись в {target.parent}"
+
+    tmp_path = target.with_name(f"{target.name}.new")
+    progress(f"⬇ скачиваю {ASSET_NAME} ({tag}) ...")
+
+    try:
+        req = urllib.request.Request(url, headers=UA)
+        with urllib.request.urlopen(req, timeout=300) as r, open(tmp_path, "wb") as f:
+            shutil.copyfileobj(r, f)
+
+        tmp_path.chmod(0o755)
+        os.replace(tmp_path, target)
+    except Exception as e:
+        if tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
+        return False, f"ошибка обновления: {e}"
+
+    progress(f"✅ обновлено до {tag}! Перезапусти Zapusk.")
+    return True, "ok"
