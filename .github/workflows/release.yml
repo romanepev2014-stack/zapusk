@@ -64,5 +64,12 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         uses: softprops/action-gh-release@v2
         with:
-          files: build/zapusk-linux-x86_64
-          generate_release_notes: true
+            files: build/zapusk-linux-x86_64
+            generate_release_notes: true
+            body: |
+                ### ⚡ Быстрый запуск (Linux x86_64)
+                ```bash
+                chmod +x zapusk-linux-x86_64
+                ./zapusk-linux-x86_64
+                ```
+                ---
