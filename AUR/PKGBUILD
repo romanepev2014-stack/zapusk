@@ -58,6 +58,6 @@ package() {
   python -m installer --destdir="$pkgdir" dist/*.whl
 
   install -Dm644 assets/zapusk.desktop "$pkgdir/usr/share/applications/zapusk.desktop"
-  install -Dm644 assets/icon.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zapusk.svg"
+  install -Dm644 assets/zapusk.svg "$pkgdir/usr/share/icons/hicolor/scalable/apps/zapusk.svg"
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 }
