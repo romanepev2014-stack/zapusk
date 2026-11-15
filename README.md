@@ -1,3 +1,8 @@
+
+Contributors
+Спасибо всем, кто помогает развивать ZAPUSK!
+@slntly — рефакторинг проекта, оптимизация структуры, система сборки и улучшение интерфейса.
+
 # 🎮 ZAPUSK 3.2
 
 **A game launcher for Linux & FreeBSD: drop a file in — Zapusk figures out what it is, installs everything and launches it.**
@@ -84,3 +89,4 @@ zapusk update              # self-update
 - **PS5** — no emulator exists; the honest path (streaming from your console via Chiaki) is built in
 - **Xbox One / Series** — no emulators
 - Written by a 12-year-old developer with an AI assistant. **GPL-3.0**: code always open
+
