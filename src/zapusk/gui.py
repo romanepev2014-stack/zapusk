@@ -3801,6 +3801,10 @@ class MainWindow(QMainWindow):
         """EN: check and self-update Zapusk. RU: проверить и установить обновление."""
         from zapusk.core import selfupdate
 
+        reason = selfupdate.unsupported_reason()
+        if reason:
+            QMessageBox.information(self, "Zapusk", reason)
+            return
         new, info = selfupdate.check()
         if not new:
             QMessageBox.information(
@@ -4060,6 +4064,10 @@ def run_gui():
     """EN: app entry — animated theme + neon window. RU: вход — тема и неоновое окно."""
     ensure_dirs()
     app = QApplication(sys.argv)
+    # EN: required for the window icon on Wayland/X11.
+    # RU: нужно для иконки окна в Wayland/X11.
+    app.setApplicationName("zapusk")
+    app.setDesktopFileName("zapusk")
     app.setFont(QFont("Noto Sans", 10))
     win = MainWindow()
     theme = win.theme
