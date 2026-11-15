@@ -68,13 +68,15 @@ done
 
 # --- 6. vulkan + игровой стек ---
 info "Vulkan и игровой стек..."
-pkg install -y vulkan-tools mesa-vulkan-drivers wine-devel winetricks gamemode || warn "часть не встала"
+pkg install -y vulkan-loader vulkan-tools wine-devel winetricks gamemode || warn "часть не встала"
 
 # --- 7. опционально: тюнинг ядра (Zen-стиль) ---
 if [ "${1:-}" = "--kernel" ]; then
-    if [ -d /usr/src/sys ]; then
+    ARCH=$(uname -m)
+    KERNCONF="/usr/src/sys/$ARCH/conf/ZAPUSK"
+    if [ -d "/usr/src/sys/$ARCH" ]; then
         info "Генерирую конфиг ядра ZAPUSK (include GENERIC + тюнинг)..."
-        cat > /usr/src/sys/amd64/conf/ZAPUSK <<'EOF'
+        cat > "$KERNCONF" <<'EOF'
 # Zapusk gaming kernel — включает GENERIC и добавляет тюнинг.
 # Собрать: cd /usr/src && make -j$(sysctl -n hw.ncpu) buildkernel KERNCONF=ZAPUSK
 #          make installkernel KERNCONF=ZAPUSK   (потом reboot)
@@ -93,12 +95,12 @@ nooptions KDB
 nooptions DDB
 nooptions GDB
 EOF
-        ok "Конфиг готов: /usr/src/sys/amd64/conf/ZAPUSK"
+        ok "Конфиг готов: $KERNCONF"
         info "Собираю ядро (это 30-60 минут)..."
         (cd /usr/src && make -j"$(sysctl -n hw.ncpu)" buildkernel KERNCONF=ZAPUSK && make installkernel KERNCONF=ZAPUSK) \
             && ok "Ядро установлено — перезагрузись" || warn "сборка не удалась — конфиг остался, попробуй вручную"
     else
-        warn "нет /usr/src — поставь исходники: pkg install -y src"
+        warn "нет /usr/src/sys/$ARCH — поставь исходники FreeBSD в /usr/src"
     fi
 fi
 
