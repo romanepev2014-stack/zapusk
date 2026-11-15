@@ -70,9 +70,13 @@ fi
 
 # EN: user-level Python deps only when not root (GUI already needs PySide6 to run)
 # RU: Python-зависимости ставим от юзера, не от рута (GUI и так требует PySide6)
-if [[ $EUID -ne 0 ]]; then
+if [[ $EUID -ne 0 ]] && ! python3 -c "import PySide6" 2>/dev/null; then
   info "Python deps / Python-зависимости..."
-  pip install --user -r requirements.txt 2>/dev/null || warn "pip failed / pip не сработал — GUI потребует PySide6"
+  if command -v uv >/dev/null 2>&1 && [[ -f "pyproject.toml" ]]; then
+    uv sync 2>/dev/null || warn "uv sync failed"
+  else
+    sudo pacman -S --needed --noconfirm python-pyside6 || warn "Install python-pyside6 manually / Поставь python-pyside6 вручную"
+  fi
 fi
 
 info "Vulkan check / Проверка Vulkan..."

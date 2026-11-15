@@ -73,8 +73,9 @@ case "$PM" in
 esac
 
 info "Vulkan check: $(vulkaninfo --summary 2>/dev/null | grep -m1 deviceName || echo 'reboot may be needed')"
-if [ "$PM" = "pkg" ] && [ -f scripts/fbsd_gaming_gpu.sh ]; then
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+if [ "$PM" = "pkg" ] && [ -f "$SCRIPT_DIR/fbsd_gaming_gpu.sh" ]; then
   info "FreeBSD: настраиваю GPU-драйверы под вашу карту..."
-  sh scripts/fbsd_gaming_gpu.sh || true
+  sh "$SCRIPT_DIR/fbsd_gaming_gpu.sh" || true
 fi
 info "Done! / Готово! DXVK подтянется сам при первой починке игры."
