@@ -17,13 +17,13 @@ DIST_NAME    := $(basename $(notdir $(ENTRY))).dist
 BIN_PATH     := $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME)
 ONEFILE_PATH := $(BUILD_DIR)/$(APP_NAME)
 
-NUITKA_FLAGS := \
-	--enable-plugin=pyside6       \
+NUITKA_FLAGS = \
+	--standalone \
+	--enable-plugin=pyside6 \
+	--include-package=zapusk \
 	--include-package-data=zapusk \
-	--output-dir=$(BUILD_DIR)     \
-	--output-filename=$(APP_NAME) \
-	--assume-yes-for-downloads    \
-	--show-progress
+	--output-dir=$(BUILD_DIR) \
+	--assume-yes-for-downloads
 
 .DEFAULT_GOAL := build
 
@@ -32,11 +32,13 @@ NUITKA_FLAGS := \
 build: onefile
 
 onefile:
-	$(PYTHON) -m nuitka --standalone --onefile $(NUITKA_FLAGS) $(ENTRY)
+	$(PYTHON) -m nuitka --onefile $(NUITKA_FLAGS) --output-filename=$(APP_NAME).bin $(ENTRY)
+	mv $(BUILD_DIR)/$(APP_NAME).bin $(ONEFILE_PATH)
 	chmod +x $(ONEFILE_PATH)
 
 standalone:
-	$(PYTHON) -m nuitka --standalone $(NUITKA_FLAGS) $(ENTRY)
+	$(PYTHON) -m nuitka $(NUITKA_FLAGS) --output-filename=$(APP_NAME).bin $(ENTRY)
+	mv $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME).bin $(BIN_PATH)
 	chmod +x $(BIN_PATH)
 
 run: standalone
@@ -58,7 +60,7 @@ uninstall:
 	rm -f $(APP_DIR)/$(APP_NAME).desktop
 	rm -f $(ICON_DIR)/$(APP_NAME).svg
 	-update-desktop-database $(APP_DIR) 2>/dev/null || true
-	@echo ">>> $(APP_NAME) uninstallled"
+	@echo ">>> $(APP_NAME) uninstalled"
 
 clean:
 	rm -rf $(BUILD_DIR)
