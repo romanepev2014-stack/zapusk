@@ -27,7 +27,7 @@ NUITKA_FLAGS = \
 
 .DEFAULT_GOAL := build
 
-.PHONY: build standalone onefile run install uninstall clean
+.PHONY: build standalone onefile run install uninstall clean freebsd-pkg
 
 build: onefile
 
@@ -61,6 +61,9 @@ uninstall:
 	rm -f $(ICON_DIR)/$(APP_NAME).svg
 	-update-desktop-database $(APP_DIR) 2>/dev/null || true
 	@echo ">>> $(APP_NAME) uninstalled"
+
+freebsd-pkg:
+	sh scripts/build_freebsd_pkg.sh
 
 clean:
 	rm -rf $(BUILD_DIR)
