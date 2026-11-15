@@ -36,7 +36,7 @@ def _add(found, name, exe, preset, source):
         return
     if library.get(name):
         return
-    found.append(dict(name=name, exe=exe, preset=preset, source=source))
+    found.append({"name": name, "exe": exe, "preset": preset, "source": source})
 
 
 def from_steam(found, home, progress=None):
@@ -97,7 +97,7 @@ def from_heroic(found, home):
         except (OSError, json.JSONDecodeError):
             continue
         for store in ("installed", "legendary", "gog"):
-            for app, info in (data.get(store) or {}).items():
+            for info in (data.get(store) or {}).values():
                 if not isinstance(info, dict):
                     continue
                 folder = info.get("install_path") or info.get("installPath")

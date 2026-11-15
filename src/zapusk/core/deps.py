@@ -48,7 +48,7 @@ def fix_game(prefix, preset_cfg, log=None, progress=None):
     verbs = preset_cfg.get("verbs", [])
     if verbs:
         say(f"Установка зависимостей: {', '.join(verbs)}  (это может занять время)")
-        rc, out = winetricks_install(prefix, verbs, log)
+        rc, _out = winetricks_install(prefix, verbs, log)
         if rc != 0:
             say(f"⚠ winetricks завершился с кодом {rc} — смотри лог")
 

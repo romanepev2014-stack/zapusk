@@ -11,6 +11,7 @@ import subprocess
 import urllib.request
 
 from zapusk.core import distro as _distro
+from zapusk.core.prefix import prefix_path
 from zapusk.core.util import DATA_DIR, host_prefix, which
 
 # ============================================================
@@ -102,12 +103,12 @@ def detect_rom(path):
 # RU: реестр эмуляторов: pm — пакеты, flatpak — реф, dl — скачивание с GitHub.
 # ============================================================
 PLATFORMS = {
-    "ps1": dict(
-        name="PlayStation 1",
-        emu="DuckStation",
-        pm={"pacman": ["duckstation-qt"], "apt": ["duckstation"]},
-        flatpak="org.duckstation.DuckStation",
-        launch=lambda rom: (
+    "ps1": {
+        "name": "PlayStation 1",
+        "emu": "DuckStation",
+        "pm": {"pacman": ["duckstation-qt"], "apt": ["duckstation"]},
+        "flatpak": "org.duckstation.DuckStation",
+        "launch": lambda rom: (
             (
                 [
                     which("duckstation-qt") or which("duckstation") or "flatpak",
@@ -119,13 +120,13 @@ PLATFORMS = {
             )
             + ["-fullscreen", rom]
         ),
-    ),
-    "ps2": dict(
-        name="PlayStation 2",
-        emu="PCSX2",
-        pm={"pacman": ["pcsx2"], "apt": ["pcsx2"], "dnf": ["pcsx2"]},
-        flatpak="net.pcsx2.PCSX2",
-        launch=lambda rom: (
+    },
+    "ps2": {
+        "name": "PlayStation 2",
+        "emu": "PCSX2",
+        "pm": {"pacman": ["pcsx2"], "apt": ["pcsx2"], "dnf": ["pcsx2"]},
+        "flatpak": "net.pcsx2.PCSX2",
+        "launch": lambda rom: (
             (
                 [
                     which("pcsx2-qt") or which("pcsx2") or "flatpak",
@@ -137,14 +138,14 @@ PLATFORMS = {
             )
             + ["-batch", "-fullscreen", rom]
         ),
-    ),
-    "ps3": dict(
-        name="PlayStation 3",
-        emu="RPCS3",
-        needs_fw=True,
-        pm={"pacman": ["rpcs3"], "apt": ["rpcs3"]},
-        flatpak="net.rpcs3.RPCS3",
-        launch=lambda rom: (
+    },
+    "ps3": {
+        "name": "PlayStation 3",
+        "emu": "RPCS3",
+        "needs_fw": True,
+        "pm": {"pacman": ["rpcs3"], "apt": ["rpcs3"]},
+        "flatpak": "net.rpcs3.RPCS3",
+        "launch": lambda rom: (
             (
                 [which("rpcs3") or "flatpak", "run", "net.rpcs3.RPCS3"]
                 if not which("rpcs3")
@@ -152,13 +153,13 @@ PLATFORMS = {
             )
             + ["--no-gui", rom]
         ),
-    ),
-    "psp": dict(
-        name="PSP",
-        emu="PPSSPP",
-        pm={"pacman": ["ppsspp"], "apt": ["ppsspp"], "dnf": ["ppsspp"]},
-        flatpak="org.ppsspp.PPSSPP",
-        launch=lambda rom: (
+    },
+    "psp": {
+        "name": "PSP",
+        "emu": "PPSSPP",
+        "pm": {"pacman": ["ppsspp"], "apt": ["ppsspp"], "dnf": ["ppsspp"]},
+        "flatpak": "org.ppsspp.PPSSPP",
+        "launch": lambda rom: (
             (
                 [
                     which("ppsspp-qt") or which("PPSSPPSDL") or "flatpak",
@@ -170,14 +171,14 @@ PLATFORMS = {
             )
             + [rom]
         ),
-    ),
-    "xbox": dict(
-        name="Original Xbox",
-        emu="xemu",
-        pm={},
-        flatpak="app.xemu.xemu",
-        dl=("xemu-project/xemu", "-x86_64.AppImage"),
-        launch=lambda rom: (
+    },
+    "xbox": {
+        "name": "Original Xbox",
+        "emu": "xemu",
+        "pm": {},
+        "flatpak": "app.xemu.xemu",
+        "dl": ("xemu-project/xemu", "-x86_64.AppImage"),
+        "launch": lambda rom: (
             (
                 [which("xemu") or "flatpak", "run", "app.xemu.xemu"]
                 if not which("xemu")
@@ -185,15 +186,15 @@ PLATFORMS = {
             )
             + ["-dvd_path", rom]
         ),
-    ),
-    "ps4": dict(
-        name="PlayStation 4",
-        emu="shadPS4",
-        needs_fw=True,
-        pm={"pacman": ["shadps4-git"]},
-        flatpak="net.shadps4.shadPS4",
-        dl=("shadPS4/shadPS4", ("-linux.zip", "-linux-x86_64.zip", "-linux.AppImage")),
-        launch=lambda rom: (
+    },
+    "ps4": {
+        "name": "PlayStation 4",
+        "emu": "shadPS4",
+        "needs_fw": True,
+        "pm": {"pacman": ["shadps4-git"]},
+        "flatpak": "net.shadps4.shadPS4",
+        "dl": ("shadPS4/shadPS4", ("-linux.zip", "-linux-x86_64.zip", "-linux.AppImage")),
+        "launch": lambda rom: (
             (
                 [which("shadps4") or "flatpak", "run", "net.shadps4.shadPS4"]
                 if not which("shadps4")
@@ -201,17 +202,17 @@ PLATFORMS = {
             )
             + [rom]
         ),
-    ),
-    "ps5": dict(name="PlayStation 5", emu="Chiaki (стрим)", stream=True, launch=None),
-    "x360": dict(
-        name="Xbox 360",
-        emu="Xenia (via Wine + DXVK)",
-        wine=True,
-        pm={},
-        flatpak=None,
-        dl=("xenia-canary/xenia-canary", "-windows.zip"),
-        launch=None,
-    ),  # особый путь — через wine-префикс
+    },
+    "ps5": {"name": "PlayStation 5", "emu": "Chiaki (стрим)", "stream": True, "launch": None},
+    "x360": {
+        "name": "Xbox 360",
+        "emu": "Xenia (via Wine + DXVK)",
+        "wine": True,
+        "pm": {},
+        "flatpak": None,
+        "dl": ("xenia-canary/xenia-canary", "-windows.zip"),
+        "launch": None,
+    },  # особый путь — через wine-префикс
 }
 
 XENIA_DIR = DATA_DIR / "xenia"
@@ -363,7 +364,7 @@ def setup_xenia(progress=print):
 def build_console_command(game, extra_env=None):
     """EN: -> (cmd, env) to launch a console game. RU: -> (команда, окружение)."""
     rom = game["exe"]
-    platform, serial = detect_rom(rom)
+    platform, _serial = detect_rom(rom)
     env = dict(os.environ)
     env.pop("WINEPREFIX", None)
     if game.get("mangohud") and which("mangohud"):

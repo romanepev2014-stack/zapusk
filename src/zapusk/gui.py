@@ -75,6 +75,7 @@ from PySide6.QtWidgets import (
 )
 
 from zapusk.core import i18n, library
+from zapusk.core.runner import launch
 
 _ = i18n.tr
 from zapusk.core.presets import PRESETS
@@ -982,8 +983,8 @@ class NeonFrame(QFrame):
             self._drops = []
         if not hasattr(self, "_cols"):
             self._cols = 0
-        sc = self._sc()
-        w, h = self.width(), self.height()
+        self._sc()
+        w, _h = self.width(), self.height()
         fs = 16
         cols = max(1, w // fs)
         if cols != self._cols:
@@ -1013,14 +1014,14 @@ class NeonFrame(QFrame):
         w, h = self.width(), self.height()
         if not getattr(self, "_petals", None):
             self._petals = [
-                dict(
-                    x=random.uniform(0, w),
-                    y=random.uniform(-h, 0),
-                    vy=random.uniform(0.6, 1.8),
-                    ph=random.uniform(0, 6.28),
-                    r=random.uniform(0, 360),
-                    s=random.uniform(4, 9),
-                )
+                {
+                    "x": random.uniform(0, w),
+                    "y": random.uniform(-h, 0),
+                    "vy": random.uniform(0.6, 1.8),
+                    "ph": random.uniform(0, 6.28),
+                    "r": random.uniform(0, 360),
+                    "s": random.uniform(4, 9),
+                }
                 for _ in range(24)
             ]
         for pt in self._petals:
@@ -1045,15 +1046,15 @@ class NeonFrame(QFrame):
             p.restore()
 
     def _cars_step(self):
-        w, h = self.width(), self.height()
+        w, _h = self.width(), self.height()
         if not getattr(self, "_cars", None):
             self._cars = [
-                dict(
-                    x=random.uniform(0, w),
-                    d=random.choice([-1, 1]),
-                    v=random.uniform(3.0, 5.5),
-                    lane=random.randint(0, 1),
-                )
+                {
+                    "x": random.uniform(0, w),
+                    "d": random.choice([-1, 1]),
+                    "v": random.uniform(3.0, 5.5),
+                    "lane": random.randint(0, 1),
+                }
                 for _ in range(7)
             ]
         for c in self._cars:
@@ -2013,21 +2014,21 @@ class GameDialog(QDialog):
         lay.addWidget(bb)
 
     def collect(self):
-        return dict(
-            exe=self.exe.text().strip() or self.game["exe"],
-            workdir=self.workdir.text().strip()
+        return {
+            "exe": self.exe.text().strip() or self.game["exe"],
+            "workdir": self.workdir.text().strip()
             or str(pathlib.Path(self.exe.text()).parent),
-            args=self.args.text(),
-            preset=self.preset.currentData(),
-            gamemode=self.gamemode.isChecked(),
-            mangohud=self.mhud.currentData(),
-            fsync=self.fsync.isChecked(),
-            esync=self.esync.isChecked(),
-            dxvk_hud=self.dxvk_hud.isChecked(),
-            debug=self.debug.isChecked(),
-            large_address=self.large_address.isChecked(),
-            virtual_desktop=self.vdesk.text().strip(),
-        )
+            "args": self.args.text(),
+            "preset": self.preset.currentData(),
+            "gamemode": self.gamemode.isChecked(),
+            "mangohud": self.mhud.currentData(),
+            "fsync": self.fsync.isChecked(),
+            "esync": self.esync.isChecked(),
+            "dxvk_hud": self.dxvk_hud.isChecked(),
+            "debug": self.debug.isChecked(),
+            "large_address": self.large_address.isChecked(),
+            "virtual_desktop": self.vdesk.text().strip(),
+        }
 
     def save(self):
         library.update(self.game["name"], self.collect())
@@ -2253,18 +2254,18 @@ class Splash(QWidget):
             delay = 0.15 + frac * 1.0 + (i % 7) * 0.02
             hue = i / max(n - 1, 1)  # EN: full rainbow / RU: вся радуга
             self._parts.append(
-                dict(
-                    sx=sx,
-                    sy=sy,
-                    tx=tx,
-                    ty=ty,
-                    delay=delay,
-                    bx=0.0,
-                    by=0.0,
-                    px=sx,
-                    py=sy,
-                    hue=hue,
-                )
+                {
+                    "sx": sx,
+                    "sy": sy,
+                    "tx": tx,
+                    "ty": ty,
+                    "delay": delay,
+                    "bx": 0.0,
+                    "by": 0.0,
+                    "px": sx,
+                    "py": sy,
+                    "hue": hue,
+                }
             )
 
     # ---------- lifecycle ----------
@@ -2331,7 +2332,7 @@ class Splash(QWidget):
         qp = QPainter(self)
         qp.setRenderHint(QPainter.Antialiasing)
         w, h = self.width(), self.height()
-        cx, cy = w / 2, h / 2
+        _cx, _cy = w / 2, h / 2
 
         # EN: starfield backdrop / RU: звёздный фон
         qp.drawPixmap(0, 0, self._bgpix)
@@ -2747,21 +2748,21 @@ class GameDialog(QDialog):
         lay.addWidget(bb)
 
     def collect(self):
-        return dict(
-            exe=self.exe.text().strip() or self.game["exe"],
-            workdir=self.workdir.text().strip()
+        return {
+            "exe": self.exe.text().strip() or self.game["exe"],
+            "workdir": self.workdir.text().strip()
             or str(pathlib.Path(self.exe.text()).parent),
-            args=self.args.text(),
-            preset=self.preset.currentData(),
-            gamemode=self.gamemode.isChecked(),
-            mangohud=self.mhud.currentData(),
-            fsync=self.fsync.isChecked(),
-            esync=self.esync.isChecked(),
-            dxvk_hud=self.dxvk_hud.isChecked(),
-            debug=self.debug.isChecked(),
-            large_address=self.large_address.isChecked(),
-            virtual_desktop=self.vdesk.text().strip(),
-        )
+            "args": self.args.text(),
+            "preset": self.preset.currentData(),
+            "gamemode": self.gamemode.isChecked(),
+            "mangohud": self.mhud.currentData(),
+            "fsync": self.fsync.isChecked(),
+            "esync": self.esync.isChecked(),
+            "dxvk_hud": self.dxvk_hud.isChecked(),
+            "debug": self.debug.isChecked(),
+            "large_address": self.large_address.isChecked(),
+            "virtual_desktop": self.vdesk.text().strip(),
+        }
 
     def save(self):
         library.update(self.game["name"], self.collect())
@@ -2987,18 +2988,18 @@ class Splash(QWidget):
             delay = 0.15 + frac * 1.0 + (i % 7) * 0.02
             hue = i / max(n - 1, 1)  # EN: full rainbow / RU: вся радуга
             self._parts.append(
-                dict(
-                    sx=sx,
-                    sy=sy,
-                    tx=tx,
-                    ty=ty,
-                    delay=delay,
-                    bx=0.0,
-                    by=0.0,
-                    px=sx,
-                    py=sy,
-                    hue=hue,
-                )
+                {
+                    "sx": sx,
+                    "sy": sy,
+                    "tx": tx,
+                    "ty": ty,
+                    "delay": delay,
+                    "bx": 0.0,
+                    "by": 0.0,
+                    "px": sx,
+                    "py": sy,
+                    "hue": hue,
+                }
             )
 
     # ---------- lifecycle ----------
@@ -4318,9 +4319,9 @@ class MainWindow(QMainWindow):
             "pkexec",
             "sh",
             "-c",
-            "pacman -Sy --needed --noconfirm dxvk; "
+            ("pacman -Sy --needed --noconfirm dxvk; "
             "pacman -S --needed --noconfirm vkd3d-proton || "
-            "pacman -S --needed --noconfirm vkd3d || true",
+            "pacman -S --needed --noconfirm vkd3d || true"),
         ]
         p = subprocess.Popen(cmd)
         p.wait()
@@ -4550,7 +4551,7 @@ class MainWindow(QMainWindow):
             != QMessageBox.Yes
         ):
             return
-        ok, msg = selfupdate.download_and_install(progress=lambda m: print(m))
+        _ok, msg = selfupdate.download_and_install(progress=lambda m: print(m))
         QMessageBox.information(self, "Zapusk", msg)
 
     def _lib_backup(self, export):

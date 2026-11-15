@@ -30,13 +30,13 @@ def pe_info(exe_path: str):
     opt_off = pe_off + 24
     magic = struct.unpack_from("<H", data, opt_off)[0]
     dd_off = opt_off + (96 if magic == 0x20B else 80)  # data directories
-    imp_rva, imp_size = struct.unpack_from("<II", data, dd_off + 8)  # dir #1 = import
+    imp_rva, _imp_size = struct.unpack_from("<II", data, dd_off + 8)  # dir #1 = import
     nsec = struct.unpack_from("<H", data, pe_off + 6)[0]
     sec_off = opt_off + opt_size
     sections = []
     for i in range(nsec):
         off = sec_off + 40 * i
-        name = data[off : off + 8].rstrip(b"\0").decode(errors="replace")
+        data[off : off + 8].rstrip(b"\0").decode(errors="replace")
         vsize, vaddr, raw_size, raw_off = struct.unpack_from("<IIII", data, off + 8)
         sections.append((vaddr, max(vsize, raw_size), raw_off))
 

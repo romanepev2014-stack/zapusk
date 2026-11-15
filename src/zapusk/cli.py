@@ -82,14 +82,14 @@ def cmd_run(a):
     if a.fix:
         from zapusk.core import autofix
 
-        ok, applied = autofix.run_with_autofix(g, progress=print)
+        ok, _applied = autofix.run_with_autofix(g, progress=print)
         return 0 if ok else 1
     from zapusk.core.runner import launch
 
     lp = launch(g)
     print(f"🚀 Запущено: {g['name']}")
     print(f"   Лог: {lp}")
-    print('   Если чёрный экран/вылет — смотри: python -m zapusk logs "%s"' % g["name"])
+    print('   Если чёрный экран/вылет — смотри: python -m zapusk logs "{}"'.format(g["name"]))
     return 0
 
 
@@ -162,6 +162,7 @@ def cmd_import(a):
 
 def cmd_export(a):
     import shutil
+
     from zapusk.core.util import LIBRARY_FILE
 
     shutil.copy(str(LIBRARY_FILE), a.path)
@@ -171,6 +172,7 @@ def cmd_export(a):
 
 def cmd_import_backup(a):
     import shutil
+
     from zapusk.core.util import LIBRARY_FILE, ensure_dirs
 
     ensure_dirs()
@@ -212,7 +214,7 @@ def cmd_update(a):
             f"У вас актуальная версия ({__import__('zapusk').__version__}). Инфо: {info}"
         )
         return 0
-    ok, msg = selfupdate.download_and_install(progress=print)
+    ok, _msg = selfupdate.download_and_install(progress=print)
     return 0 if ok else 1
 
 
@@ -220,7 +222,7 @@ def cmd_consoles(a):
     from zapusk.core import consoles
 
     print("🎮 Консольный режим / Console Mode\n")
-    for key, (name, state, note) in consoles.platform_status().items():
+    for (name, state, note) in consoles.platform_status().values():
         print(f"{name:16} {state}  {note}")
     print(
         "\nПоддержка: PS1-PS4 (shadPS4 экспериментально), PSP, Xbox, Xbox 360 (Wine+DXVK). PS5 — не существует."

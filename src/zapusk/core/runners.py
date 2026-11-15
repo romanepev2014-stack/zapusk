@@ -61,7 +61,7 @@ def installed_ge():
     hits = []
     for pl in places:
         hits += glob.glob(str(pl / "GE-Proton*"))
-    return pathlib.Path(sorted(hits)[-1]).name if hits else None
+    return pathlib.Path(max(hits)).name if hits else None
 
 
 def protonup_install(emit=print):

@@ -3,7 +3,7 @@ import os
 import pathlib
 import shutil
 
-from zapusk.core.util import DEFAULT_PREFIX, PREFIXES_DIR, run, which
+from zapusk.core.util import DATA_DIR, DEFAULT_PREFIX, PREFIXES_DIR, run, which
 
 
 def prefix_path(slug: str, shared: bool):

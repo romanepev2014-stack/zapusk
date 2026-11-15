@@ -40,7 +40,7 @@ def sniff_ps5_pkg(path):
     serial = m.group(1).decode() if m else None
     if not serial:
         return None
-    return dict(serial=serial, size=os.path.getsize(path))
+    return {"serial": serial, "size": os.path.getsize(path)}
 
 
 def parse_self_info(path):
@@ -56,11 +56,11 @@ def parse_self_info(path):
     if head[:4] != b"\x7fELF":
         return None
     ei = head[0x07]
-    info = dict(
-        elf_class="64-bit" if ei == 2 else "32-bit",
-        endian="little" if head[0x05] == 1 else "big",
-        type=__import__("struct").unpack("<H", head[0x10:0x12])[0],
-    )
+    info = {
+        "elf_class": "64-bit" if ei == 2 else "32-bit",
+        "endian": "little" if head[0x05] == 1 else "big",
+        "type": __import__("struct").unpack("<H", head[0x10:0x12])[0],
+    }
     # EN: Sony marks encrypted SELF files via proprietary header flags at
     #     e_flags / extended headers. Without keys we can only see the shell.
     # RU: Sony помечает шифрованные SELF флагами; без ключей видим лишь оболочку.
