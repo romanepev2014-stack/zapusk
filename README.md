@@ -30,7 +30,7 @@ Zapusk читает **сигнатуры образов** (серийники PS
 
 ### 🪐 Project Prospero — честный фундамент PS5
 
-PS5 — это x86-64 AMD, как ваш ПК: нужна прослойка (как Wine), а не эмуляция. Стена — Sony шифрует бинарники, публичных ключей нет. Что уже готово (`core/prospero.py`, PROSPERO.md): парсер PKG-контейнеров, каталог дампов по серийникам `PPSA`, черновик таблицы трансляции сисколов Orbis→Linux, Chiaki-стриминг. Когда стена падёт — Zapusk подхватит прослойку за один вечер.
+PS5 — это x86-64 AMD, как ваш ПК: нужна прослойка (как Wine), а не эмуляция. Стена — Sony шифрует бинарники, публичных ключей нет. Что уже готово (`src/zapusk/core/prospero.py`): парсер PKG-контейнеров, каталог дампов по серийникам `PPSA`, черновик таблицы трансляции сисколов Orbis→Linux, Chiaki-стриминг. Когда стена падёт — Zapusk подхватит прослойку за один вечер.
 
 ## 🧨 Фичи 3.0–3.2
 
@@ -40,7 +40,7 @@ PS5 — это x86-64 AMD, как ваш ПК: нужна прослойка (к
 - 🔮 **Оракул совместимости** — предупреждает до запуска об играх, которые не заведутся (Vanguard, GFWL и т.д.)
 - 💀 **Паник-килл** — мгновенно убивает зависшую игру целиком
 - 📊 **Оверлей как MSI Afterburner** — FPS, фреймтайм, CPU/GPU, RAM/VRAM (правая Shift+F12)
-- ⬆ **Самообновление** — кнопка в настройках качает пакет под ваш дистрибутив
+- ⬆ **Самообновление** — кнопка в настройках скачивает свежий бинарник из GitHub Releases
 
 ## 🐧 FreeBSD GPU Layer
 
@@ -52,25 +52,27 @@ PS5 — это x86-64 AMD, как ваш ПК: нужна прослойка (к
 
 ## ⚡ Как пользоваться
 
-1. Установите пакет под вашу систему (таблица ниже) или `./install.sh` — он определит дистрибутив
-2. Запустите `zapusk`
+1. Установите Zapusk любым удобным способом (таблица ниже)
+2. Запустите `zapusk` из терминала или меню приложений
 3. Перетащите в окно `.exe`, `.iso`, `.pkg` или папку с игрой
-4. «Починить и запустить» — всё остальное автоматически
+4. Нажмите «Починить и запустить» — всё остальное автоматически
 
 ## 📦 Установка
 
-| Система | Команда |
+| Способ / Система | Команда |
 |---|---|
-| Arch / Manjaro | `sudo pacman -U zapusk-3.2.0-1-any.pkg.tar.zst` |
-| Debian / Ubuntu / Mint | `sudo apt install ./zapusk_3.2.0_all.deb` |
-| Fedora / openSUSE | `sudo dnf install ./zapusk-3.2.0-1.noarch.rpm` |
-| Любой Linux | `./zapusk-3.2.0-x86_64.AppImage` |
-| FreeBSD | `pkg install wine-devel winetricks && sh install.sh` (+ `zapusk fbsdgpu`) |
-| Из исходников | `git clone ... && cd zapusk && python3 -m zapusk gui` |
+| **Готовый бинарник (любой Linux x86_64)** | Скачайте `zapusk-linux-x86_64` из [Releases](https://github.com/romanepev2014-stack/zapusk/releases), затем:<br>`chmod +x zapusk-linux-x86_64 && ./zapusk-linux-x86_64` |
+| **Arch Linux / Manjaro (AUR / PKGBUILD)** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk/AUR && makepkg -si` |
+| **Сборка и установка в `~/.local/bin`** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk && uv sync && make install` |
+| **Запуск из исходников (для разработки)** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk && uv sync && uv run zapusk gui` |
+| **FreeBSD** | `pkg install wine-devel winetricks uv && uv sync && uv run zapusk fbsdgpu` |
+
+Для удаления локальной установки выполните `make uninstall` в папке репозитория.
 
 ## 💻 CLI
 
 ```bash
+zapusk gui                 # запуск графического интерфейса
 zapusk doctor              # диагностика системы
 zapusk import              # импорт игр из Steam/Heroic/Lutris/Bottles/GOG
 zapusk consoles            # статус эмуляторов консолей

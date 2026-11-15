@@ -26,7 +26,7 @@ Emulators install themselves: package manager → flatpak → GitHub download. `
 
 ### 🪐 Project Prospero — honest PS5 groundwork
 
-The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Wine), not emulation. The wall: Sony encrypts binaries and no public keys exist. Already prepared (`core/prospero.py`, PROSPERO.md): PKG container parser, dump catalog by `PPSA` serials, a draft Orbis→Linux syscall translation table, Chiaki streaming. When the wall falls, Zapusk will adopt the layer in one evening.
+The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Wine), not emulation. The wall: Sony encrypts binaries and no public keys exist. Already prepared (`src/zapusk/core/prospero.py`): PKG container parser, dump catalog by `PPSA` serials, a draft Orbis→Linux syscall translation table, Chiaki streaming. When the wall falls, Zapusk will adopt the layer in one evening.
 
 ## 🧨 Features 3.0–3.2
 
@@ -36,7 +36,7 @@ The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Win
 - 🔮 **Compat oracle** — warns before launching unfixable games (Vanguard, GFWL...)
 - 💀 **Panic kill** — instantly terminates a frozen game
 - 📊 **MSI Afterburner-style overlay** — FPS, frametime, CPU/GPU, RAM/VRAM (right Shift+F12)
-- ⬆ **Self-update** — a button downloads the right package for your distro
+- ⬆ **Self-update** — a button in settings downloads the latest binary from GitHub Releases
 
 ## 🐧 FreeBSD GPU Layer
 
@@ -48,25 +48,27 @@ The PS5 is x86-64 AMD, same as your PC: it needs a compatibility layer (like Win
 
 ## ⚡ Usage
 
-1. Install the package for your system (table below) or run `./install.sh` — it detects your distro
-2. Run `zapusk`
+1. Install Zapusk using one of the methods below
+2. Run `zapusk` from your terminal or application menu
 3. Drag an `.exe`, `.iso`, `.pkg` or a game folder into the window
 4. Press **"Fix & Launch"** — everything else is automatic
 
 ## 📦 Install
 
-| System | Command |
+| Method / System | Command |
 |---|---|
-| Arch / Manjaro | `sudo pacman -U zapusk-3.2.0-1-any.pkg.tar.zst` |
-| Debian / Ubuntu / Mint | `sudo apt install ./zapusk_3.2.0_all.deb` |
-| Fedora / openSUSE | `sudo dnf install ./zapusk-3.2.0-1.noarch.rpm` |
-| Any Linux | `./zapusk-3.2.0-x86_64.AppImage` |
-| FreeBSD | `pkg install wine-devel winetricks && sh install.sh` (+ `zapusk fbsdgpu`) |
-| From source | `git clone ... && cd zapusk && python3 -m zapusk gui` |
+| **Prebuilt binary (any Linux x86_64)** | Download `zapusk-linux-x86_64` from [Releases](https://github.com/romanepev2014-stack/zapusk/releases), then:<br>`chmod +x zapusk-linux-x86_64 && ./zapusk-linux-x86_64` |
+| **Arch Linux / Manjaro (AUR / PKGBUILD)** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk/AUR && makepkg -si` |
+| **Build & install to `~/.local/bin`** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk && uv sync && make install` |
+| **Run from source (for development)** | `git clone https://github.com/romanepev2014-stack/zapusk.git && cd zapusk && uv sync && uv run zapusk gui` |
+| **FreeBSD** | `pkg install wine-devel winetricks uv && uv sync && uv run zapusk fbsdgpu` |
+
+To remove a local installation, run `make uninstall` inside the repository directory.
 
 ## 💻 CLI
 
 ```bash
+zapusk gui                 # launch the graphical interface
 zapusk doctor              # system diagnostics
 zapusk import              # import from Steam/Heroic/Lutris/Bottles/GOG
 zapusk consoles            # console emulator status
