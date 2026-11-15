@@ -14,7 +14,9 @@ VENV_BIN     := .venv/bin
 PYTHON       := $(if $(wildcard $(VENV_BIN)/python),$(VENV_BIN)/python,python3)
 
 DIST_NAME    := $(basename $(notdir $(ENTRY))).dist
-BIN_PATH     := $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME)
+# Nuitka also creates $(DIST_NAME)/$(APP_NAME)/ for package data, so the
+# standalone executable keeps its .bin suffix to avoid a name collision.
+BIN_PATH     := $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME).bin
 ONEFILE_PATH := $(BUILD_DIR)/$(APP_NAME)
 
 NUITKA_FLAGS = \
@@ -38,7 +40,6 @@ onefile:
 
 standalone:
 	$(PYTHON) -m nuitka $(NUITKA_FLAGS) --output-filename=$(APP_NAME).bin $(ENTRY)
-	mv $(BUILD_DIR)/$(DIST_NAME)/$(APP_NAME).bin $(BIN_PATH)
 	chmod +x $(BIN_PATH)
 
 run: standalone
