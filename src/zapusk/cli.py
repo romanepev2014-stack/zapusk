@@ -105,8 +105,8 @@ def cmd_logs(a):
         print("Лог не найден.")
         return 1
     lines = lp.read_text(encoding="utf-8", errors="replace").splitlines()
-    for l in lines[-(a.lines or 60) :]:
-        print(l)
+    for line in lines[-(a.lines or 60) :]:
+        print(line)
     return 0
 
 

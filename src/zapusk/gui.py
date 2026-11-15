@@ -75,11 +75,18 @@ from PySide6.QtWidgets import (
 )
 
 from zapusk.core import i18n, library
+from zapusk.core.prefix import open_prefix, prefix_path
+from zapusk.core.presets import PRESETS
 from zapusk.core.runner import launch
+from zapusk.core.util import (
+    DATA_DIR,
+    LOGS_DIR,
+    PREFIXES_DIR,
+    ensure_dirs,
+    host_prefix,
+)
 
 _ = i18n.tr
-from zapusk.core.presets import PRESETS
-from zapusk.core.util import DATA_DIR, LOGS_DIR, PREFIXES_DIR, ensure_dirs
 
 
 def _cfg(key, default=None):
@@ -93,9 +100,6 @@ def _cfg(key, default=None):
     except Exception:
         return default
 
-
-from zapusk.core.prefix import open_prefix, prefix_path
-from zapusk.core.util import host_prefix
 
 SCRIPTS_DIR = pathlib.Path(__file__).resolve().parent / "scripts"
 
@@ -470,12 +474,15 @@ WORLD_TWEAKS = {
 }
 
 
-PALETTES = [(n, d, l) for n, d, l in WORLDS]
+PALETTES = [(n, d, light) for n, d, light in WORLDS]
 
 
 def _lc(c1, c2, t):
     a, b = QColor(c1), QColor(c2)
-    f = lambda x, y: int(x + (y - x) * t)
+
+    def f(x, y):
+        return int(x + (y - x) * t)
+
     return QColor(f(a.red(), b.red()), f(a.green(), b.green()), f(a.blue(), b.blue()))
 
 
@@ -3612,13 +3619,13 @@ class MainWindow(QMainWindow):
         def panel(title, status_attr):
             f = QFrame()
             f.setObjectName("panel")
-            l = QVBoxLayout(f)
-            l.addWidget(QLabel(title))
+            box = QVBoxLayout(f)
+            box.addWidget(QLabel(title))
             lbl = QLabel("…")
             lbl.setWordWrap(True)
             setattr(self, status_attr, lbl)
-            l.addWidget(lbl)
-            return f, l
+            box.addWidget(lbl)
+            return f, box
 
         gov, gl = panel("🔥 " + _("Governor"), "gov_status")
         b = QPushButton("⚡ " + _("Enable Perf"))

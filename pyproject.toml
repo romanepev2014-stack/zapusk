@@ -24,3 +24,11 @@ zapusk = "zapusk.cli:main"
 [build-system]
 requires = ["uv_build>=0.13.8,<0.14.0"]
 build-backend = "uv_build"
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.ruff.lint]
+# Keep CI deterministic: use the stable core rules instead of every new rule
+# that a future Ruff release may add to its defaults.
+select = ["E4", "E7", "E9", "F"]

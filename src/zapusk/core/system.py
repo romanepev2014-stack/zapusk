@@ -41,9 +41,9 @@ def doctor():
         rc, out = run(["vulkaninfo", "--summary"])
         vk_ok = rc == 0
         if vk_ok:
-            for l in out.splitlines():
-                if "deviceName" in l:
-                    lines.append(f"    └─ {l.strip()}")
+            for line in out.splitlines():
+                if "deviceName" in line:
+                    lines.append(f"    └─ {line.strip()}")
                     break
         add("Vulkan работает", vk_ok, "проверь драйвер GPU и перезагрузись")
 
