@@ -19,6 +19,7 @@ REPO = "romanepev2014-stack/zapusk"
 ASSET_NAME = "zapusk-linux-x86_64"
 UA = {"User-Agent": "zapusk-selfupdate"}
 
+
 def _parse_version(tag: str) -> tuple[int, ...]:
     clean = tag.lstrip("v").split("-")[0]
     parts = []
@@ -83,7 +84,10 @@ def download_and_install(progress=print) -> tuple[bool, str]:
 
     target = _target_binary()
     if not target:
-        return False, "запуск из исходников: обновите репозиторий через git pull && uv sync"
+        return (
+            False,
+            "запуск из исходников: обновите репозиторий через git pull && uv sync",
+        )
 
     if str(target).startswith(("/usr/", "/opt/")):
         return (

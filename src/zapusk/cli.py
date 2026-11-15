@@ -89,7 +89,11 @@ def cmd_run(a):
     lp = launch(g)
     print(f"🚀 Запущено: {g['name']}")
     print(f"   Лог: {lp}")
-    print('   Если чёрный экран/вылет — смотри: python -m zapusk logs "{}"'.format(g["name"]))
+    print(
+        '   Если чёрный экран/вылет — смотри: python -m zapusk logs "{}"'.format(
+            g["name"]
+        )
+    )
     return 0
 
 
@@ -226,7 +230,7 @@ def cmd_consoles(a):
     from zapusk.core import consoles
 
     print("🎮 Консольный режим / Console Mode\n")
-    for (name, state, note) in consoles.platform_status().values():
+    for name, state, note in consoles.platform_status().values():
         print(f"{name:16} {state}  {note}")
     print(
         "\nПоддержка: PS1-PS4 (shadPS4 экспериментально), PSP, Xbox, Xbox 360 (Wine+DXVK). PS5 — не существует."

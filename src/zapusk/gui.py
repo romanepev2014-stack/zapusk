@@ -3584,9 +3584,11 @@ class MainWindow(QMainWindow):
             "pkexec",
             "sh",
             "-c",
-            ("pacman -Sy --needed --noconfirm dxvk; "
-            "pacman -S --needed --noconfirm vkd3d-proton || "
-            "pacman -S --needed --noconfirm vkd3d || true"),
+            (
+                "pacman -Sy --needed --noconfirm dxvk; "
+                "pacman -S --needed --noconfirm vkd3d-proton || "
+                "pacman -S --needed --noconfirm vkd3d || true"
+            ),
         ]
         p = subprocess.Popen(cmd)
         p.wait()
@@ -3660,7 +3662,9 @@ class MainWindow(QMainWindow):
         import pathlib
         import subprocess
 
-        script = pathlib.Path(__file__).resolve().parent / "scripts" / "fbsd_gaming_gpu.sh"
+        script = (
+            pathlib.Path(__file__).resolve().parent / "scripts" / "fbsd_gaming_gpu.sh"
+        )
         QMessageBox.information(
             self,
             "Zapusk",

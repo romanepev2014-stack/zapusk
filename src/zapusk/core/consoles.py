@@ -193,7 +193,10 @@ PLATFORMS = {
         "needs_fw": True,
         "pm": {"pacman": ["shadps4-git"]},
         "flatpak": "net.shadps4.shadPS4",
-        "dl": ("shadPS4/shadPS4", ("-linux.zip", "-linux-x86_64.zip", "-linux.AppImage")),
+        "dl": (
+            "shadPS4/shadPS4",
+            ("-linux.zip", "-linux-x86_64.zip", "-linux.AppImage"),
+        ),
         "launch": lambda rom: (
             (
                 [which("shadps4") or "flatpak", "run", "net.shadps4.shadPS4"]
@@ -203,7 +206,12 @@ PLATFORMS = {
             + [rom]
         ),
     },
-    "ps5": {"name": "PlayStation 5", "emu": "Chiaki (стрим)", "stream": True, "launch": None},
+    "ps5": {
+        "name": "PlayStation 5",
+        "emu": "Chiaki (стрим)",
+        "stream": True,
+        "launch": None,
+    },
     "x360": {
         "name": "Xbox 360",
         "emu": "Xenia (via Wine + DXVK)",
