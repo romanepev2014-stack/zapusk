@@ -1,0 +1,5 @@
+Zapusk sets up wine prefixes, installs DXVK/VKD3D and Windows dependencies
+automatically so any Windows game runs with one click.
+
+Features: 10 languages, 4 themes, any-distro support, game removal,
+FreeBSD Gaming Mode (bhyve + GPU passthrough + Looking Glass).

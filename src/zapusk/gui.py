@@ -4394,11 +4394,7 @@ class MainWindow(QMainWindow):
         import pathlib
         import subprocess
 
-        script = (
-            pathlib.Path(__file__).resolve().parent.parent.parent
-            / "scripts"
-            / "fbsd_gaming_gpu.sh"
-        )
+        script = pathlib.Path(__file__).resolve().parent / "scripts" / "fbsd_gaming_gpu.sh"
         QMessageBox.information(
             self,
             "Zapusk",
