@@ -208,6 +208,10 @@ def cmd_rollback(a):
 def cmd_update(a):
     from zapusk.core import selfupdate
 
+    reason = selfupdate.unsupported_reason()
+    if reason:
+        print(reason)
+        return 0
     new, info = selfupdate.check()
     if not new:
         print(
@@ -251,7 +255,7 @@ def cmd_gui(a):
 def main():
     ensure_dirs()
     p = argparse.ArgumentParser(
-        prog="zapusk", description="Лаунчер Windows-игр на Arch Linux"
+        prog="zapusk", description="Лаунчер Windows-игр на Linux и FreeBSD"
     )
     sub = p.add_subparsers(dest="cmd", required=False)
 

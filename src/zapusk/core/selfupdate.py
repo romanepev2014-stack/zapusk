@@ -30,6 +30,19 @@ def _parse_version(tag: str) -> tuple[int, ...]:
     return tuple(parts)
 
 
+def unsupported_reason() -> str | None:
+    """EN: self-update works on Linux only. FreeBSD updates come from pkg/git.
+    RU: автообновление есть только на Linux. На FreeBSD — через pkg или git."""
+    if sys.platform.startswith("freebsd"):
+        return "на FreeBSD проверка обновлений отключена — обновитесь через pkg или git pull"
+    if sys.platform != "linux":
+        return (
+            f"автообновление доступно только для Linux (текущая ОС: {sys.platform}); "
+            "обновитесь через git pull"
+        )
+    return None
+
+
 def _target_binary() -> pathlib.Path | None:
     """Return path to the compiled binary, or None when running from source."""
     if not getattr(sys, "frozen", False) and "__compiled__" not in globals():
@@ -52,6 +65,9 @@ def latest():
 
 def check() -> tuple[bool, str]:
     """EN: -> (newer: bool, info). RU: -> (есть ли новее, инфо)."""
+    reason = unsupported_reason()
+    if reason:
+        return False, reason
     tag, assets = latest()
     if not tag or isinstance(assets, str):
         return False, f"не удалось проверить: {assets}"
@@ -61,11 +77,9 @@ def check() -> tuple[bool, str]:
 def download_and_install(progress=print) -> tuple[bool, str]:
     """EN: download the release binary and atomically replace the current one.
     RU: скачать релизный бинарник и атомарно заменить текущий."""
-    if sys.platform != "linux":
-        return (
-            False,
-            f"автообновление доступно только для Linux-бинарника (текущая ОС: {sys.platform}); обновитесь через git pull",
-        )
+    reason = unsupported_reason()
+    if reason:
+        return False, reason
 
     target = _target_binary()
     if not target:
