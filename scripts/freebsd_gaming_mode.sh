@@ -21,7 +21,7 @@ fail()  { echo -e "\033[1;31m[GAMING-MODE]\033[0m $*"; exit 1; }
 
 # --- 0. только FreeBSD и root ---
 [ "$(uname -s)" = "FreeBSD" ] || fail "This script is FreeBSD-only / Скрипт только для FreeBSD"
-[ "$(id -u)" = "0" ] || fail "Run as root: sudo sh $0"
+[ "$(id -u)" = "0" ] || fail "Run as root: sudo bash $0"
 
 info "=== Zapusk FreeBSD Gaming Mode ==="
 info "FreeBSD $(freebsd-version)"
@@ -72,7 +72,9 @@ info "Network: VM will use tap0 + NAT via pf (see guide in README)"
 read -rp "Disk size for the Linux VM (default 120G): " SIZE
 SIZE="${SIZE:-120G}"
 VMNAME="zapusk-gaming"
-ZVOL="zroot/$VMNAME"
+POOL=$(zfs list -H -o name / 2>/dev/null | cut -d/ -f1)
+[ -n "$POOL" ] || fail "Root filesystem is not ZFS — cannot create a zvol / корень не ZFS"
+ZVOL="$POOL/$VMNAME"
 if zfs list "$ZVOL" >/dev/null 2>&1; then
     warn "zvol $ZVOL already exists, keeping it"
 else

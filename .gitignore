@@ -1,7 +1,27 @@
+# Python
 __pycache__/
-*.pyc
-*.pyo
-*.log
+*.py[cod]
+*$py.class
+*.egg-info/
+.venv/
+venv/
+env/
+
+nuitka-crash-report.xml
+
+.ruff_cache/
+
+# Nuitka & Build artifacts
 build/
 dist/
-*.egg-info/
+*.build/
+*.dist/
+*.onefile-build/
+*.bin
+*.exe
+*.so
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store

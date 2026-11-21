@@ -1,0 +1,34 @@
+[project]
+name = "zapusk"
+version = "3.2.0"
+description = "Cyberpunk launcher for Windows games on Linux (Wine + DXVK + VKD3D)"
+readme = "README.md"
+authors = [
+    { name = "romanepev", email = "romanepev2014@gmail.com" }
+]
+requires-python = ">=3.13"
+dependencies = [
+    "pyside6>=6.12.0",
+]
+
+[dependency-groups]
+dev = [
+    "nuitka>=4.3.5",
+    "ordered-set>=4.1.0",
+    "ruff>=0.11.0",
+]
+
+[project.scripts]
+zapusk = "zapusk.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13.8,<0.14.0"]
+build-backend = "uv_build"
+
+[tool.ruff]
+target-version = "py313"
+
+[tool.ruff.lint]
+# Keep CI deterministic: use the stable core rules instead of every new rule
+# that a future Ruff release may add to its defaults.
+select = ["E4", "E7", "E9", "F"]
